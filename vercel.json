@@ -4,6 +4,15 @@
   "installCommand": "npm install",
   "framework": "vite",
   "rewrites": [
+    { "source": "/.netlify/functions/analyze-application", "destination": "/api/ai?from=analyze-application" },
+    { "source": "/.netlify/functions/chat", "destination": "/api/ai?from=chat" },
+    { "source": "/.netlify/functions/generate-brief", "destination": "/api/ai?from=generate-brief" },
+    { "source": "/.netlify/functions/submit-application", "destination": "/api/applications?from=submit-application" },
+    { "source": "/.netlify/functions/check-application", "destination": "/api/applications?from=check-application" },
+    { "source": "/.netlify/functions/delete-application", "destination": "/api/applications?from=delete-application" },
+    { "source": "/.netlify/functions/update-application-status", "destination": "/api/applications?from=update-application-status" },
+    { "source": "/.netlify/functions/send-booking-confirmation", "destination": "/api/emails?from=send-booking-confirmation" },
+    { "source": "/.netlify/functions/send-welcome-email", "destination": "/api/emails?from=send-welcome-email" },
     {
       "source": "/.netlify/functions/(.*)",
       "destination": "/api/$1"
