@@ -1,5 +1,5 @@
-import { supabase } from "./_lib/supabase-client";
-import { prisma } from "./_lib/prisma";
+import { getSupabase } from "./_lib/supabase-client";
+import { getPrisma } from "./_lib/prisma";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
@@ -16,7 +16,7 @@ async function handleSubmit(request: Request) {
     }
     const email = application.user_email.toLowerCase().trim();
     const userName = sanitize(application.user_name || 'Applicant');
-    const recent = await prisma.applications.findMany({
+    const recent = await getPrisma().applications.findMany({
       where: { userEmail: email },
       orderBy: { createdAt: 'desc' },
       take: 1,
@@ -30,7 +30,7 @@ async function handleSubmit(request: Request) {
       }
     }
     const { user_email, mentor_type, status, id, created_at, ...responses } = application;
-    await prisma.applications.create({
+    await getPrisma().applications.create({
       data: {
         userEmail: email,
         mentorType: application.mentor_type,
@@ -45,7 +45,7 @@ async function handleSubmit(request: Request) {
     });
     if (process.env.RESEND_API_KEY) {
       try {
-        const template = await prisma.email_templates.findUnique({
+        const template = await getPrisma().email_templates.findUnique({
           where: { id: 'application_submitted' },
           select: { subject: true, body: true },
         });
@@ -79,7 +79,7 @@ async function handleCheck(request: Request) {
   try {
     const { email } = await request.json();
     if (!email) return Response.json({ error: "Missing email" }, { status: 400 });
-    const application = await prisma.applications.findUnique({
+    const application = await getPrisma().applications.findUnique({
       where: { userEmail: email.toLowerCase().trim() },
       select: { status: true },
     });
@@ -94,9 +94,9 @@ async function handleDelete(request: Request) {
   try {
     const token = request.headers.get("authorization")?.split(" ")[1];
     if (!token) return Response.json({ error: "Unauthorized" }, { status: 401 });
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: authError } = await getSupabase().auth.getUser(token);
     if (authError || !user) return Response.json({ error: "Invalid token" }, { status: 401 });
-    const profile = await prisma.profiles.findUnique({
+    const profile = await getPrisma().profiles.findUnique({
       where: { id: user.id },
       select: { role: true },
     });
@@ -106,21 +106,21 @@ async function handleDelete(request: Request) {
     const url = new URL(request.url);
     const id = url.searchParams.get("id");
     if (!id) return Response.json({ error: "Missing ID" }, { status: 400 });
-    const application = await prisma.applications.findUnique({
+    const application = await getPrisma().applications.findUnique({
       where: { id },
       select: { userEmail: true },
     });
     if (!application) return Response.json({ error: "Application not found" }, { status: 404 });
     const email = application.userEmail.toLowerCase().trim();
-    const targetProfile = await prisma.profiles.findUnique({
+    const targetProfile = await getPrisma().profiles.findUnique({
       where: { email },
       select: { id: true },
     });
     if (targetProfile) {
-      const { error: authDeleteError } = await supabase.auth.admin.deleteUser(targetProfile.id);
+      const { error: authDeleteError } = await getSupabase().auth.admin.deleteUser(targetProfile.id);
       if (authDeleteError) console.error("Auth Delete Error:", authDeleteError);
     }
-    await prisma.applications.delete({ where: { id } });
+    await getPrisma().applications.delete({ where: { id } });
     return Response.json({ message: "Mentee and application deleted successfully" });
   } catch (error: any) {
     console.error("Delete Error:", error);
@@ -132,9 +132,9 @@ async function handleUpdateStatus(request: Request) {
   try {
     const token = request.headers.get("authorization")?.split(' ')[1];
     if (!token) return Response.json({ error: "Unauthorized: Missing token" }, { status: 401 });
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: authError } = await getSupabase().auth.getUser(token);
     if (authError || !user) return Response.json({ error: "Unauthorized: Invalid token" }, { status: 401 });
-    const profile = await prisma.profiles.findUnique({
+    const profile = await getPrisma().profiles.findUnique({
       where: { id: user.id },
       select: { role: true, fullName: true },
     });
@@ -145,12 +145,12 @@ async function handleUpdateStatus(request: Request) {
     if (!id || !status || !['approved', 'rejected', 'pending'].includes(status)) {
       return Response.json({ error: "Invalid parameters" }, { status: 400 });
     }
-    const application = await prisma.applications.findUnique({
+    const application = await getPrisma().applications.findUnique({
       where: { id },
       select: { userEmail: true, mentorType: true, responses: true },
     });
     if (!application) return Response.json({ error: "Application not found" }, { status: 404 });
-    await prisma.applications.update({ where: { id }, data: { status } });
+    await getPrisma().applications.update({ where: { id }, data: { status } });
     if (process.env.RESEND_API_KEY && (status === 'approved' || status === 'rejected')) {
       try {
         const templateId = status === 'approved' ? 'application_accepted' : 'application_rejected';
@@ -158,7 +158,7 @@ async function handleUpdateStatus(request: Request) {
         const studentName = responses?.user_name || 'Applicant';
         const mentorName = profile.fullName || 'Mentorino';
         const programName = application.mentorType || responses?.mentor_type || 'the Mentorino program';
-        const template = await prisma.email_templates.findUnique({
+        const template = await getPrisma().email_templates.findUnique({
           where: { id: templateId },
           select: { subject: true, body: true },
         });

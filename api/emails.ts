@@ -1,4 +1,4 @@
-import { prisma } from "./_lib/prisma";
+import { getPrisma } from "./_lib/prisma";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
@@ -15,7 +15,7 @@ async function handleBookingConfirmation(request: Request) {
     const userName = booking.user_name || 'Mentee';
     if (process.env.RESEND_API_KEY) {
       try {
-        const template = await prisma.email_templates.findUnique({
+        const template = await getPrisma().email_templates.findUnique({
           where: { id: 'booking_confirmed' },
           select: { subject: true, body: true },
         });
@@ -53,7 +53,7 @@ async function handleWelcome(request: Request) {
     const userName = name || 'Member';
     if (process.env.RESEND_API_KEY) {
       try {
-        const template = await prisma.email_templates.findUnique({
+        const template = await getPrisma().email_templates.findUnique({
           where: { id: 'welcome_email' },
           select: { subject: true, body: true },
         });

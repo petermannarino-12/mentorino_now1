@@ -1,4 +1,4 @@
-import { prisma } from "./_lib/prisma";
+import { getPrisma } from "./_lib/prisma";
 
 export async function POST(request: Request) {
   try {
@@ -7,7 +7,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const data = await prisma.reviews.create({
+    const data = await getPrisma().reviews.create({
       data: {
         reviewerName: body.reviewer_name,
         reviewerEmail: body.reviewer_email,

@@ -1,5 +1,5 @@
-import { supabase } from "./_lib/supabase-client";
-import { prisma } from "./_lib/prisma";
+import { getSupabase } from "./_lib/supabase-client";
+import { getPrisma } from "./_lib/prisma";
 
 function mapTaskActivity(t: any) {
   return {
@@ -51,7 +51,7 @@ function toPrismaTask(b: any) {
 async function getUser(request: Request) {
   const token = request.headers.get("authorization")?.split(" ")[1];
   if (!token) return null;
-  const { data: { user }, error } = await supabase.auth.getUser(token);
+  const { data: { user }, error } = await getSupabase().auth.getUser(token);
   if (error || !user) return null;
   return user;
 }
@@ -66,7 +66,7 @@ export async function GET(request: Request) {
   const to = parseInt(url.searchParams.get("to") || "49");
 
   const where = userId ? { userId } : {};
-  const data = await prisma.task_activities.findMany({
+  const data = await getPrisma().task_activities.findMany({
     where,
     orderBy: { createdAt: "desc" },
     skip: from,
@@ -83,14 +83,14 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   if (body.id) {
-    const data = await prisma.task_activities.update({
+    const data = await getPrisma().task_activities.update({
       where: { id: body.id },
       data: toPrismaTask(body),
     });
     return Response.json(mapTaskActivity(data));
   }
 
-  const data = await prisma.task_activities.create({
+  const data = await getPrisma().task_activities.create({
     data: {
       userId: body.user_id || user.id,
       userName: body.user_name || "",

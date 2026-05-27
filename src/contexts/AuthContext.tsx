@@ -37,7 +37,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (!res.ok) {
-        console.warn('No profile found for authenticated user. Account may have been revoked.');
+        const body = await res.text().catch(() => '');
+        console.warn('Profile fetch failed:', res.status, body);
         await supabase.auth.signOut();
         setUser(null);
         setRole('visitor');

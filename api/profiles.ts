@@ -1,5 +1,5 @@
-import { supabase } from "./_lib/supabase-client";
-import { prisma } from "./_lib/prisma";
+import { getSupabase } from "./_lib/supabase-client";
+import { getPrisma } from "./_lib/prisma";
 
 function mapProfile(p: any) {
   return {
@@ -20,7 +20,7 @@ function mapProfile(p: any) {
 async function getUser(request: Request) {
   const token = request.headers.get("authorization")?.split(" ")[1];
   if (!token) return null;
-  const { data: { user }, error } = await supabase.auth.getUser(token);
+  const { data: { user }, error } = await getSupabase().auth.getUser(token);
   if (error || !user) return null;
   return user;
 }
@@ -34,12 +34,12 @@ export async function GET(request: Request) {
     const limit = url.searchParams.get("limit");
 
     if (limit) {
-      const profiles = await prisma.profiles.findMany({ take: parseInt(limit) || 50 });
+      const profiles = await getPrisma().profiles.findMany({ take: parseInt(limit) || 50 });
       return Response.json(profiles.map(mapProfile));
     }
 
     const id = url.searchParams.get("id") || user.id;
-    const profile = await prisma.profiles.findUnique({ where: { id } });
+    const profile = await getPrisma().profiles.findUnique({ where: { id } });
     if (!profile) return Response.json({ error: "Profile not found" }, { status: 404 });
 
     return Response.json(profile ? mapProfile(profile) : null);
@@ -61,7 +61,7 @@ export async function PATCH(request: Request) {
       return Response.json({ error: "Missing milestones" }, { status: 400 });
     }
 
-    const profile = await prisma.profiles.update({
+    const profile = await getPrisma().profiles.update({
       where: { id: user.id },
       data: { milestones },
     });

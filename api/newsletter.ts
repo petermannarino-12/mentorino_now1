@@ -1,4 +1,4 @@
-import { prisma } from "./_lib/prisma";
+import { getPrisma } from "./_lib/prisma";
 
 export async function POST(request: Request) {
   try {
@@ -7,7 +7,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "Missing email" }, { status: 400 });
     }
 
-    await prisma.newsletter_subscribers.create({
+    await getPrisma().newsletter_subscribers.create({
       data: { email: body.email.toLowerCase().trim() },
     });
 

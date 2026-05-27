@@ -1,4 +1,4 @@
-import { prisma } from "./_lib/prisma";
+import { getPrisma } from "./_lib/prisma";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const normalizedEmail = email.toLowerCase().trim();
 
     const fiveMinAgo = new Date(Date.now() - RATE_LIMIT_WINDOW_MS);
-    const count = await prisma.contact_messages.count({
+    const count = await getPrisma().contact_messages.count({
       where: {
         email: normalizedEmail,
         createdAt: { gte: fiveMinAgo },
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "Too many submissions. Please wait a few minutes before trying again." }, { status: 429 });
     }
 
-    await prisma.contact_messages.create({
+    await getPrisma().contact_messages.create({
       data: {
         name: sanitize(name).slice(0, 255),
         email: normalizedEmail,
