@@ -1,25 +1,20 @@
-import { Handler } from "@netlify/functions";
-import { prisma } from "../_shared/prisma";
+import { prisma } from "./_lib/prisma";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admissions@mentorino.me';
-const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
 const MAX_SUBMISSIONS = 3;
 const sanitize = (str: string) => str.replace(/[<>]/g, "").trim();
 
-export const handler: Handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-
+export async function POST(request: Request) {
   try {
-    const body = JSON.parse(event.body || "{}");
+    const body = await request.json();
     const { name, email, phone, subject, message } = body;
 
     if (!name || !email || !message) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Missing required fields" }) };
+      return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
@@ -33,10 +28,7 @@ export const handler: Handler = async (event) => {
     });
 
     if (count >= MAX_SUBMISSIONS) {
-      return {
-        statusCode: 429,
-        body: JSON.stringify({ error: "Too many submissions. Please wait a few minutes before trying again." }),
-      };
+      return Response.json({ error: "Too many submissions. Please wait a few minutes before trying again." }, { status: 429 });
     }
 
     await prisma.contact_messages.create({
@@ -49,7 +41,6 @@ export const handler: Handler = async (event) => {
       },
     });
 
-    // Send admin notification (non-blocking)
     if (process.env.RESEND_API_KEY) {
       try {
         await resend.emails.send({
@@ -67,15 +58,9 @@ export const handler: Handler = async (event) => {
       }
     }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: "Message sent successfully" }),
-    };
+    return Response.json({ message: "Message sent successfully" });
   } catch (error: any) {
     console.error("Contact Error:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error" }),
-    };
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
-};
+}

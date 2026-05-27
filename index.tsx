@@ -24,7 +24,7 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <HelmetProvider>
-      <Sentry.ErrorBoundary fallback={ErrorFallback}>
+      <Sentry.ErrorBoundary fallback={(props) => <ErrorFallback {...props} />}>
         <QueryProvider>
           <AuthProvider>
             <PostHogProvider client={posthog}>

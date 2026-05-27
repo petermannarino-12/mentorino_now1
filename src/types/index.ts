@@ -12,7 +12,8 @@ export interface NetworkEvent {
   date: string;
   time: string;
   location: string;
-  attendees: string[]; // user ids
+  attendees: string[];
+  type?: string;
   created_at: string;
 }
 

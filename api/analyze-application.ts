@@ -1,6 +1,5 @@
-import { Handler } from "@netlify/functions";
 import { GoogleGenAI, Type } from "@google/genai";
-import { aiAnalyzeApplicationSchema } from "../../src/schemas/ai.schema.js";
+import { aiAnalyzeApplicationSchema } from "../src/schemas/ai.schema.js";
 
 const sanitize = (val: any): string => {
   if (val === null || val === undefined) return "Not provided";
@@ -8,28 +7,25 @@ const sanitize = (val: any): string => {
   return str.slice(0, 500).trim();
 };
 
-export const handler: Handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
-
+export async function POST(request: Request) {
   let body: any;
   try {
-    body = JSON.parse(event.body || '{}');
+    body = await request.json();
   } catch {
-    return { statusCode: 400, body: JSON.stringify({ error: "Invalid JSON" }) };
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
+
   try {
     aiAnalyzeApplicationSchema.parse(body);
   } catch (zodError: any) {
-    return { statusCode: 400, body: JSON.stringify({ error: "Validation failed", details: zodError.errors }) };
+    return Response.json({ error: "Validation failed", details: zodError.errors }, { status: 400 });
   }
 
   try {
     const { application } = body;
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return { statusCode: 500, body: JSON.stringify({ error: "GEMINI_API_KEY is not configured" }) };
+      return Response.json({ error: "GEMINI_API_KEY is not configured" }, { status: 500 });
     }
     const ai = new GoogleGenAI({ apiKey });
 
@@ -61,17 +57,12 @@ export const handler: Handler = async (event) => {
       }
     });
 
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: result.text || '{}',
-    };
+    return new Response(result.text || '{}', {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
   } catch (error: any) {
     console.error("AI Analysis Error:", error);
-    return { 
-      statusCode: 500, 
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: "AI processing failed. Please try again later." }) 
-    };
+    return Response.json({ error: "AI processing failed. Please try again later." }, { status: 500 });
   }
-};
+}

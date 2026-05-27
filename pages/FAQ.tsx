@@ -4,6 +4,17 @@ import { Plus, Minus, Search, ArrowLeft } from 'lucide-react';
 import Footer from '../src/components/Footer';
 import SEO from '../src/components/SEO';
 
+const faqs = [
+  { q: "What is Mentorino?", a: "Mentorino is a premium career, education, and life guidance mentorship platform designed to help individuals achieve their full potential through personalized mentorship programs.", cat: "General" },
+  { q: "How do I apply for mentorship?", a: "You can apply directly through our website by filling out the application form. Our team reviews each application carefully and matches you with the right mentor.", cat: "Application" },
+  { q: "How long does the application review take?", a: "Most applications are reviewed within 48 hours. You will receive an email notification once your application status has been updated.", cat: "Application" },
+  { q: "What programs do you offer?", a: "We offer various mentorship programs including career development, education guidance, and personal growth mentorship. Each program is tailored to your specific needs and goals.", cat: "Programs" },
+  { q: "How are sessions conducted?", a: "Sessions are conducted virtually through video calls at scheduled times. We use a secure platform to ensure productive and focused mentorship sessions.", cat: "Sessions" },
+  { q: "Can I change my mentor?", a: "Yes, if you feel your current mentor isn't the right fit, you can request a change through your dashboard. We aim to ensure every mentee finds the perfect match.", cat: "Support" },
+  { q: "What is the cost of mentorship?", a: "Our programs are premium services with pricing varying by program type and duration. Detailed pricing information is available on our Programs page.", cat: "Pricing" },
+  { q: "Is there a refund policy?", a: "Yes, we offer a satisfaction guarantee. If you're not happy with your first session, we provide a full refund. Please refer to our Terms of Service for details.", cat: "Pricing" },
+];
+
 const FAQPage: React.FC = () => {
   const navigate = useNavigate();
   const [openIndex, setOpenIndex] = useState<number | null>(0);

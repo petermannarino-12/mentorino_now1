@@ -166,7 +166,7 @@ const App: React.FC = () => {
         FallbackComponent={GlobalErrorFallback}
         onError={(error, info) => {
           console.error('Global Error Boundary caught:', error, info);
-          Sentry.captureException(error, { extra: info });
+          Sentry.captureException(error, { extra: { componentStack: (info as any)?.componentStack } });
         }}
         onReset={() => {
           window.location.reload();

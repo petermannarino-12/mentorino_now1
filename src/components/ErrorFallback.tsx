@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface ErrorFallbackProps {
-  error: Error;
+  error: any;
   resetError: () => void;
   eventId?: string;
   componentStack?: string;

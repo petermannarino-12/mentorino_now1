@@ -658,7 +658,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
 
       {isApproved ? (
         <div className="bg-white p-8 md:p-12 rounded-[48px] border border-black/[0.03] shadow-sm">
-          <TaskActivityForm onSubmit={handleTaskSubmit} userName={currentUser?.full_name || 'User'} />
+          <TaskActivityForm onSubmit={handleTaskSubmit} />
         </div>
       ) : (
         <div className="bg-slate-50 p-12 rounded-[48px] text-center border border-dashed border-slate-200">
@@ -866,7 +866,6 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                     await handleTaskSubmit(data);
                     setReportingEvent(null);
                   }} 
-                  userName={currentUser?.full_name || 'User'} 
                   isNetworkingOnly={true} 
                   defaultEventName={reportingEvent.title}
                 />

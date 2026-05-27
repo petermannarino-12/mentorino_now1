@@ -1,20 +1,15 @@
-import { Handler } from "@netlify/functions";
-import { prisma } from "../_shared/prisma";
+import { prisma } from "./_lib/prisma";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
 const SITE_URL = process.env.URL || 'http://localhost:3000';
 
-export const handler: Handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-
+export async function POST(request: Request) {
   try {
-    const { booking } = JSON.parse(event.body || "{}");
+    const { booking } = await request.json();
     if (!booking || !booking.user_email) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Invalid booking data" }) };
+      return Response.json({ error: "Invalid booking data" }, { status: 400 });
     }
 
     const email = booking.user_email.toLowerCase().trim();
@@ -49,15 +44,9 @@ export const handler: Handler = async (event) => {
       }
     }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: "Booking confirmation sent" }),
-    };
+    return Response.json({ message: "Booking confirmation sent" });
   } catch (error: any) {
     console.error("Booking Email Error:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error" }),
-    };
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
-};
+}

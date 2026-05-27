@@ -20,6 +20,7 @@ export const MentorEvents: React.FC<MentorEventsProps> = ({ events, onAddEvent, 
     location: '',
     description: '',
     attendees: [],
+    created_at: '',
     type: 'online'
   });
 
@@ -34,6 +35,7 @@ export const MentorEvents: React.FC<MentorEventsProps> = ({ events, onAddEvent, 
       location: '',
       description: '',
       attendees: [],
+      created_at: '',
       type: 'online'
     });
   };

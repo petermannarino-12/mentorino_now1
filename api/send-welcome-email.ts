@@ -1,20 +1,15 @@
-import { Handler } from "@netlify/functions";
-import { prisma } from "../_shared/prisma";
+import { prisma } from "./_lib/prisma";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
 const SITE_URL = process.env.URL || 'http://localhost:3000';
 
-export const handler: Handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-
+export async function POST(request: Request) {
   try {
-    const { email, name } = JSON.parse(event.body || "{}");
+    const { email, name } = await request.json();
     if (!email) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Missing email" }) };
+      return Response.json({ error: "Missing email" }, { status: 400 });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
@@ -47,15 +42,9 @@ export const handler: Handler = async (event) => {
       }
     }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: "Welcome email sent" }),
-    };
+    return Response.json({ message: "Welcome email sent" });
   } catch (error: any) {
     console.error("Welcome Email Error:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error" }),
-    };
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
-};
+}

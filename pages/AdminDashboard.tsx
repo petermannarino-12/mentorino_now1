@@ -20,13 +20,14 @@ import {
   Mail,
   Phone,
   Activity,
-  ShieldCheck
+  ShieldCheck,
+  ArrowUpRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { getApplicationSummary, chatWithAssistant, getPreSessionBrief } from '../src/services/geminiService';
 import { Application, Booking, User, AIChatMessage, TaskActivity, NetworkEvent, Announcement } from '../src/types';
-import { formatToNJ } from '../src/lib/dateUtils';
+import { formatToNJ, getNJISOString } from '../src/lib/dateUtils';
 import ValidationRulesManager from '../src/components/admin/ValidationRulesManager';
 import SEO from '../src/components/SEO';
 
@@ -269,7 +270,7 @@ Mentorino Support Team`;
 
   const handleAddTask = (studentId: string) => {
     const title = "New Strategic Task"; // Default title
-    const newTask = { id: Date.now().toString(), title, status: 'pending' as const, due_date: 'Next Week' };
+    const newTask = { id: Date.now().toString(), title, description: '', status: 'pending' as const, due_date: 'Next Week' };
     setLocalStudents(prev => prev.map(s => 
       s.id === studentId ? { ...s, tasks: [...(s.tasks || []), newTask] } : s
     ));
