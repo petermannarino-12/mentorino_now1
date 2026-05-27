@@ -6,7 +6,7 @@ import { useBookings } from '../../hooks/useBookings';
 import { useTasks, useUpdateTaskStatusMutation } from '../../hooks/useTasks';
 import { useEvents, useAddEventMutation, useDeleteEventMutation } from '../../hooks/useEvents';
 import { Loader } from '../ui/Loader';
-import AdminDashboard from '../../../pages/AdminDashboard';
+import AdminDashboard from '../../pages/AdminDashboard';
 
 interface AdminDashboardWrapperProps {
   currentUser?: any;
