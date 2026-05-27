@@ -22,23 +22,28 @@ async function getUser(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const user = await getUser(request);
-  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const user = await getUser(request);
+    if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const url = new URL(request.url);
-  const userId = url.searchParams.get("userId");
-  const from = parseInt(url.searchParams.get("from") || "0");
-  const to = parseInt(url.searchParams.get("to") || "49");
+    const url = new URL(request.url);
+    const userId = url.searchParams.get("userId");
+    const from = parseInt(url.searchParams.get("from") || "0");
+    const to = parseInt(url.searchParams.get("to") || "49");
 
-  const where = userId ? { userId } : {};
-  const data = await prisma.bookings.findMany({
-    where,
-    orderBy: { date: "desc" },
-    skip: from,
-    take: to - from + 1,
-  });
+    const where = userId ? { userId } : {};
+    const data = await prisma.bookings.findMany({
+      where,
+      orderBy: { date: "desc" },
+      skip: from,
+      take: to - from + 1,
+    });
 
-  return Response.json(data.map(mapBooking));
+    return Response.json(data.map(mapBooking));
+  } catch (err: any) {
+    console.error("bookings GET error:", err);
+    return Response.json({ error: err?.message || String(err) }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
