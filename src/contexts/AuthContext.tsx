@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
-import * as Sentry from '@sentry/react';
+import { setUser as setSentryUser } from '../lib/sentry';
 import posthog from 'posthog-js';
 import { supabase } from '../lib/supabase';
 import { User, UserRole } from '../types';
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       setRole(profile.role);
       
-      Sentry.setUser({ id: profile.id, email: profile.email });
+      setSentryUser({ id: profile.id, email: profile.email });
       posthog.identify(profile.id, {
         email: profile.email,
         name: profile.name || '',
@@ -135,7 +135,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsRecoveryMode(false);
     await supabase.auth.signOut();
     // Clear telemetry context
-    Sentry.setUser(null);
+    setUser(null);
     posthog.reset();
   }, []);
 

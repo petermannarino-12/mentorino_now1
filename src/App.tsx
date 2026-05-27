@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { motion, AnimatePresence } from 'motion/react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { HelmetProvider } from 'react-helmet-async';
-import * as Sentry from '@sentry/react';
+import { captureException } from './lib/sentry';
 import { GlobalErrorFallback } from './components/ui/GlobalErrorFallback';
 import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/Layout';
@@ -163,7 +163,7 @@ const App: React.FC = () => {
         FallbackComponent={GlobalErrorFallback}
         onError={(error, info) => {
           console.error('Global Error Boundary caught:', error, info);
-          Sentry.captureException(error, { extra: { componentStack: (info as any)?.componentStack } });
+          captureException(error, { componentStack: (info as any)?.componentStack });
         }}
         onReset={() => {
           window.location.reload();

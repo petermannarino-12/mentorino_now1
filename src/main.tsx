@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { ErrorBoundary } from 'react-error-boundary';
 import App from './App';
 import './index.css';
 import { QueryProvider } from './lib/queryClient';
@@ -8,12 +9,15 @@ import { PostHogProvider } from '@posthog/react';
 import posthog from 'posthog-js';
 import { initPostHog } from './lib/posthog';
 import { initSentry } from './lib/sentry';
-import * as Sentry from "@sentry/react";
 import { ErrorFallback } from './components/ErrorFallback';
 import { HelmetProvider } from 'react-helmet-async';
 
 initSentry();
 initPostHog();
+
+function sentryFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+  return <ErrorFallback error={error} resetError={resetErrorBoundary} />;
+}
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -24,7 +28,7 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <HelmetProvider>
-      <Sentry.ErrorBoundary fallback={(props) => <ErrorFallback {...props} />}>
+      <ErrorBoundary FallbackComponent={sentryFallback}>
         <QueryProvider>
           <AuthProvider>
             <PostHogProvider client={posthog}>
@@ -32,7 +36,7 @@ root.render(
             </PostHogProvider>
           </AuthProvider>
         </QueryProvider>
-      </Sentry.ErrorBoundary>
+      </ErrorBoundary>
     </HelmetProvider>
   </React.StrictMode>
 );
