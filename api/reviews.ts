@@ -1,4 +1,13 @@
-import { getPrisma } from "./_lib/prisma";
+import { createClient } from '@supabase/supabase-js';
+
+function getSupabase() {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error(`Missing Supabase env vars: ${!url ? 'VITE_SUPABASE_URL' : ''} ${!key ? 'SUPABASE_SERVICE_ROLE_KEY' : ''}`);
+  }
+  return createClient(url, key);
+}
 
 export async function POST(request: Request) {
   try {
@@ -7,14 +16,17 @@ export async function POST(request: Request) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const data = await getPrisma().reviews.create({
-      data: {
-        reviewerName: body.reviewer_name,
-        reviewerEmail: body.reviewer_email,
+    const { data, error } = await getSupabase()
+      .from('reviews')
+      .insert({
+        reviewer_name: body.reviewer_name,
+        reviewer_email: body.reviewer_email,
         rating: body.rating,
         comment: body.comment || null,
-      },
-    });
+      })
+      .select()
+      .single();
+    if (error) throw error;
 
     return Response.json({ id: data.id, message: "Review submitted" });
   } catch (error: any) {

@@ -1,5 +1,13 @@
-import { getSupabase } from "./_lib/supabase-client";
-import { getPrisma } from "./_lib/prisma";
+import { createClient } from '@supabase/supabase-js';
+
+function getSupabase() {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error(`Missing Supabase env vars: ${!url ? 'VITE_SUPABASE_URL' : ''} ${!key ? 'SUPABASE_SERVICE_ROLE_KEY' : ''}`);
+  }
+  return createClient(url, key);
+}
 
 function mapEvent(e: any) {
   return {
@@ -11,7 +19,7 @@ function mapEvent(e: any) {
     location: e.location,
     link: e.link,
     attendees: e.attendees || [],
-    created_at: e.createdAt,
+    created_at: e.created_at,
   };
 }
 
@@ -28,13 +36,14 @@ export async function GET(request: Request) {
   const from = parseInt(url.searchParams.get("from") || "0");
   const to = parseInt(url.searchParams.get("to") || "49");
 
-  const data = await getPrisma().events.findMany({
-    orderBy: { createdAt: "desc" },
-    skip: from,
-    take: to - from + 1,
-  });
+  const { data, error } = await getSupabase()
+    .from('events')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .range(from, to);
+  if (error) throw error;
 
-  return Response.json(data.map(mapEvent));
+  return Response.json((data || []).map(mapEvent));
 }
 
 export async function POST(request: Request) {
@@ -44,21 +53,29 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   if (body.action === "attend") {
-    const ev = await getPrisma().events.findUnique({ where: { id: body.eventId } });
-    if (!ev) return Response.json({ error: "Event not found" }, { status: 404 });
+    const { data: ev, error: findError } = await getSupabase()
+      .from('events')
+      .select('*')
+      .eq('id', body.eventId)
+      .single();
+    if (findError || !ev) return Response.json({ error: "Event not found" }, { status: 404 });
     const attendees: string[] = (ev.attendees as string[]) || [];
     if (attendees.includes(body.userId)) {
       return Response.json(mapEvent(ev));
     }
-    const updated = await getPrisma().events.update({
-      where: { id: body.eventId },
-      data: { attendees: [...attendees, body.userId] },
-    });
+    const { data: updated, error: updateError } = await getSupabase()
+      .from('events')
+      .update({ attendees: [...attendees, body.userId] })
+      .eq('id', body.eventId)
+      .select()
+      .single();
+    if (updateError) throw updateError;
     return Response.json(mapEvent(updated));
   }
 
-  const data = await getPrisma().events.create({
-    data: {
+  const { data, error } = await getSupabase()
+    .from('events')
+    .insert({
       title: body.title,
       date: body.date,
       time: body.time,
@@ -66,8 +83,10 @@ export async function POST(request: Request) {
       description: body.description,
       link: body.link,
       attendees: body.attendees || [],
-    },
-  });
+    })
+    .select()
+    .single();
+  if (error) throw error;
 
   return Response.json(mapEvent(data));
 }
@@ -80,6 +99,11 @@ export async function DELETE(request: Request) {
   const id = url.searchParams.get("id");
   if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
 
-  await getPrisma().events.delete({ where: { id } });
+  const { error } = await getSupabase()
+    .from('events')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+
   return Response.json({ message: "Event deleted" });
 }

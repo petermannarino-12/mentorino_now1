@@ -1,5 +1,13 @@
-import { getSupabase } from "./_lib/supabase-client";
-import { getPrisma } from "./_lib/prisma";
+import { createClient } from '@supabase/supabase-js';
+
+function getSupabase() {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error(`Missing Supabase env vars: ${!url ? 'VITE_SUPABASE_URL' : ''} ${!key ? 'SUPABASE_SERVICE_ROLE_KEY' : ''}`);
+  }
+  return createClient(url, key);
+}
 
 export async function POST(request: Request) {
   const token = request.headers.get("authorization")?.split(" ")[1];
@@ -13,16 +21,19 @@ export async function POST(request: Request) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const data = await getPrisma().transactions.create({
-      data: {
-        userId: body.user_id || user.id,
-        userName: body.user_name || user.email || "",
+    const { data, error } = await getSupabase()
+      .from('transactions')
+      .insert({
+        user_id: body.user_id || user.id,
+        user_name: body.user_name || user.email || "",
         amount: body.amount,
         product: body.product || "",
-        productId: body.product_id,
+        product_id: body.product_id,
         status: body.status || "pending",
-      },
-    });
+      })
+      .select()
+      .single();
+    if (error) throw error;
 
     return Response.json({ id: data.id, message: "Transaction created" });
   } catch (error: any) {

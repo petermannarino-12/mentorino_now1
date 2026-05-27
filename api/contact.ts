@@ -1,5 +1,14 @@
-import { getPrisma } from "./_lib/prisma";
+import { createClient } from '@supabase/supabase-js';
 import { Resend } from "resend";
+
+function getSupabase() {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error(`Missing Supabase env vars: ${!url ? 'VITE_SUPABASE_URL' : ''} ${!key ? 'SUPABASE_SERVICE_ROLE_KEY' : ''}`);
+  }
+  return createClient(url, key);
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
@@ -20,26 +29,28 @@ export async function POST(request: Request) {
     const normalizedEmail = email.toLowerCase().trim();
 
     const fiveMinAgo = new Date(Date.now() - RATE_LIMIT_WINDOW_MS);
-    const count = await getPrisma().contact_messages.count({
-      where: {
-        email: normalizedEmail,
-        createdAt: { gte: fiveMinAgo },
-      },
-    });
 
-    if (count >= MAX_SUBMISSIONS) {
+    const { count, error: countError } = await getSupabase()
+      .from('contact_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('email', normalizedEmail)
+      .gte('created_at', fiveMinAgo.toISOString());
+    if (countError) throw countError;
+
+    if ((count || 0) >= MAX_SUBMISSIONS) {
       return Response.json({ error: "Too many submissions. Please wait a few minutes before trying again." }, { status: 429 });
     }
 
-    await getPrisma().contact_messages.create({
-      data: {
+    const { error: insertError } = await getSupabase()
+      .from('contact_messages')
+      .insert({
         name: sanitize(name).slice(0, 255),
         email: normalizedEmail,
         phone: sanitize(phone || '').slice(0, 50),
         subject: subject?.slice(0, 255),
         message: sanitize(message).slice(0, 5000),
-      },
-    });
+      });
+    if (insertError) throw insertError;
 
     if (process.env.RESEND_API_KEY) {
       try {

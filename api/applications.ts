@@ -1,6 +1,14 @@
-import { getSupabase } from "./_lib/supabase-client";
-import { getPrisma } from "./_lib/prisma";
+import { createClient } from '@supabase/supabase-js';
 import { Resend } from "resend";
+
+function getSupabase() {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error(`Missing Supabase env vars: ${!url ? 'VITE_SUPABASE_URL' : ''} ${!key ? 'SUPABASE_SERVICE_ROLE_KEY' : ''}`);
+  }
+  return createClient(url, key);
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
@@ -16,24 +24,26 @@ async function handleSubmit(request: Request) {
     }
     const email = application.user_email.toLowerCase().trim();
     const userName = sanitize(application.user_name || 'Applicant');
-    const recent = await getPrisma().applications.findMany({
-      where: { userEmail: email },
-      orderBy: { createdAt: 'desc' },
-      take: 1,
-      select: { createdAt: true },
-    });
-    if (recent.length > 0) {
-      const lastSubmit = new Date(recent[0].createdAt).getTime();
+    const { data: recent, error: recentError } = await getSupabase()
+      .from('applications')
+      .select('created_at')
+      .eq('user_email', email)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (recentError) console.error("Recent check error:", recentError);
+    if (recent && recent.length > 0) {
+      const lastSubmit = new Date(recent[0].created_at).getTime();
       const now = new Date().getTime();
       if (now - lastSubmit < 1000 * 60 * 60 * 24) {
         return Response.json({ error: "You have already submitted an application recently. Please wait 24 hours." }, { status: 429 });
       }
     }
     const { user_email, mentor_type, status, id, created_at, ...responses } = application;
-    await getPrisma().applications.create({
-      data: {
-        userEmail: email,
-        mentorType: application.mentor_type,
+    const { error: insertError } = await getSupabase()
+      .from('applications')
+      .insert({
+        user_email: email,
+        mentor_type: application.mentor_type,
         status: 'pending',
         responses: {
           ...responses,
@@ -41,14 +51,15 @@ async function handleSubmit(request: Request) {
           user_phone: sanitize(application.user_phone || ''),
           goals: application.goals ? application.goals.slice(0, 2000) : ''
         }
-      },
-    });
+      });
+    if (insertError) throw insertError;
     if (process.env.RESEND_API_KEY) {
       try {
-        const template = await getPrisma().email_templates.findUnique({
-          where: { id: 'application_submitted' },
-          select: { subject: true, body: true },
-        });
+        const { data: template } = await getSupabase()
+          .from('email_templates')
+          .select('subject, body')
+          .eq('id', 'application_submitted')
+          .single();
         if (!template) console.error('Template not found: application_submitted');
         const subject = template?.subject || 'Application Received - Mentorino';
         let body = template?.body || `Hi {{student_name}},<br><br>We have successfully received your application. Our team is currently reviewing it, and we will get back to you within 48 hours.<br><br>Best,<br>Mentorino Team`;
@@ -79,10 +90,11 @@ async function handleCheck(request: Request) {
   try {
     const { email } = await request.json();
     if (!email) return Response.json({ error: "Missing email" }, { status: 400 });
-    const application = await getPrisma().applications.findUnique({
-      where: { userEmail: email.toLowerCase().trim() },
-      select: { status: true },
-    });
+    const { data: application } = await getSupabase()
+      .from('applications')
+      .select('status')
+      .eq('user_email', email.toLowerCase().trim())
+      .single();
     return Response.json({ is_approved: application?.status === "approved" });
   } catch (error: any) {
     console.error("check-application Error:", error);
@@ -96,31 +108,38 @@ async function handleDelete(request: Request) {
     if (!token) return Response.json({ error: "Unauthorized" }, { status: 401 });
     const { data: { user }, error: authError } = await getSupabase().auth.getUser(token);
     if (authError || !user) return Response.json({ error: "Invalid token" }, { status: 401 });
-    const profile = await getPrisma().profiles.findUnique({
-      where: { id: user.id },
-      select: { role: true },
-    });
+    const { data: profile } = await getSupabase()
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
     if (!profile || !["admin", "mentor"].includes(profile.role)) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
     const url = new URL(request.url);
     const id = url.searchParams.get("id");
     if (!id) return Response.json({ error: "Missing ID" }, { status: 400 });
-    const application = await getPrisma().applications.findUnique({
-      where: { id },
-      select: { userEmail: true },
-    });
+    const { data: application } = await getSupabase()
+      .from('applications')
+      .select('user_email')
+      .eq('id', id)
+      .single();
     if (!application) return Response.json({ error: "Application not found" }, { status: 404 });
-    const email = application.userEmail.toLowerCase().trim();
-    const targetProfile = await getPrisma().profiles.findUnique({
-      where: { email },
-      select: { id: true },
-    });
+    const targetEmail = application.user_email.toLowerCase().trim();
+    const { data: targetProfile } = await getSupabase()
+      .from('profiles')
+      .select('id')
+      .eq('email', targetEmail)
+      .single();
     if (targetProfile) {
       const { error: authDeleteError } = await getSupabase().auth.admin.deleteUser(targetProfile.id);
       if (authDeleteError) console.error("Auth Delete Error:", authDeleteError);
     }
-    await getPrisma().applications.delete({ where: { id } });
+    const { error: deleteError } = await getSupabase()
+      .from('applications')
+      .delete()
+      .eq('id', id);
+    if (deleteError) throw deleteError;
     return Response.json({ message: "Mentee and application deleted successfully" });
   } catch (error: any) {
     console.error("Delete Error:", error);
@@ -134,10 +153,11 @@ async function handleUpdateStatus(request: Request) {
     if (!token) return Response.json({ error: "Unauthorized: Missing token" }, { status: 401 });
     const { data: { user }, error: authError } = await getSupabase().auth.getUser(token);
     if (authError || !user) return Response.json({ error: "Unauthorized: Invalid token" }, { status: 401 });
-    const profile = await getPrisma().profiles.findUnique({
-      where: { id: user.id },
-      select: { role: true, fullName: true },
-    });
+    const { data: profile } = await getSupabase()
+      .from('profiles')
+      .select('role, full_name')
+      .eq('id', user.id)
+      .single();
     if (!profile || !['admin', 'mentor'].includes(profile.role)) {
       return Response.json({ error: "Forbidden: Insufficient privileges" }, { status: 403 });
     }
@@ -145,23 +165,29 @@ async function handleUpdateStatus(request: Request) {
     if (!id || !status || !['approved', 'rejected', 'pending'].includes(status)) {
       return Response.json({ error: "Invalid parameters" }, { status: 400 });
     }
-    const application = await getPrisma().applications.findUnique({
-      where: { id },
-      select: { userEmail: true, mentorType: true, responses: true },
-    });
+    const { data: application } = await getSupabase()
+      .from('applications')
+      .select('user_email, mentor_type, responses')
+      .eq('id', id)
+      .single();
     if (!application) return Response.json({ error: "Application not found" }, { status: 404 });
-    await getPrisma().applications.update({ where: { id }, data: { status } });
+    const { error: updateError } = await getSupabase()
+      .from('applications')
+      .update({ status })
+      .eq('id', id);
+    if (updateError) throw updateError;
     if (process.env.RESEND_API_KEY && (status === 'approved' || status === 'rejected')) {
       try {
         const templateId = status === 'approved' ? 'application_accepted' : 'application_rejected';
         const responses = application.responses as Record<string, any> | null;
         const studentName = responses?.user_name || 'Applicant';
-        const mentorName = profile.fullName || 'Mentorino';
-        const programName = application.mentorType || responses?.mentor_type || 'the Mentorino program';
-        const template = await getPrisma().email_templates.findUnique({
-          where: { id: templateId },
-          select: { subject: true, body: true },
-        });
+        const mentorName = profile.full_name || 'Mentorino';
+        const programName = application.mentor_type || responses?.mentor_type || 'the Mentorino program';
+        const { data: template } = await getSupabase()
+          .from('email_templates')
+          .select('subject, body')
+          .eq('id', templateId)
+          .single();
         if (!template) console.error('Template not found:', templateId);
         let subject = template?.subject || (status === 'approved'
           ? 'Welcome to Mentorino — Your Application Has Been Accepted!'
@@ -177,7 +203,7 @@ async function handleUpdateStatus(request: Request) {
           .replace(/\n/g, '<br>');
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
-          to: application.userEmail,
+          to: application.user_email,
           subject: subject,
           html: body
         });
