@@ -1,19 +1,18 @@
 import { getSupabase } from "./_lib/supabase-client";
-import { getPrisma } from "./_lib/prisma";
 
-function mapProfile(p: any) {
+function mapProfileRow(row: any) {
   return {
-    id: p.id,
-    email: p.email,
-    full_name: p.fullName,
-    name: p.name,
-    role: p.role,
-    phone: p.phone,
-    avatar: p.avatar,
-    mentorship_status: p.mentorshipStatus,
-    tasks: p.tasks,
-    milestones: p.milestones,
-    created_at: p.createdAt,
+    id: row.id,
+    email: row.email,
+    full_name: row.full_name,
+    name: row.name,
+    role: row.role,
+    phone: row.phone,
+    avatar: row.avatar,
+    mentorship_status: row.mentorship_status,
+    tasks: row.tasks,
+    milestones: row.milestones,
+    created_at: row.created_at,
   };
 }
 
@@ -32,17 +31,26 @@ export async function GET(request: Request) {
 
     const url = new URL(request.url);
     const limit = url.searchParams.get("limit");
+    const id = url.searchParams.get("id") || user.id;
 
     if (limit) {
-      const profiles = await getPrisma().profiles.findMany({ take: parseInt(limit) || 50 });
-      return Response.json(profiles.map(mapProfile));
+      const { data: rows, error } = await getSupabase()
+        .from('profiles')
+        .select('*')
+        .limit(parseInt(limit) || 50);
+      if (error) throw error;
+      return Response.json((rows || []).map(mapProfileRow));
     }
 
-    const id = url.searchParams.get("id") || user.id;
-    const profile = await getPrisma().profiles.findUnique({ where: { id } });
-    if (!profile) return Response.json({ error: "Profile not found" }, { status: 404 });
+    const { data: row, error } = await getSupabase()
+      .from('profiles')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error && error.code !== 'PGRST116') throw error;
+    if (!row) return Response.json({ error: "Profile not found" }, { status: 404 });
 
-    return Response.json(profile ? mapProfile(profile) : null);
+    return Response.json(mapProfileRow(row));
   } catch (err: any) {
     console.error("profiles GET error:", err);
     return Response.json({ error: err?.message || String(err) }, { status: 500 });
@@ -56,17 +64,19 @@ export async function PATCH(request: Request) {
 
     const body = await request.json();
     const { milestones } = body;
-
     if (!milestones) {
       return Response.json({ error: "Missing milestones" }, { status: 400 });
     }
 
-    const profile = await getPrisma().profiles.update({
-      where: { id: user.id },
-      data: { milestones },
-    });
+    const { data: row, error } = await getSupabase()
+      .from('profiles')
+      .update({ milestones })
+      .eq('id', user.id)
+      .select()
+      .single();
+    if (error) throw error;
 
-    return Response.json(mapProfile(profile));
+    return Response.json(mapProfileRow(row));
   } catch (err: any) {
     console.error("profiles PATCH error:", err);
     return Response.json({ error: err?.message || String(err) }, { status: 500 });

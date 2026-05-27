@@ -1,19 +1,13 @@
-import { PrismaClient } from '../../src/generated/prisma'
+let _prisma: any = null;
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
-
-function getClient() {
+export async function getPrisma() {
+  if (_prisma) return _prisma;
   if (!process.env.DATABASE_URL) {
     throw new Error('Missing DATABASE_URL env var');
   }
-  return new (PrismaClient as any)({
+  const { PrismaClient } = await import('../../src/generated/prisma');
+  _prisma = new (PrismaClient as any)({
     datasourceUrl: process.env.DATABASE_URL,
-  })
-}
-
-export function getPrisma() {
-  if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = getClient();
-  }
-  return globalForPrisma.prisma;
+  });
+  return _prisma;
 }
