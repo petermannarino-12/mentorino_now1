@@ -320,8 +320,11 @@ export default defineConfig(({ mode }) => {
                 if (id.includes('lucide-react') || id.includes('recharts') || id.includes('motion')) {
                   return 'vendor-ui';
                 }
-                if (id.includes('@sentry') || id.includes('posthog-js')) {
-                  return 'vendor-telemetry';
+                if (id.includes('@sentry')) {
+                  return 'vendor-sentry';
+                }
+                if (id.includes('posthog-js')) {
+                  return 'vendor-posthog';
                 }
                 if (id.includes('@supabase/supabase-js')) {
                   return 'vendor-supabase';
