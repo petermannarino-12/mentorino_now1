@@ -32,78 +32,93 @@ async function getUser(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const from = parseInt(url.searchParams.get("from") || "0");
-  const to = parseInt(url.searchParams.get("to") || "49");
+  try {
+    const url = new URL(request.url);
+    const from = parseInt(url.searchParams.get("from") || "0");
+    const to = parseInt(url.searchParams.get("to") || "49");
 
-  const { data, error } = await getSupabase()
-    .from('events')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .range(from, to);
-  if (error) throw error;
+    const { data, error } = await getSupabase()
+      .from('events')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(from, to);
+    if (error) throw error;
 
-  return Response.json((data || []).map(mapEvent));
+    return Response.json((data || []).map(mapEvent));
+  } catch (err: any) {
+    console.error("events GET error:", err);
+    return Response.json({ error: err?.message || String(err) }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
-  const user = await getUser(request);
-  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const user = await getUser(request);
+    if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await request.json();
+    const body = await request.json();
 
-  if (body.action === "attend") {
-    const { data: ev, error: findError } = await getSupabase()
-      .from('events')
-      .select('*')
-      .eq('id', body.eventId)
-      .single();
-    if (findError || !ev) return Response.json({ error: "Event not found" }, { status: 404 });
-    const attendees: string[] = (ev.attendees as string[]) || [];
-    if (attendees.includes(body.userId)) {
-      return Response.json(mapEvent(ev));
+    if (body.action === "attend") {
+      const { data: ev, error: findError } = await getSupabase()
+        .from('events')
+        .select('*')
+        .eq('id', body.eventId)
+        .single();
+      if (findError || !ev) return Response.json({ error: "Event not found" }, { status: 404 });
+      const attendees: string[] = (ev.attendees as string[]) || [];
+      if (attendees.includes(body.userId)) {
+        return Response.json(mapEvent(ev));
+      }
+      const { data: updated, error: updateError } = await getSupabase()
+        .from('events')
+        .update({ attendees: [...attendees, body.userId] })
+        .eq('id', body.eventId)
+        .select()
+        .single();
+      if (updateError) throw updateError;
+      return Response.json(mapEvent(updated));
     }
-    const { data: updated, error: updateError } = await getSupabase()
+
+    const { data, error } = await getSupabase()
       .from('events')
-      .update({ attendees: [...attendees, body.userId] })
-      .eq('id', body.eventId)
+      .insert({
+        title: body.title,
+        date: body.date,
+        time: body.time,
+        location: body.location,
+        description: body.description,
+        link: body.link,
+        attendees: body.attendees || [],
+      })
       .select()
       .single();
-    if (updateError) throw updateError;
-    return Response.json(mapEvent(updated));
+    if (error) throw error;
+
+    return Response.json(mapEvent(data));
+  } catch (err: any) {
+    console.error("events POST error:", err);
+    return Response.json({ error: err?.message || String(err) }, { status: 500 });
   }
-
-  const { data, error } = await getSupabase()
-    .from('events')
-    .insert({
-      title: body.title,
-      date: body.date,
-      time: body.time,
-      location: body.location,
-      description: body.description,
-      link: body.link,
-      attendees: body.attendees || [],
-    })
-    .select()
-    .single();
-  if (error) throw error;
-
-  return Response.json(mapEvent(data));
 }
 
 export async function DELETE(request: Request) {
-  const user = await getUser(request);
-  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const user = await getUser(request);
+    if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const url = new URL(request.url);
-  const id = url.searchParams.get("id");
-  if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+    if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
 
-  const { error } = await getSupabase()
-    .from('events')
-    .delete()
-    .eq('id', id);
-  if (error) throw error;
+    const { error } = await getSupabase()
+      .from('events')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
 
-  return Response.json({ message: "Event deleted" });
+    return Response.json({ message: "Event deleted" });
+  } catch (err: any) {
+    console.error("events DELETE error:", err);
+    return Response.json({ error: err?.message || String(err) }, { status: 500 });
+  }
 }

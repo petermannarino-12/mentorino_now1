@@ -65,53 +65,63 @@ async function getUser(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const user = await getUser(request);
-  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const user = await getUser(request);
+    if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const url = new URL(request.url);
-  const userId = url.searchParams.get("userId");
-  const from = parseInt(url.searchParams.get("from") || "0");
-  const to = parseInt(url.searchParams.get("to") || "49");
+    const url = new URL(request.url);
+    const userId = url.searchParams.get("userId");
+    const from = parseInt(url.searchParams.get("from") || "0");
+    const to = parseInt(url.searchParams.get("to") || "49");
 
-  let query = getSupabase()
-    .from('task_activities')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (userId) query = query.eq('user_id', userId);
-  const { data, error } = await query.range(from, to);
-  if (error) throw error;
+    let query = getSupabase()
+      .from('task_activities')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (userId) query = query.eq('user_id', userId);
+    const { data, error } = await query.range(from, to);
+    if (error) throw error;
 
-  return Response.json((data || []).map(mapTaskActivity));
+    return Response.json((data || []).map(mapTaskActivity));
+  } catch (err: any) {
+    console.error("task-activities GET error:", err);
+    return Response.json({ error: err?.message || String(err) }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
-  const user = await getUser(request);
-  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const user = await getUser(request);
+    if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await request.json();
+    const body = await request.json();
 
-  if (body.id) {
+    if (body.id) {
+      const { data, error } = await getSupabase()
+        .from('task_activities')
+        .update(toSupabaseTask(body))
+        .eq('id', body.id)
+        .select()
+        .single();
+      if (error) throw error;
+      return Response.json(mapTaskActivity(data));
+    }
+
     const { data, error } = await getSupabase()
       .from('task_activities')
-      .update(toSupabaseTask(body))
-      .eq('id', body.id)
+      .insert({
+        user_id: body.user_id || user.id,
+        user_name: body.user_name || "",
+        status: body.status || "pending",
+        ...toSupabaseTask(body),
+      })
       .select()
       .single();
     if (error) throw error;
+
     return Response.json(mapTaskActivity(data));
+  } catch (err: any) {
+    console.error("task-activities POST error:", err);
+    return Response.json({ error: err?.message || String(err) }, { status: 500 });
   }
-
-  const { data, error } = await getSupabase()
-    .from('task_activities')
-    .insert({
-      user_id: body.user_id || user.id,
-      user_name: body.user_name || "",
-      status: body.status || "pending",
-      ...toSupabaseTask(body),
-    })
-    .select()
-    .single();
-  if (error) throw error;
-
-  return Response.json(mapTaskActivity(data));
 }

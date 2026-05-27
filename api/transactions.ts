@@ -10,12 +10,12 @@ function getSupabase() {
 }
 
 export async function POST(request: Request) {
-  const token = request.headers.get("authorization")?.split(" ")[1];
-  if (!token) return Response.json({ error: "Unauthorized" }, { status: 401 });
-  const { data: { user }, error: authError } = await getSupabase().auth.getUser(token);
-  if (authError || !user) return Response.json({ error: "Invalid token" }, { status: 401 });
-
   try {
+    const token = request.headers.get("authorization")?.split(" ")[1];
+    if (!token) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const { data: { user }, error: authError } = await getSupabase().auth.getUser(token);
+    if (authError || !user) return Response.json({ error: "Invalid token" }, { status: 401 });
+
     const body = await request.json();
     if (!body.product_id || !body.amount) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
