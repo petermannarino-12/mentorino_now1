@@ -1,8 +1,5 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "framework": "vite",
+  "buildCommand": "prisma generate && vite build",
   "rewrites": [
     { "source": "/.netlify/functions/analyze-application", "destination": "/api/ai?from=analyze-application" },
     { "source": "/.netlify/functions/chat", "destination": "/api/ai?from=chat" },
