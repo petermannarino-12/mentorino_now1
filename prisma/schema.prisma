@@ -1,0 +1,267 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["partialIndexes"]
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["public"]
+}
+
+// ── Application tables ──
+
+/// Row-level security enabled — access is enforced at the application layer
+model applications {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userEmail          String    @unique @map("user_email")
+  mentorType         String?   @map("mentor_type")
+  responses          Json?
+  status             String?   @default("pending")
+  userId             String?   @map("user_id") @db.Uuid
+  userName           String?   @map("user_name")
+  userPhone          String?   @map("user_phone")
+  meetingPreference  String?   @default("Virtual") @map("meeting_preference")
+  frequency          String?
+  goals              String?
+  seriousness        Int?      @default(5)
+  attribution        String?
+  source             String?
+  tags               Json?     @default("[]")
+  notes              Json?     @default("[]")
+  aiScore            Int?      @map("ai_score")
+  pillar             String?
+  experience         String?
+  createdAt          DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model profiles {
+  id        String    @id @db.Uuid
+  email     String    @unique
+  fullName  String    @map("full_name")
+  role      String?   @default("user")
+  tasks     Json?     @default("[]")
+  milestones Json?    @default("[]")
+  phone     String?
+  avatar    String?
+  mentorshipStatus String? @map("mentorship_status")
+  name      String?
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  bookings         bookings[]
+  taskActivities   task_activities[]
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model bookings {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?   @map("user_id") @db.Uuid
+  userName  String?   @map("user_name")
+  date      String
+  time      String
+  status    String?   @default("upcoming")
+  notes     String?
+  profiles  profiles? @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model task_activities {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String?   @map("user_id") @db.Uuid
+  userName       String?   @map("user_name")
+  status         String?   @default("pending")
+  adminResponse  String?   @map("admin_response")
+  pbCardDetails  String?   @map("pb_card_details")
+  pbLinkedinUrl  String?   @map("pb_linkedin_url")
+  pbResumeLink   String?   @map("pb_resume_link")
+  pbCoverLetterLink String? @map("pb_cover_letter_link")
+  pbDressCodeNotes  String? @map("pb_dress_code_notes")
+  pbGreetingIntroNotes String? @map("pb_greeting_intro_notes")
+  netAttendedEvent  String? @map("net_attended_event")
+  netPeopleMet      String? @map("net_people_met")
+  netContactInfo    String? @map("net_contact_info")
+  netPanelSummary   String? @map("net_panel_summary")
+  pwIntroduction    String? @map("pw_introduction")
+  pwVolunteerHours  String? @map("pw_volunteer_hours")
+  certTopic         String? @map("cert_topic")
+  roadmapTopic      String? @map("roadmap_topic")
+  interviewRecommendation String? @map("interview_recommendation")
+  createdAt        DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  profiles         profiles? @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model events {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  date        String
+  time        String
+  location    String
+  description String
+  link        String?
+  attendees   Json?     @default("[]")
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([attendees], map: "idx_events_attendees", type: Gin)
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model products {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName    String    @map("full_name")
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  image       String?
+  category    String?
+  salesCount  Int?      @default(0) @map("sales_count")
+  status      String?   @default("active")
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model transactions {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?   @map("user_id") @db.Uuid
+  userName  String?   @map("user_name")
+  amount    Decimal   @db.Decimal(10, 2)
+  date      DateTime? @default(now()) @db.Timestamptz(6)
+  product   String?
+  productId String?   @map("product_id") @db.Uuid
+  status    String?   @default("pending")
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model reviews {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reviewerName   String    @map("reviewer_name")
+  reviewerEmail  String    @map("reviewer_email")
+  rating         Int
+  comment        String?
+  mentorReply    String?   @map("mentor_reply")
+  createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([rating], map: "idx_reviews_rating")
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model email_templates {
+  id         String    @id
+  subject    String
+  body       String
+  createdAt  DateTime  @default(dbgenerated("timezone('utc'::text, now())")) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(dbgenerated("timezone('utc'::text, now())")) @map("updated_at") @db.Timestamptz(6)
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model contact_messages {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String
+  email      String
+  phone      String?
+  subject    String?
+  message    String
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model newsletter_subscribers {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email      String    @unique
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model validation_rules {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  field         String
+  entity        String
+  operator      String
+  value         String?
+  errorMessage  String?  @map("errormessage")
+  isActive      Boolean? @default(true) @map("isactive")
+  createdAt     DateTime @default(dbgenerated("timezone('utc'::text, now())")) @map("created_at") @db.Timestamptz(6)
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model announcements {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title      String
+  content    String
+  priority   String?   @default("low")
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model resource_links {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String
+  url       String
+  category  String
+  isPinned  Boolean? @default(false) @map("is_pinned")
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model availability {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mentorId    String?   @map("mentor_id") @db.Uuid
+  dayOfWeek   Int       @map("day_of_week")
+  startTime   DateTime  @map("start_time") @db.Time(6)
+  endTime     DateTime  @map("end_time") @db.Time(6)
+  isActive    Boolean?  @default(true) @map("is_active")
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([mentorId, dayOfWeek])
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
+model public_sessions {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title           String
+  menteeEmail     String?   @map("mentee_email")
+  menteeName      String?   @map("mentee_name")
+  date            DateTime  @db.Date
+  startTime       DateTime  @map("start_time") @db.Time(6)
+  durationMinutes Int?      @default(60) @map("duration_minutes")
+  sessionType     String?   @default("strategy") @map("session_type")
+  meetingLink     String?   @map("meeting_link")
+  notes           String?
+  status          String?   @default("scheduled")
+  createdBy       String?   @map("created_by") @db.Uuid
+  createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  studentId       String?   @map("student_id") @db.Uuid
+  studentEmail    String?   @map("student_email")
+  studentName     String?   @map("student_name")
+
+  @@index([createdBy], map: "idx_sessions_created_by")
+  @@index([date], map: "idx_sessions_date")
+  @@map("sessions")
+  @@schema("public")
+}
