@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getPrisma } from './prisma';
 
 function getSupabase() {
   const url = process.env.VITE_SUPABASE_URL;
@@ -19,7 +20,7 @@ function mapEvent(e: any) {
     location: e.location,
     link: e.link,
     attendees: e.attendees || [],
-    created_at: e.created_at,
+    created_at: e.createdAt,
   };
 }
 
@@ -37,12 +38,11 @@ export async function GET(request: Request) {
     const from = parseInt(url.searchParams.get("from") || "0");
     const to = parseInt(url.searchParams.get("to") || "49");
 
-    const { data, error } = await getSupabase()
-      .from('events')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .range(from, to);
-    if (error) throw error;
+    const data = await (await getPrisma()).events.findMany({
+      orderBy: { createdAt: 'desc' },
+      skip: from,
+      take: to - from + 1,
+    });
 
     return Response.json((data || []).map(mapEvent));
   } catch (err: any) {
@@ -59,29 +59,23 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     if (body.action === "attend") {
-      const { data: ev, error: findError } = await getSupabase()
-        .from('events')
-        .select('*')
-        .eq('id', body.eventId)
-        .single();
-      if (findError || !ev) return Response.json({ error: "Event not found" }, { status: 404 });
+      const ev = await (await getPrisma()).events.findUnique({
+        where: { id: body.eventId },
+      });
+      if (!ev) return Response.json({ error: "Event not found" }, { status: 404 });
       const attendees: string[] = (ev.attendees as string[]) || [];
       if (attendees.includes(body.userId)) {
         return Response.json(mapEvent(ev));
       }
-      const { data: updated, error: updateError } = await getSupabase()
-        .from('events')
-        .update({ attendees: [...attendees, body.userId] })
-        .eq('id', body.eventId)
-        .select()
-        .single();
-      if (updateError) throw updateError;
+      const updated = await (await getPrisma()).events.update({
+        where: { id: body.eventId },
+        data: { attendees: [...attendees, body.userId] },
+      });
       return Response.json(mapEvent(updated));
     }
 
-    const { data, error } = await getSupabase()
-      .from('events')
-      .insert({
+    const data = await (await getPrisma()).events.create({
+      data: {
         title: body.title,
         date: body.date,
         time: body.time,
@@ -89,10 +83,8 @@ export async function POST(request: Request) {
         description: body.description,
         link: body.link,
         attendees: body.attendees || [],
-      })
-      .select()
-      .single();
-    if (error) throw error;
+      },
+    });
 
     return Response.json(mapEvent(data));
   } catch (err: any) {
@@ -110,11 +102,7 @@ export async function DELETE(request: Request) {
     const id = url.searchParams.get("id");
     if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
 
-    const { error } = await getSupabase()
-      .from('events')
-      .delete()
-      .eq('id', id);
-    if (error) throw error;
+    await (await getPrisma()).events.delete({ where: { id } });
 
     return Response.json({ message: "Event deleted" });
   } catch (err: any) {

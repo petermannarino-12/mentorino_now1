@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getPrisma } from './prisma';
 
 function getSupabase() {
   const url = process.env.VITE_SUPABASE_URL;
@@ -12,8 +13,8 @@ function getSupabase() {
 function mapBooking(b: any) {
   return {
     id: b.id,
-    user_id: b.user_id,
-    user_name: b.user_name,
+    user_id: b.userId,
+    user_name: b.userName,
     date: b.date,
     time: b.time,
     status: b.status,
@@ -39,10 +40,13 @@ export async function GET(request: Request) {
     const from = parseInt(url.searchParams.get("from") || "0");
     const to = parseInt(url.searchParams.get("to") || "49");
 
-    let query = getSupabase().from('bookings').select('*').order('date', { ascending: false });
-    if (userId) query = query.eq('user_id', userId);
-    const { data, error } = await query.range(from, to);
-    if (error) throw error;
+    const where = userId ? { userId } : {};
+    const data = await (await getPrisma()).bookings.findMany({
+      where,
+      orderBy: { date: 'desc' },
+      skip: from,
+      take: to - from + 1,
+    });
 
     return Response.json((data || []).map(mapBooking));
   } catch (err: any) {
@@ -61,15 +65,16 @@ export async function POST(request: Request) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const { data, error } = await getSupabase().from('bookings').insert({
-      user_id: body.user_id || user.id,
-      user_name: body.user_name || "",
-      date: body.date,
-      time: body.time,
-      status: body.status || "upcoming",
-      notes: body.notes,
-    }).select().single();
-    if (error) throw error;
+    const data = await (await getPrisma()).bookings.create({
+      data: {
+        userId: body.user_id || user.id,
+        userName: body.user_name || "",
+        date: body.date,
+        time: body.time,
+        status: body.status || "upcoming",
+        notes: body.notes,
+      },
+    });
 
     return Response.json(mapBooking(data));
   } catch (err: any) {
@@ -86,8 +91,10 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     if (!body.id) return Response.json({ error: "Missing id" }, { status: 400 });
 
-    const { data, error } = await getSupabase().from('bookings').update({ notes: body.notes }).eq('id', body.id).select().single();
-    if (error) throw error;
+    const data = await (await getPrisma()).bookings.update({
+      where: { id: body.id },
+      data: { notes: body.notes },
+    });
 
     return Response.json(mapBooking(data));
   } catch (err: any) {

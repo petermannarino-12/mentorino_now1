@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getPrisma } from './prisma';
 
 function getSupabase() {
   const url = process.env.VITE_SUPABASE_URL;
@@ -13,15 +14,15 @@ function mapProfileRow(row: any) {
   return {
     id: row.id,
     email: row.email,
-    full_name: row.full_name,
+    full_name: row.fullName,
     name: row.name,
     role: row.role,
     phone: row.phone,
     avatar: row.avatar,
-    mentorship_status: row.mentorship_status,
+    mentorship_status: row.mentorshipStatus,
     tasks: row.tasks,
     milestones: row.milestones,
-    created_at: row.created_at,
+    created_at: row.createdAt,
   };
 }
 
@@ -43,20 +44,13 @@ export async function GET(request: Request) {
     const id = url.searchParams.get("id") || user.id;
 
     if (limit) {
-      const { data: rows, error } = await getSupabase()
-        .from('profiles')
-        .select('*')
-        .limit(parseInt(limit) || 50);
-      if (error) throw error;
+      const rows = await (await getPrisma()).profiles.findMany({
+        take: parseInt(limit) || 50,
+      });
       return Response.json((rows || []).map(mapProfileRow));
     }
 
-    const { data: row, error } = await getSupabase()
-      .from('profiles')
-      .select('*')
-      .eq('id', id)
-      .single();
-    if (error && error.code !== 'PGRST116') throw error;
+    const row = await (await getPrisma()).profiles.findUnique({ where: { id } });
     if (!row) return Response.json({ error: "Profile not found" }, { status: 404 });
 
     return Response.json(mapProfileRow(row));
@@ -77,13 +71,10 @@ export async function PATCH(request: Request) {
       return Response.json({ error: "Missing milestones" }, { status: 400 });
     }
 
-    const { data: row, error } = await getSupabase()
-      .from('profiles')
-      .update({ milestones })
-      .eq('id', user.id)
-      .select()
-      .single();
-    if (error) throw error;
+    const row = await (await getPrisma()).profiles.update({
+      where: { id: user.id },
+      data: { milestones },
+    });
 
     return Response.json(mapProfileRow(row));
   } catch (err: any) {

@@ -1,14 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import { Resend } from "resend";
-
-function getSupabase() {
-  const url = process.env.VITE_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) {
-    throw new Error(`Missing Supabase env vars: ${!url ? 'VITE_SUPABASE_URL' : ''} ${!key ? 'SUPABASE_SERVICE_ROLE_KEY' : ''}`);
-  }
-  return createClient(url, key);
-}
+import { getPrisma } from './prisma';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
@@ -22,14 +13,14 @@ async function handleBookingConfirmation(request: Request) {
     }
     const email = booking.user_email.toLowerCase().trim();
     const userName = booking.user_name || 'Mentee';
+
     if (process.env.RESEND_API_KEY) {
       try {
-        const { data: template } = await getSupabase()
-          .from('email_templates')
-          .select('subject, body')
-          .eq('id', 'booking_confirmed')
-          .single();
+        const template = await (await getPrisma()).email_templates.findUnique({
+          where: { id: 'booking_confirmed' },
+        });
         if (!template) console.error('Template not found: booking_confirmed');
+
         const subject = template?.subject || 'Session Confirmed - Mentorino';
         let body = template?.body || `Hi {{student_name}},<br><br>Your mentorship session has been confirmed.<br><br><strong>Date:</strong> {{session_date}}<br><strong>Time:</strong> {{session_time}}<br><br>Please log in to your portal to join the session at the scheduled time.<br><br>Best,<br>Mentorino Team`;
         body = body
@@ -42,12 +33,13 @@ async function handleBookingConfirmation(request: Request) {
           from: `Mentorino <${FROM_EMAIL}>`,
           to: email,
           subject: subject,
-          html: body
+          html: body,
         });
       } catch (emailError) {
         console.error("Email send error:", emailError);
       }
     }
+
     return Response.json({ message: "Booking confirmation sent" });
   } catch (error: any) {
     console.error("Booking Email Error:", error);
@@ -61,14 +53,14 @@ async function handleWelcome(request: Request) {
     if (!email) return Response.json({ error: "Missing email" }, { status: 400 });
     const normalizedEmail = email.toLowerCase().trim();
     const userName = name || 'Member';
+
     if (process.env.RESEND_API_KEY) {
       try {
-        const { data: template } = await getSupabase()
-          .from('email_templates')
-          .select('subject, body')
-          .eq('id', 'welcome_email')
-          .single();
+        const template = await (await getPrisma()).email_templates.findUnique({
+          where: { id: 'welcome_email' },
+        });
         if (!template) console.error('Template not found: welcome_email');
+
         const subject = template?.subject || 'Welcome to Mentorino!';
         let body = template?.body || `Hi {{student_name}},<br><br>Welcome to Mentorino! Your account has been created successfully.<br><br>You can now log in and access your dashboard to manage your mentorship journey.<br><br>Click here to log in: {{login_url}}<br><br>Best,<br>Mentorino Team`;
         body = body
@@ -79,12 +71,13 @@ async function handleWelcome(request: Request) {
           from: `Mentorino <${FROM_EMAIL}>`,
           to: normalizedEmail,
           subject: subject,
-          html: body
+          html: body,
         });
       } catch (emailError) {
         console.error("Email send error:", emailError);
       }
     }
+
     return Response.json({ message: "Welcome email sent" });
   } catch (error: any) {
     console.error("Welcome Email Error:", error);

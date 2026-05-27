@@ -1,5 +1,5 @@
 {
-  "buildCommand": "vite build",
+  "buildCommand": "prisma generate && vite build",
   "rewrites": [
     { "source": "/.netlify/functions/analyze-application", "destination": "/api/ai?from=analyze-application" },
     { "source": "/.netlify/functions/chat", "destination": "/api/ai?from=chat" },

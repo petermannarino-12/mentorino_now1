@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getPrisma } from './prisma';
 
 function getSupabase() {
   const url = process.env.VITE_SUPABASE_URL;
@@ -21,19 +22,16 @@ export async function POST(request: Request) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const { data, error } = await getSupabase()
-      .from('transactions')
-      .insert({
-        user_id: body.user_id || user.id,
-        user_name: body.user_name || user.email || "",
+    const data = await (await getPrisma()).transactions.create({
+      data: {
+        userId: body.user_id || user.id,
+        userName: body.user_name || user.email || "",
         amount: body.amount,
         product: body.product || "",
-        product_id: body.product_id,
+        productId: body.product_id,
         status: body.status || "pending",
-      })
-      .select()
-      .single();
-    if (error) throw error;
+      },
+    });
 
     return Response.json({ id: data.id, message: "Transaction created" });
   } catch (error: any) {
