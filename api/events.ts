@@ -84,6 +84,14 @@ export async function POST(request: Request) {
       return Response.json(mapEvent(updated));
     }
 
+    const profile = await (await getPrisma()).profiles.findUnique({
+      where: { id: user.id },
+      select: { role: true },
+    });
+    if (!profile || !['admin', 'mentor'].includes(profile.role!)) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const data = await (await getPrisma()).events.create({
       data: {
         title: body.title,
@@ -107,6 +115,14 @@ export async function DELETE(request: Request) {
   try {
     const user = await getUser(request);
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+    const profile = await (await getPrisma()).profiles.findUnique({
+      where: { id: user.id },
+      select: { role: true },
+    });
+    if (!profile || !['admin', 'mentor'].includes(profile.role!)) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const url = new URL(request.url);
     const id = url.searchParams.get("id");

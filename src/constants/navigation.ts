@@ -4,8 +4,7 @@ export const STUDENT_NAV = [
   { label: 'Overview', path: '/dashboard', icon: LayoutDashboard },
   { label: 'Sessions', path: '/dashboard/sessions', icon: Calendar },
   { label: 'Vault', path: '/vault', icon: BookOpen },
-  { label: 'Guidance', path: '/dashboard/guidance', icon: Inbox },
-  { label: 'Account', path: '/dashboard/account', icon: Settings },
+  { label: 'Networking', path: '/dashboard/networking', icon: Inbox },
 ];
 
 export const MENTOR_NAV = [
@@ -20,11 +19,11 @@ export const MENTOR_NAV = [
 
 export const ADMIN_NAV = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { label: 'Applications', path: '/dashboard', icon: ClipboardList },
-  { label: 'Students', path: '/dashboard', icon: Users },
-  { label: 'Sessions', path: '/dashboard', icon: Calendar },
-  { label: 'Activities', path: '/dashboard', icon: Activity },
-  { label: 'Networking', path: '/dashboard', icon: BarChart3 },
-  { label: 'AI Console', path: '/dashboard', icon: Sparkles },
-  { label: 'Validation', path: '/dashboard', icon: ShieldCheck },
+  { label: 'Applications', path: '/dashboard?tab=applications', icon: ClipboardList },
+  { label: 'Students', path: '/dashboard?tab=students', icon: Users },
+  { label: 'Sessions', path: '/dashboard?tab=sessions', icon: Calendar },
+  { label: 'Activities', path: '/dashboard?tab=activities', icon: Activity },
+  { label: 'Networking', path: '/dashboard?tab=networking', icon: BarChart3 },
+  { label: 'AI Console', path: '/dashboard?tab=ai', icon: Sparkles },
+  { label: 'Validation', path: '/dashboard?tab=validation', icon: ShieldCheck },
 ];

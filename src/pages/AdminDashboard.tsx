@@ -1033,7 +1033,7 @@ Mentorino Support Team`;
         {[
           { label: 'Availability', icon: Clock, onClick: () => setShowAvailabilityModal(true) },
           { label: 'Digital Products', icon: Package, onClick: () => navigate('/store') },
-          { label: 'Revenue/Fin', icon: CreditCard, onClick: () => navigate('/admin/revenue') },
+          { label: 'Revenue/Fin', icon: CreditCard, onClick: () => navigate('/admin/revenue') }, // wired in App.tsx
           { label: 'AI Partner', icon: Sparkles, onClick: () => setActiveTab('ai') },
           { label: 'Guidelines', icon: BookOpen, onClick: () => setShowGuidelinesModal(true) },
           { label: 'Data Rules', icon: ShieldCheck, onClick: () => setActiveTab('validation') },

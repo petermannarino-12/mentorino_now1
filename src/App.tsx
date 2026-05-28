@@ -62,6 +62,7 @@ const TermsPage = lazyRetry(() => import('./pages/Terms'));
 const PrivacyPage = lazyRetry(() => import('./pages/Privacy'));
 const MentorDashboard = lazyRetry(() => import('./pages/MentorDashboard'));
 const AdminDashboard = lazyRetry(() => import('./pages/AdminDashboard'));
+const AdminRevenue = lazyRetry(() => import('./pages/AdminRevenue'));
 const NotFound = lazyRetry(() => import('./pages/NotFound'));
 
 const AnimatedRoutes: React.FC<{
@@ -130,6 +131,12 @@ const AnimatedRoutes: React.FC<{
           <Route path="/survey" element={
             <ProtectedRoute>
               <SurveyPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/admin/revenue" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminRevenue />
             </ProtectedRoute>
           } />
 

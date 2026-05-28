@@ -7,8 +7,10 @@ export async function POST(request: Request) {
       return Response.json({ error: "Missing email" }, { status: 400 });
     }
 
-    await (await getPrisma()).newsletter_subscribers.create({
-      data: { email: body.email.toLowerCase().trim() },
+    await (await getPrisma()).newsletter_subscribers.upsert({
+      where: { email: body.email.toLowerCase().trim() },
+      update: {},
+      create: { email: body.email.toLowerCase().trim() },
     });
 
     return Response.json({ message: "Subscribed successfully" });

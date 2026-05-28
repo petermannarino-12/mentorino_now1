@@ -27,6 +27,7 @@ dist-ssr
 # Supabase / Netlify
 .netlify/
 supabase/.temp/
+.env.supabase
 
 src/generated/prisma
 
