@@ -1,8 +1,4 @@
-import { PrismaClient } from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import pg from 'pg'
-
-let _prisma: PrismaClient | null = null
+let _prisma: any = null
 
 export async function getPrisma() {
   if (_prisma) return _prisma
@@ -10,7 +6,12 @@ export async function getPrisma() {
   if (!url) {
     throw new Error('Missing DATABASE_URL env var')
   }
-  const pool = new pg.Pool({ connectionString: url })
+
+  const { PrismaClient } = await import('@prisma/client')
+  const { PrismaPg } = await import('@prisma/adapter-pg')
+  const pg = await import('pg')
+
+  const pool = new pg.default.Pool({ connectionString: url })
   const adapter = new PrismaPg(pool)
   _prisma = new PrismaClient({ adapter })
   await _prisma.$connect()
