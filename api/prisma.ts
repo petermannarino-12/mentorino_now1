@@ -11,9 +11,9 @@ export async function getPrisma() {
   const { PrismaPg } = await import('@prisma/adapter-pg')
   const pg = await import('pg')
 
-  const pool = new pg.default.Pool({ connectionString: url })
+  const pool = new pg.default.Pool({ connectionString: url, max: 5, idleTimeoutMillis: 30000 })
   const adapter = new PrismaPg(pool)
-  _prisma = new PrismaClient({ adapter })
+  _prisma = new PrismaClient({ adapter, errorFormat: 'minimal', log: [] })
   await _prisma.$connect()
   return _prisma
 }

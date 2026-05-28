@@ -10,7 +10,7 @@ async function getSupabase() {
   return createClient(url, key);
 }
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
-const SITE_URL = process.env.URL || 'http://localhost:3000';
+const SITE_URL = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || process.env.URL || 'http://localhost:3000';
 
 const sanitize = (str: string) => str.replace(/[<>]/g, "").slice(0, 255).trim();
 
@@ -174,7 +174,7 @@ async function handleUpdateStatus(request: Request) {
     });
     if (!application) return Response.json({ error: "Application not found" }, { status: 404 });
 
-    await (await getPrisma()).applications.update({
+    const updated = await (await getPrisma()).applications.update({
       where: { id },
       data: { status },
     });
@@ -217,7 +217,14 @@ async function handleUpdateStatus(request: Request) {
       }
     }
 
-    return Response.json({ message: "Status updated successfully" });
+    return Response.json({
+      id: updated.id,
+      user_email: updated.userEmail,
+      mentor_type: updated.mentorType,
+      status: updated.status,
+      created_at: updated.createdAt,
+      responses: updated.responses,
+    });
   } catch (error: any) {
     console.error("Update Status Error:", error);
     return Response.json({ error: "Failed to update status." }, { status: 500 });

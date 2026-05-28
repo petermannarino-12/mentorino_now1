@@ -30,7 +30,7 @@ export const useMentorDashboardData = () => {
     tasks: tasksQuery.data || [],
     events: eventsQuery.data || [],
     reviews: reviewsQuery.data || [],
-    isLoading: applicationsQuery.isLoading || bookingsQuery.isLoading || tasksQuery.isLoading || eventsQuery.isLoading || reviewsQuery.isLoading,
+    isPending: applicationsQuery.isPending || bookingsQuery.isPending || tasksQuery.isPending || eventsQuery.isPending || reviewsQuery.isPending,
     error: applicationsQuery.error || bookingsQuery.error || tasksQuery.error || eventsQuery.error || reviewsQuery.error
   };
 };

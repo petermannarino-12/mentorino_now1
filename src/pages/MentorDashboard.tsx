@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Bell,
@@ -27,6 +27,7 @@ const MentorDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user: currentUser, signOut } = useAuth();
   const [notification, setNotification] = useState<string | null>(null);
+  const [timedOut, setTimedOut] = useState(false);
   
   const {
     applications: allApplications,
@@ -34,9 +35,15 @@ const MentorDashboard: React.FC = () => {
     tasks: allTasks,
     events: allEvents,
     reviews: allReviews,
-    isLoading,
+    isPending,
     error
   } = useMentorDashboardData();
+
+  useEffect(() => {
+    if (!isPending) { setTimedOut(false); return; }
+    const timer = setTimeout(() => setTimedOut(true), 15000);
+    return () => clearTimeout(timer);
+  }, [isPending]);
 
   const {
     handleReviewTask,
@@ -57,10 +64,24 @@ const MentorDashboard: React.FC = () => {
     window.location.reload();
   };
 
-  if (isLoading) {
+  if (isPending && !timedOut) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <Loader />
+      </div>
+    );
+  }
+  if (isPending && timedOut) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center p-6">
+        <div className="bg-white rounded-[28px] sm:rounded-[40px] border border-slate-100 shadow-sm p-12 text-center max-w-md">
+          <AlertCircle className="mx-auto mb-4 text-amber-500" size={48} />
+          <p className="text-[10px] sm:text-xs font-black text-amber-600 uppercase tracking-widest mb-2">Taking Longer Than Expected</p>
+          <p className="text-sm text-slate-500 mb-6">The dashboard is still loading. This may be due to a cold start. Please try again.</p>
+          <button onClick={refresh} className="px-6 py-3 bg-black text-white text-[9px] font-black uppercase tracking-widest rounded-full hover:bg-indigo-600 transition-colors">
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }

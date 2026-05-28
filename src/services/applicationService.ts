@@ -91,23 +91,14 @@ export const applicationService = {
         throw new Error(errorData.error || `Server responded with status ${response.status}`);
       }
 
-      // Re-fetch the updated application to return fresh data
-      const { data: updatedApp, error: fetchError } = await supabase
-        .from('applications')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
-
-      if (fetchError) throw new Error(fetchError.message);
-      if (!updatedApp) throw new Error('Application not found after update.');
-
+      const result = await response.json();
       const flattened = {
-        ...(updatedApp.responses || {}),
-        id: updatedApp.id,
-        user_email: updatedApp.user_email,
-        mentor_type: updatedApp.mentor_type,
-        status: updatedApp.status,
-        created_at: updatedApp.created_at
+        ...(result.responses || {}),
+        id: result.id,
+        user_email: result.user_email,
+        mentor_type: result.mentor_type,
+        status: result.status,
+        created_at: result.created_at
       } as Application;
 
       return { data: flattened, error: null };
