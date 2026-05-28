@@ -28,4 +28,4 @@ dist-ssr
 .netlify/
 supabase/.temp/
 
-/src/generated/prisma
+src/generated/prisma
