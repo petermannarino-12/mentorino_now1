@@ -473,8 +473,41 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
     </div>
   );
 
+  const [sessionFilter, setSessionFilter] = useState<'all' | 'week' | 'month'>('all');
+
+  const filteredPastSessions = pastSessions.filter(s => {
+    if (sessionFilter === 'all') return true;
+    const d = new Date(s.date);
+    const now = new Date();
+    if (sessionFilter === 'week') {
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      return d >= weekAgo && d <= now;
+    }
+    if (sessionFilter === 'month') {
+      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      return d >= monthAgo && d <= now;
+    }
+    return true;
+  });
+
   const renderSessions = () => (
     <div className="space-y-6">
+      {/* Session Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white rounded-[20px] p-4 border border-black/[0.03] text-center">
+          <p className="text-xl font-black">{upcomingSessions.length}</p>
+          <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 mt-1">Upcoming</p>
+        </div>
+        <div className="bg-white rounded-[20px] p-4 border border-black/[0.03] text-center">
+          <p className="text-xl font-black">{pastSessions.length}</p>
+          <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 mt-1">Completed</p>
+        </div>
+        <div className="bg-white rounded-[20px] p-4 border border-black/[0.03] text-center">
+          <p className="text-xl font-black">{upcomingSessions.length + pastSessions.length}</p>
+          <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 mt-1">Total</p>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between px-2">
         <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Your Schedule</h3>
         <button onClick={() => navigate('/booking')} className="text-[9px] font-black uppercase tracking-widest text-black border-b border-black pb-0.5 hover:opacity-70 transition-opacity">Book Session</button>
@@ -567,23 +600,43 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
         </div>
       )}
 
-      <div className="space-y-4">
-        <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400 px-2 pt-6">History</h4>
-        {pastSessions.map(s => (
-          <div key={s.id} className="bg-white/60 p-5 rounded-[24px] border border-black/[0.01] flex items-center justify-between grayscale opacity-50">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
-                <CheckCircle2 size={16} />
-              </div>
-              <div>
-                <p className="text-xs font-black uppercase text-slate-600">{formatToNJ(s.date, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                <p className="text-[8px] font-bold uppercase tracking-widest">Completed</p>
-              </div>
-            </div>
-            <button onClick={() => { setNotesText(s.notes || ''); setEditingNotesSession(s); }} className="text-[8px] font-black uppercase tracking-widest text-slate-400">Notes</button>
-          </div>
-        ))}
+    <div className="space-y-4">
+      <div className="flex items-center justify-between px-2 pt-6">
+        <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400">History</h4>
+        <div className="flex items-center gap-1">
+          {(['all', 'week', 'month'] as const).map(f => (
+            <button key={f} onClick={() => setSessionFilter(f)}
+              className={`px-3 py-1 text-[8px] font-black uppercase tracking-widest rounded-full transition-all ${
+                sessionFilter === f ? 'bg-black text-white' : 'text-slate-400 hover:text-black'
+              }`}
+            >
+              {f === 'all' ? 'All' : f === 'week' ? '7d' : '30d'}
+            </button>
+          ))}
+        </div>
       </div>
+      {filteredPastSessions.length > 0 ? filteredPastSessions.map(s => (
+        <div key={s.id} className="bg-white/60 p-5 rounded-[24px] border border-black/[0.01] flex items-center justify-between opacity-50 hover:opacity-100 hover:bg-white hover:border-black/10 transition-all">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+              <CheckCircle2 size={16} />
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase text-slate-600">{formatToNJ(s.date, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+              <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400">{s.time}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => { setNotesText(s.notes || ''); setEditingNotesSession(s); }} className="text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-black transition-colors">Notes</button>
+            <button onClick={() => navigate('/booking')} className="px-4 py-2 bg-black text-white text-[8px] font-black uppercase tracking-widest rounded-full hover:scale-105 active:scale-95 transition-all">Rebook</button>
+          </div>
+        </div>
+      )) : (
+        <div className="bg-slate-50/50 rounded-[24px] p-8 text-center border border-dashed border-slate-200">
+          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">No completed sessions yet</p>
+        </div>
+      )}
+    </div>
     </div>
   );
 

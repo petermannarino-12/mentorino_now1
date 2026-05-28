@@ -47,8 +47,29 @@ export const MentorSessions: React.FC<MentorSessionsProps> = ({ bookings, onStar
   const [editSchedule, setEditSchedule] = useState<DaySchedule[]>(schedule);
   const [notification, setNotification] = useState<string | null>(null);
   const [callStartingId, setCallStartingId] = useState<string | null>(null);
+  const [viewTab, setViewTab] = useState<'upcoming' | 'history'>('upcoming');
 
-  const mentorBookings = bookings.filter(b => b.status === 'upcoming');
+  const upcomingBookings = bookings.filter(b => b.status === 'upcoming');
+  const pastBookings = bookings.filter(b => b.status === 'completed');
+
+  const toggleSessionStatus = async (id: string, newStatus: string) => {
+    try {
+      const { data: { session } } = await (await import('../../lib/supabase')).supabase.auth.getSession();
+      const token = session?.access_token;
+      const res = await fetch('/api/bookings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      setNotification(`Session marked as ${newStatus}.`);
+      setTimeout(() => setNotification(null), 3000);
+    } catch (err) {
+      console.error('Failed to update session status:', err);
+      setNotification('Failed to update session.');
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
 
   const toggleDay = (day: string) => {
     setSchedule(prev => {
@@ -96,11 +117,45 @@ export const MentorSessions: React.FC<MentorSessionsProps> = ({ bookings, onStar
         </div>
       </div>
 
+      {/* Session Stats */}
+      <div className="grid grid-cols-3 gap-3 px-1">
+        <div className="bg-white rounded-[20px] p-4 border border-black/[0.03] text-center">
+          <p className="text-xl font-black">{upcomingBookings.length}</p>
+          <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 mt-1">Upcoming</p>
+        </div>
+        <div className="bg-white rounded-[20px] p-4 border border-black/[0.03] text-center">
+          <p className="text-xl font-black">{pastBookings.length}</p>
+          <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 mt-1">Completed</p>
+        </div>
+        <div className="bg-white rounded-[20px] p-4 border border-black/[0.03] text-center">
+          <p className="text-xl font-black">{bookings.length}</p>
+          <p className="text-[7px] font-black uppercase tracking-widest text-slate-400 mt-1">Total</p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         <div className="space-y-4">
-          <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.4em] text-slate-400 px-4">Today & Upcoming</h3>
+          <div className="flex items-center gap-2 px-4">
+            <button onClick={() => setViewTab('upcoming')}
+              className={`text-[10px] sm:text-xs font-black uppercase tracking-[0.4em] transition-all ${
+                viewTab === 'upcoming' ? 'text-slate-900' : 'text-slate-300 hover:text-slate-500'
+              }`}
+            >
+              Upcoming
+            </button>
+            <span className="text-slate-200">/</span>
+            <button onClick={() => setViewTab('history')}
+              className={`text-[10px] sm:text-xs font-black uppercase tracking-[0.4em] transition-all ${
+                viewTab === 'history' ? 'text-slate-900' : 'text-slate-300 hover:text-slate-500'
+              }`}
+            >
+              History ({pastBookings.length})
+            </button>
+          </div>
+
+          {viewTab === 'upcoming' ? (
           <div className="space-y-3 sm:space-y-4">
-            {mentorBookings.map(session => (
+            {upcomingBookings.map(session => (
               <div key={session.id} className="bg-white p-5 sm:p-6 md:p-8 rounded-[28px] sm:rounded-[32px] md:rounded-[40px] border border-black/[0.03] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 group hover:border-black/10 hover:shadow-xl hover:shadow-black/5 transition-all">
                 <div className="flex items-center gap-4 md:gap-6">
                   <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-slate-50 text-black rounded-xl sm:rounded-2xl md:rounded-3xl flex flex-col items-center justify-center group-hover:bg-black group-hover:text-white transition-all shrink-0">
@@ -119,22 +174,61 @@ export const MentorSessions: React.FC<MentorSessionsProps> = ({ bookings, onStar
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={() => handleStartCall(session)}
-                  disabled={callStartingId === session.id}
-                  className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-black text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-black/10 disabled:opacity-50 disabled:hover:scale-100"
-                >
-                  {callStartingId === session.id ? 'Connecting...' : 'Start Call'}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => toggleSessionStatus(session.id, 'completed')}
+                    className="text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-emerald-600 transition-colors"
+                  >
+                    Complete
+                  </button>
+                  <button
+                    onClick={() => handleStartCall(session)}
+                    disabled={callStartingId === session.id}
+                    className="px-6 py-3 sm:px-8 sm:py-4 bg-black text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-black/10 disabled:opacity-50 disabled:hover:scale-100"
+                  >
+                    {callStartingId === session.id ? 'Connecting...' : 'Start Call'}
+                  </button>
+                </div>
               </div>
             ))}
-            {mentorBookings.length === 0 && (
+            {upcomingBookings.length === 0 && (
               <div className="p-12 sm:p-20 bg-slate-50 rounded-[28px] sm:rounded-[40px] text-center border-2 border-dashed border-slate-200">
                 <Calendar size={32} className="mx-auto mb-4 text-slate-200 sm:size-12" />
                 <p className="text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-400">Clear Schedule</p>
               </div>
             )}
           </div>
+          ) : (
+          <div className="space-y-3 sm:space-y-4">
+            {pastBookings.length > 0 ? pastBookings.map(session => (
+              <div key={session.id} className="bg-white p-5 sm:p-6 md:p-8 rounded-[28px] sm:rounded-[32px] md:rounded-[40px] border border-black/[0.03] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 group hover:border-black/10 transition-all opacity-60 hover:opacity-100">
+                <div className="flex items-center gap-4 md:gap-6">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-slate-50 text-slate-400 rounded-xl sm:rounded-2xl md:rounded-3xl flex flex-col items-center justify-center shrink-0">
+                    <span className="text-[7px] sm:text-[8px] md:text-[10px] font-black uppercase mb-0.5 md:mb-1">{formatToNJ(session.date, { month: '2-digit' })}</span>
+                    <span className="text-lg sm:text-xl md:text-2xl font-black leading-none">{formatToNJ(session.date, { day: '2-digit' })}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-sm sm:text-base md:text-lg font-black uppercase tracking-tight truncate">{session.user_name}</h4>
+                    <p className="text-[8px] sm:text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 truncate">
+                       <Clock size={10} /> {session.time} • Completed
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => toggleSessionStatus(session.id, 'upcoming')}
+                  className="w-full sm:w-auto px-6 py-3 sm:px-6 sm:py-3 border border-slate-200 text-slate-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-black hover:text-white hover:border-black transition-all"
+                >
+                  Reschedule
+                </button>
+              </div>
+            )) : (
+              <div className="p-12 sm:p-20 bg-slate-50 rounded-[28px] sm:rounded-[40px] text-center border-2 border-dashed border-slate-200">
+                <Calendar size={32} className="mx-auto mb-4 text-slate-200 sm:size-12" />
+                <p className="text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-400">No completed sessions yet</p>
+              </div>
+            )}
+          </div>
+          )}
         </div>
 
         <div className="bg-white rounded-[28px] sm:rounded-[32px] md:rounded-[40px] border border-black/[0.03] p-6 sm:p-8 md:p-10 space-y-6 sm:space-y-8 h-fit shadow-sm">

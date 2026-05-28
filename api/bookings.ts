@@ -96,7 +96,10 @@ export async function PATCH(request: Request) {
 
     const data = await (await getPrisma()).bookings.update({
       where: { id: body.id },
-      data: { notes: body.notes },
+      data: {
+        ...(body.notes !== undefined && { notes: body.notes }),
+        ...(body.status !== undefined && { status: body.status }),
+      },
     });
 
     return Response.json(mapBooking(data));
