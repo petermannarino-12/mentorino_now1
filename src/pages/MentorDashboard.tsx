@@ -19,6 +19,7 @@ import { MentorAccessRequests } from './mentor/MentorAccessRequests';
 import { MentorEvents } from './mentor/MentorEvents';
 import { MentorEmailTemplates } from './mentor/MentorEmailTemplates';
 import { MentorAccounts } from './mentor/MentorAccounts';
+import { MentorChat } from '../components/chat/MentorChat';
 import { useMentorDashboardData } from '../hooks/useMentorDashboardData';
 import { useAuth } from '../contexts/AuthContext';
 import SEO from '../components/SEO';
@@ -258,6 +259,9 @@ const MentorDashboard: React.FC = () => {
             } />
             <Route path="accounts" element={
               <MentorAccounts />
+            } />
+            <Route path="chat" element={
+              <MentorChat currentUserId={currentUser?.id || ''} />
             } />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>

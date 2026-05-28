@@ -230,6 +230,114 @@ async function handleMyAccess(request: Request) {
   }
 }
 
+async function handleSendMessage(request: Request) {
+  try {
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const supabase = await getSupabase();
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+
+    const { receiver_id, content } = await request.json();
+    if (!receiver_id || !content) {
+      return Response.json({ error: 'Missing receiver_id or content' }, { status: 400 });
+    }
+
+    await (await getPrisma()).$executeRawUnsafe(
+      `INSERT INTO public.messages (sender_id, receiver_id, content) VALUES ($1, $2, $3)`,
+      user.id, receiver_id, content.trim().slice(0, 5000)
+    );
+
+    return Response.json({ message: 'Message sent' });
+  } catch (error: any) {
+    console.error('send-message error:', error);
+    return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
+  }
+}
+
+async function handleGetConversation(request: Request) {
+  try {
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const supabase = await getSupabase();
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+
+    const url = new URL(request.url);
+    const withUserId = url.searchParams.get('with');
+    if (!withUserId) return Response.json({ error: 'Missing "with" param' }, { status: 400 });
+
+    const rows = await (await getPrisma()).$queryRawUnsafe(
+      `SELECT id, sender_id, receiver_id, content, read, created_at
+       FROM public.messages
+       WHERE (sender_id = $1 AND receiver_id = $2)
+          OR (sender_id = $2 AND receiver_id = $1)
+       ORDER BY created_at ASC`,
+      user.id, withUserId
+    );
+
+    return Response.json({ messages: rows });
+  } catch (error: any) {
+    console.error('get-conversation error:', error);
+    return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
+  }
+}
+
+async function handleGetConversations(request: Request) {
+  try {
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const supabase = await getSupabase();
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+
+    const rows = await (await getPrisma()).$queryRawUnsafe(
+      `SELECT
+         CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END AS other_user_id,
+         MAX(created_at) AS last_message_at,
+         (SELECT content FROM public.messages
+          WHERE (sender_id = $1 AND receiver_id = CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END)
+             OR (receiver_id = $1 AND sender_id = CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END)
+          ORDER BY created_at DESC LIMIT 1) AS last_message,
+         (SELECT COUNT(*) FROM public.messages
+          WHERE receiver_id = $1 AND sender_id = CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END AND read = false) AS unread
+       FROM public.messages
+       WHERE sender_id = $1 OR receiver_id = $1
+       GROUP BY other_user_id
+       ORDER BY last_message_at DESC`,
+      user.id
+    );
+
+    return Response.json({ conversations: rows });
+  } catch (error: any) {
+    console.error('get-conversations error:', error);
+    return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
+  }
+}
+
+async function handleMarkRead(request: Request) {
+  try {
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const supabase = await getSupabase();
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+
+    const { from_user_id } = await request.json();
+    if (!from_user_id) return Response.json({ error: 'Missing from_user_id' }, { status: 400 });
+
+    await (await getPrisma()).$executeRawUnsafe(
+      `UPDATE public.messages SET read = true WHERE receiver_id = $1 AND sender_id = $2 AND read = false`,
+      user.id, from_user_id
+    );
+
+    return Response.json({ message: 'Messages marked as read' });
+  } catch (error: any) {
+    console.error('mark-read error:', error);
+    return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
+  }
+}
+
 async function handleWelcome(request: Request) {
   try {
     const { email, name } = await request.json();
@@ -282,6 +390,10 @@ function router(from: string | null, request: Request): Promise<Response> | null
     case "grant-access": return handleGrantAccess(request);
     case "list-requests": return handleListRequests(request);
     case "my-access": return handleMyAccess(request);
+    case "send-message": return handleSendMessage(request);
+    case "get-conversation": return handleGetConversation(request);
+    case "get-conversations": return handleGetConversations(request);
+    case "mark-read": return handleMarkRead(request);
     default: return null;
   }
 }

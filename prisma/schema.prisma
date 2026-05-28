@@ -244,6 +244,21 @@ model resource_links {
 }
 
 /// Row-level security enabled — access is enforced at the application layer
+model messages {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  senderId   String    @map("sender_id") @db.Uuid
+  receiverId String    @map("receiver_id") @db.Uuid
+  content    String
+  read       Boolean   @default(false)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([senderId, receiverId])
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
 model availability {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   mentorId    String?   @map("mentor_id") @db.Uuid

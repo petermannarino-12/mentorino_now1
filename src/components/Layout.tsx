@@ -16,7 +16,9 @@ import {
   MessageCircle,
   Activity,
   Sparkles,
-  Lock
+  Lock,
+  Mail,
+  Star
 } from 'lucide-react';
 import { UserRole } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -40,12 +42,14 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
     { label: 'Vault', path: '/vault', icon: BookOpen, roles: ['user'] },
     { label: 'Settings', path: '/settings', icon: Settings, roles: ['user', 'mentor', 'admin'] },
     { label: 'Mentees', path: '/dashboard/mentees', icon: Users, roles: ['mentor', 'admin'] },
-    { label: 'Reviews', path: '/dashboard/reviews', icon: MessageCircle, roles: ['mentor', 'admin'] },
+    { label: 'Chat', path: '/dashboard/chat', icon: MessageCircle, roles: ['mentor', 'admin'] },
+    { label: 'Messages', path: '/dashboard/chat', icon: MessageCircle, roles: ['user'] },
+    { label: 'Reviews', path: '/dashboard/reviews', icon: Star, roles: ['mentor', 'admin'] },
     { label: 'Events', path: '/dashboard/events', icon: Sparkles, roles: ['mentor', 'admin'] },
     { label: 'Network', path: '/dashboard/networking', icon: Sparkles, roles: ['user'] },
     { label: 'Inquiries', path: '/dashboard/audits', icon: ClipboardList, roles: ['mentor', 'admin'] },
     { label: 'Access Requests', path: '/dashboard/access-requests', icon: Lock, roles: ['mentor', 'admin'] },
-    { label: 'Email Templates', path: '/dashboard/emails', icon: MessageCircle, roles: ['mentor', 'admin'] },
+    { label: 'Email Templates', path: '/dashboard/emails', icon: Mail, roles: ['mentor', 'admin'] },
   ].filter(item => item.roles.includes(role));
 
   const helpItems = [

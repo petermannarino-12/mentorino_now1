@@ -5,12 +5,14 @@ export const STUDENT_NAV = [
   { label: 'Sessions', path: '/dashboard/sessions', icon: Calendar },
   { label: 'Vault', path: '/vault', icon: BookOpen },
   { label: 'Networking', path: '/dashboard/networking', icon: Inbox },
+  { label: 'Messages', path: '/dashboard/chat', icon: MessageCircle },
 ];
 
 export const MENTOR_NAV = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { label: 'Audits', path: '/dashboard/audits', icon: Activity },
   { label: 'Access Requests', path: '/dashboard/access-requests', icon: Lock },
+  { label: 'Chat', path: '/dashboard/chat', icon: MessageCircle },
   { label: 'Events', path: '/dashboard/events', icon: Calendar },
   { label: 'Mentees', path: '/dashboard/mentees', icon: Users },
   { label: 'Reviews', path: '/dashboard/reviews', icon: MessageCircle },

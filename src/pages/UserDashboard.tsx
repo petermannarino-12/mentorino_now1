@@ -38,6 +38,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { productService } from '../services/productService';
 import { getPreSessionBrief } from '../services/geminiService';
+import { StudentChat } from '../components/chat/StudentChat';
 import Purchases from './dashboard/Purchases';
 import SEO from '../components/SEO';
 
@@ -1107,6 +1108,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
               <Route path="/networking" element={renderNetworking()} />
               <Route path="/vault" element={renderResources()} />
               <Route path="/purchases" element={<Purchases />} />
+              <Route path="/chat" element={<StudentChat currentUserId={currentUser?.id || ''} />} />
               <Route path="/profile" element={renderProfile()} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
