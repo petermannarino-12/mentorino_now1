@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import SEO from '../components/SEO';
@@ -16,8 +16,18 @@ const ResetPasswordPage: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const [searchParams] = useSearchParams();
+  const customToken = searchParams.get('token');
+
+  // If using custom flow (token in URL param), skip Supabase session check
+  const isCustomFlow = !!customToken;
 
   useEffect(() => {
+    if (isCustomFlow) {
+      setIsSessionValid(true);
+      return;
+    }
+
     let cancelled = false;
     let retries = 0;
     const maxRetries = 10;
@@ -32,14 +42,12 @@ const ResetPasswordPage: React.FC = () => {
       return false;
     };
 
-    // Try immediately, then retry if Supabase hasn't processed the URL hash yet
     const tryCheck = async () => {
       const ok = await checkSession();
       if (!ok && retries < maxRetries) {
         retries++;
         setTimeout(tryCheck, 300);
       } else if (!ok && !cancelled) {
-        // If no session after all retries, check URL hash for recovery params
         const hash = window.location.hash;
         if (hash.includes('type=recovery') || hash.includes('access_token')) {
           setIsSessionValid(true);
@@ -61,7 +69,7 @@ const ResetPasswordPage: React.FC = () => {
       cancelled = true;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [isCustomFlow]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,15 +93,21 @@ const ResetPasswordPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const { error: updateError } = await supabase.auth.updateUser({ password });
-      if (updateError) throw updateError;
+      if (isCustomFlow) {
+        const res = await fetch('/.netlify/functions/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: customToken, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+      } else {
+        const { error: updateError } = await supabase.auth.updateUser({ password });
+        if (updateError) throw updateError;
+        await signOut();
+      }
 
       setSuccess(true);
-
-      // Sign out (clears recovery mode and telemetry)
-      await signOut();
-
-      // Redirect to login after a short delay
       setTimeout(() => navigate('/auth'), 2500);
     } catch (err: any) {
       setError(err.message || 'Failed to update password.');

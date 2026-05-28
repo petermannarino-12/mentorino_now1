@@ -88,10 +88,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
     }
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+      const res = await fetch('/.netlify/functions/send-password-reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
       });
-      if (error) throw error;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
       notifySuccess('Check your email for the password reset link.');
       setResetCooldown(60);
     } catch (err: any) {
