@@ -1,6 +1,6 @@
 import { getPrisma } from './prisma.js';
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
-const SITE_URL = process.env.SITE_URL || `https://${process.env.VERCEL_URL}` || process.env.URL || 'http://localhost:3000';
+const SITE_URL = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.URL) || 'http://localhost:3000';
 
 async function handleBookingConfirmation(request: Request) {
   try {
@@ -27,12 +27,14 @@ async function handleBookingConfirmation(request: Request) {
           .replace(/{{session_date}}/g, booking.date || '')
           .replace(/{{session_time}}/g, booking.time || '')
           .replace(/{{login_url}}/g, `${SITE_URL}/dashboard`)
-          .replace(/\n/g, '<br>');
+
+        body = body.replace(/\\n/g, '\n').replace(/\n/g, '<br>');
+
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
           to: email,
-          subject: subject,
-          html: body,
+          subject: `Mentorino — ${subject}`,
+          html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:40px 24px;background:#fff;color:#1a1a1a"><div style="width:40px;height:40px;background:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:32px">M</div>${body}<hr style="border:none;border-top:1px solid #eee;margin:32px 0"><p style="font-size:11px;color:#999">Mentorino — mentorship, redefined.</p></div>`,
         });
       } catch (emailError) {
         console.error("Email send error:", emailError);
@@ -66,11 +68,13 @@ async function handleSendPasswordReset(request: Request) {
     if (process.env.RESEND_API_KEY) {
       const { Resend } = await import('resend');
       const resend = new Resend(process.env.RESEND_API_KEY);
+      const html = `<p>Hi,</p><p>You requested a password reset. Click the button below to set a new password:</p><p><a href="${resetLink}" style="display:inline-block;background:#000;color:#fff;text-decoration:none;padding:14px 32px;border-radius:999px;font-weight:600;font-size:14px;margin:16px 0">Reset Password</a></p><p>Or copy this link into your browser:</p><p style="font-size:12px;color:#666;word-break:break-all">${resetLink}</p><p>This link expires in 1 hour.</p><p>If you didn't request this, you can ignore this email.</p><p>Best,<br>Mentorino Team</p>`;
+
       await resend.emails.send({
         from: `Mentorino <${FROM_EMAIL}>`,
         to: normalizedEmail,
-        subject: 'Reset your Mentorino password',
-        html: `<p>Hi,</p><p>You requested a password reset. Click the link below to set a new password:</p><p><a href="${resetLink}">${resetLink}</a></p><p>This link expires in 1 hour.</p><p>If you didn't request this, you can ignore this email.</p><p>Best,<br>Mentorino Team</p>`,
+        subject: 'Mentorino — Reset your password',
+        html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:40px 24px;background:#fff;color:#1a1a1a"><div style="width:40px;height:40px;background:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:32px">M</div>${html}<hr style="border:none;border-top:1px solid #eee;margin:32px 0"><p style="font-size:11px;color:#999">Mentorino — mentorship, redefined.</p></div>`,
       });
     }
 
@@ -102,12 +106,15 @@ async function handleWelcome(request: Request) {
         body = body
           .replace(/{{student_name}}/g, userName)
           .replace(/{{login_url}}/g, `${SITE_URL}/auth`)
-          .replace(/\n/g, '<br>');
+
+        // Convert both literal \n and actual newlines to <br>
+        body = body.replace(/\\n/g, '\n').replace(/\n/g, '<br>');
+
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
           to: normalizedEmail,
-          subject: subject,
-          html: body,
+          subject: `Mentorino — ${subject}`,
+          html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:40px 24px;background:#fff;color:#1a1a1a"><div style="width:40px;height:40px;background:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:32px">M</div>${body}<hr style="border:none;border-top:1px solid #eee;margin:32px 0"><p style="font-size:11px;color:#999">Mentorino — mentorship, redefined.</p></div>`,
         });
       } catch (emailError) {
         console.error("Email send error:", emailError);
