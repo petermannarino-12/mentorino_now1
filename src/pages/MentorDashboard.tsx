@@ -15,6 +15,7 @@ import { MentorMentees } from './mentor/MentorMentees';
 import { MentorSessions } from './mentor/MentorSessions';
 import { MentorReviews } from './mentor/MentorReviews';
 import { MentorApplications } from './mentor/MentorApplications';
+import { MentorAccessRequests } from './mentor/MentorAccessRequests';
 import { MentorEvents } from './mentor/MentorEvents';
 import { MentorEmailTemplates } from './mentor/MentorEmailTemplates';
 import { MentorAccounts } from './mentor/MentorAccounts';
@@ -108,6 +109,7 @@ const MentorDashboard: React.FC = () => {
     if (path === '/dashboard/sessions') return 'Schedule';
     if (path === '/dashboard/reviews') return 'Reviews';
     if (path === '/dashboard/audits') return 'Inquiry Audit';
+    if (path === '/dashboard/access-requests') return 'Access Requests';
     if (path === '/dashboard/events') return 'Networking Setup';
     if (path === '/dashboard/emails') return 'Email Templates';
     if (path === '/dashboard/accounts') return 'Accounts';
@@ -240,6 +242,9 @@ const MentorDashboard: React.FC = () => {
                 pendingApplications={allApplications?.filter(a => a.status === 'pending') || []}
                 onAction={handleApplicationAction}
               />
+            } />
+            <Route path="access-requests" element={
+              <MentorAccessRequests />
             } />
             <Route path="events" element={
               <MentorEvents 

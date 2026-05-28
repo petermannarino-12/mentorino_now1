@@ -17,6 +17,10 @@
     { "source": "/.netlify/functions/send-welcome-email", "destination": "/api/emails?from=send-welcome-email" },
     { "source": "/.netlify/functions/send-password-reset", "destination": "/api/emails?from=send-password-reset" },
     { "source": "/.netlify/functions/reset-password", "destination": "/api/pwreset" },
+    { "source": "/.netlify/functions/request-product-access", "destination": "/api/product-access?from=request-access" },
+    { "source": "/.netlify/functions/handle-product-access", "destination": "/api/product-access?from=grant-access" },
+    { "source": "/.netlify/functions/list-product-requests", "destination": "/api/product-access?from=list-requests" },
+    { "source": "/.netlify/functions/my-product-access", "destination": "/api/product-access?from=my-access" },
     { "source": "/.netlify/functions/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]

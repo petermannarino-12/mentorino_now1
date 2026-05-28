@@ -104,14 +104,28 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   
   const isStrategyComplete = taskActivities.some(a => a.user_id === currentUser?.id && !!a.roadmap_topic);
 
-  // All products are available if approved
   const isApproved = application?.status === 'approved';
-  const { data: availableResources = [] } = useQuery({
+  const { data: allProducts = [] } = useQuery({
     queryKey: ['products'],
     queryFn: productService.getAll,
     staleTime: 60_000,
     enabled: isApproved,
   });
+  const { data: grantedAccess = [] } = useQuery({
+    queryKey: ['my-access'],
+    queryFn: async () => {
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      const res = await fetch('/.netlify/functions/my-product-access', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.products || [];
+    },
+    staleTime: 30_000,
+    enabled: isApproved,
+  });
+  const availableResources = allProducts.filter((p: any) => grantedAccess.includes(p.id));
 
   const getStatusStep = () => {
     if (!application) return 0;
@@ -599,6 +613,8 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
             <div className="bg-slate-50/50 rounded-[32px] p-12 text-center border border-dashed border-slate-200">
               <Download className="mx-auto text-slate-300 mb-4" size={32} />
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">No resources available in the vault</p>
+              <p className="text-xs text-slate-400 mt-2 max-w-xs mx-auto">Request access to products in the Store. Once granted, they will appear here.</p>
+              <button onClick={() => navigate('/store')} className="mt-6 px-8 py-3 bg-black text-white text-[9px] font-black uppercase tracking-widest rounded-full hover:scale-105 transition-all">Go to Store</button>
             </div>
           )}
         </div>

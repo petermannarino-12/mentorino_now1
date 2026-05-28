@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, Check, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
+import { Search, ArrowRight, ArrowLeft, Loader2, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import SEO from '../components/SEO';
@@ -12,8 +13,9 @@ const StorePage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const [cartCount, setCartCount] = useState(0);
-  const [buyingId, setBuyingId] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [requestMessage, setRequestMessage] = useState('');
+  const [requestingId, setRequestingId] = useState<string | null>(null);
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['products'],
@@ -21,35 +23,30 @@ const StorePage: React.FC = () => {
     staleTime: 60_000,
   });
 
-  const handleBuy = async (product: any) => {
-    if (!user) {
-      toast.error('Please sign in to purchase');
-      navigate('/auth');
-      return;
+  const handleSendRequest = async () => {
+    if (!selectedProduct || !user) return;
+    setRequestingId(selectedProduct.id);
+    try {
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      const res = await fetch('/.netlify/functions/request-product-access', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: selectedProduct.id,
+          product_name: selectedProduct.full_name,
+          message: requestMessage,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toast.success('Request sent! The mentor will review it.');
+      setSelectedProduct(null);
+      setRequestMessage('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send request.');
+    } finally {
+      setRequestingId(null);
     }
-    if (buyingId) return;
-    setBuyingId(product.id);
-    const token = (await supabase.auth.getSession()).data.session?.access_token;
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-    const res = await fetch('/.netlify/functions/transactions', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        user_id: user.id,
-        product_id: product.id,
-        amount: product.price,
-        status: 'pending',
-      }),
-    });
-    setBuyingId(null);
-    if (!res.ok) {
-      toast.error('Purchase failed. Please try again.');
-      return;
-    }
-    setCartCount(prev => prev + 1);
-    toast.success('Purchase recorded!');
-    queryClient.invalidateQueries({ queryKey: ['transactions'] });
   };
 
   if (isLoading) {
@@ -88,14 +85,7 @@ const StorePage: React.FC = () => {
                 className="pl-10 pr-4 py-3.5 sm:py-4 bg-white border border-black/[0.03] rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest w-full md:w-64 focus:border-black outline-none transition-all shadow-sm"
               />
             </div>
-            <button className="p-3.5 sm:p-4 bg-white border border-black/[0.03] rounded-xl sm:rounded-2xl relative hover:bg-slate-50 transition-all shrink-0 shadow-sm active:scale-90">
-              <ShoppingCart size={18} className="sm:w-5 sm:h-5 text-slate-600" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-black text-white text-[9px] sm:text-[10px] flex items-center justify-center rounded-full font-black animate-in zoom-in">
-                  {cartCount}
-                </span>
-              )}
-            </button>
+            <div className="w-12 h-12"></div>
           </div>
         </div>
       </div>
@@ -123,12 +113,11 @@ const StorePage: React.FC = () => {
               </p>
               <div className="flex items-center justify-between mt-auto pt-4 sm:pt-6 border-t border-black/[0.02]">
                 <span className="text-xl sm:text-2xl font-black text-black">${product.price}</span>
-                <button 
-                  onClick={() => handleBuy(product)}
-                  disabled={buyingId === product.id}
-                  className="btn-compact flex items-center gap-2 bg-black text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                <button
+                  onClick={() => { setSelectedProduct(product); setRequestMessage(''); }}
+                  className="btn-compact flex items-center gap-2 bg-black text-white hover:bg-slate-800"
                 >
-                  {buyingId === product.id ? <Loader2 size={14} className="animate-spin" /> : <><span>Buy</span> <ArrowRight size={14} /></>}
+                  <span>Request Access</span> <ArrowRight size={14} />
                 </button>
               </div>
             </div>
@@ -141,7 +130,73 @@ const StorePage: React.FC = () => {
         )}
       </div>
     </div>
+
+      <AnimatePresence>
+        {selectedProduct && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-8">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedProduct(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-[40px] sm:rounded-[48px] shadow-2xl overflow-hidden p-8 sm:p-10"
+            >
+              <button
+                onClick={() => setSelectedProduct(null)}
+                className="absolute top-6 right-6 w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all group"
+              >
+                <X size={18} className="group-hover:rotate-90 transition-transform" />
+              </button>
+
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 bg-slate-100 rounded-2xl overflow-hidden shrink-0">
+                  {selectedProduct.image && <img src={selectedProduct.image} className="w-full h-full object-cover" />}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Product</p>
+                  <h3 className="text-lg font-black uppercase tracking-tight truncate">{selectedProduct.full_name}</h3>
+                </div>
+              </div>
+
+              <div className="h-px bg-slate-100 mb-6" />
+
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Contact the mentor to get access</p>
+              <p className="text-sm text-slate-600 mb-6 leading-relaxed">Write a brief message explaining why you'd like access to this resource. The mentor will review your request.</p>
+
+              <textarea
+                value={requestMessage}
+                onChange={e => setRequestMessage(e.target.value)}
+                placeholder="Hi, I'm interested in this resource because..."
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-medium focus:bg-white focus:border-black transition-all outline-none resize-none h-32 mb-6"
+              />
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setSelectedProduct(null)}
+                  className="flex-1 py-4 border-2 border-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:border-slate-300 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSendRequest}
+                  disabled={requestingId === selectedProduct.id}
+                  className="flex-1 py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {requestingId === selectedProduct.id ? <Loader2 size={14} className="animate-spin" /> : 'Send Request'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
-
+ 
 export default StorePage;

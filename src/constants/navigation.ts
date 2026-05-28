@@ -1,4 +1,4 @@
-import { LayoutDashboard, Calendar, BookOpen, Inbox, Settings, Users, Activity, MessageCircle, BarChart3, User, ClipboardList, Sparkles, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Calendar, BookOpen, Inbox, Settings, Users, Activity, MessageCircle, BarChart3, User, ClipboardList, Sparkles, ShieldCheck, Lock } from 'lucide-react';
 
 export const STUDENT_NAV = [
   { label: 'Overview', path: '/dashboard', icon: LayoutDashboard },
@@ -11,6 +11,7 @@ export const STUDENT_NAV = [
 export const MENTOR_NAV = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { label: 'Audits', path: '/dashboard/audits', icon: Activity },
+  { label: 'Access Requests', path: '/dashboard/access-requests', icon: Lock },
   { label: 'Events', path: '/dashboard/events', icon: Calendar },
   { label: 'Mentees', path: '/dashboard/mentees', icon: Users },
   { label: 'Reviews', path: '/dashboard/reviews', icon: MessageCircle },

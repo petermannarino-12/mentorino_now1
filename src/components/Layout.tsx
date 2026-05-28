@@ -15,7 +15,8 @@ import {
   HelpCircle,
   MessageCircle,
   Activity,
-  Sparkles
+  Sparkles,
+  Lock
 } from 'lucide-react';
 import { UserRole } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -43,6 +44,7 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
     { label: 'Networking', path: '/dashboard/events', icon: Sparkles, roles: ['mentor', 'admin'] },
     { label: 'Networking', path: '/dashboard/networking', icon: Sparkles, roles: ['user'] },
     { label: 'Inquiries', path: '/dashboard/audits', icon: ClipboardList, roles: ['mentor', 'admin'] },
+    { label: 'Access Requests', path: '/dashboard/access-requests', icon: Lock, roles: ['mentor', 'admin'] },
     { label: 'Email Templates', path: '/dashboard/emails', icon: MessageCircle, roles: ['mentor', 'admin'] },
   ].filter(item => item.roles.includes(role));
 

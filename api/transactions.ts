@@ -18,6 +18,14 @@ export async function POST(request: Request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     if (authError || !user) return Response.json({ error: "Invalid token" }, { status: 401 });
 
+    const profile = await (await getPrisma()).profiles.findUnique({
+      where: { id: user.id },
+      select: { role: true },
+    });
+    if (!profile || profile.role !== 'admin') {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const body = await request.json();
     if (!body.product_id || !body.amount) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });

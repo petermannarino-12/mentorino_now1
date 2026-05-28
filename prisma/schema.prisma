@@ -124,7 +124,24 @@ model products {
   category    String?
   salesCount  Int?      @default(0) @map("sales_count")
   status      String?   @default("active")
+  fileUrl     String?   @map("file_url")
   createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@schema("public")
+}
+
+model product_access_requests {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId    String    @map("student_id") @db.Uuid
+  studentName  String    @map("student_name")
+  studentEmail String    @map("student_email")
+  productId    String    @map("product_id") @db.Uuid
+  productName  String    @map("product_name")
+  message      String?
+  status       String    @default("pending")
+  mentorNotes  String?   @map("mentor_notes")
+  grantedAt    DateTime? @map("granted_at") @db.Timestamptz(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@schema("public")
 }
