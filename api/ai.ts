@@ -1,4 +1,4 @@
-import { aiAnalyzeApplicationSchema, aiChatSchema, aiGenerateBriefSchema } from "../src/schemas/ai.schema";
+import { aiAnalyzeApplicationSchema, aiChatSchema, aiGenerateBriefSchema } from "../src/schemas/ai.schema.js";
 
 const sanitizeChat = (val: any): string => {
   if (val === null || val === undefined) return "Not provided";

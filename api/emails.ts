@@ -1,4 +1,4 @@
-import { getPrisma } from './prisma';
+import { getPrisma } from './prisma.js';
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
 const SITE_URL = process.env.URL || 'http://localhost:3000';
 

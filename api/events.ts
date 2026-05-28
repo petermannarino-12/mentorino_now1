@@ -1,4 +1,4 @@
-import { getPrisma } from './prisma';
+import { getPrisma } from './prisma.js';
 
 async function getSupabase() {
   const { createClient } = await import('@supabase/supabase-js');
