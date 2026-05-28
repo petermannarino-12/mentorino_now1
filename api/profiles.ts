@@ -52,7 +52,27 @@ export async function GET(request: Request) {
     }
 
     const row = await (await getPrisma()).profiles.findUnique({ where: { id } });
-    if (!row) return Response.json({ error: "Profile not found" }, { status: 404 });
+    if (!row) {
+      // Return a minimal profile from the authenticated user's data
+      const token = request.headers.get("authorization")?.split(" ")[1];
+      const { data: { user: authUser } } = token
+        ? await (await getSupabase()).auth.getUser(token)
+        : { data: { user: null } };
+      if (!authUser) return Response.json({ error: "Profile not found" }, { status: 404 });
+      return Response.json({
+        id: authUser.id,
+        email: authUser.email || '',
+        full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || '',
+        name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || '',
+        role: authUser.user_metadata?.role || 'user',
+        phone: '',
+        avatar: null,
+        mentorship_status: null,
+        tasks: [],
+        milestones: [],
+        created_at: authUser.created_at,
+      });
+    }
 
     return Response.json(mapProfileRow(row));
   } catch (err: any) {

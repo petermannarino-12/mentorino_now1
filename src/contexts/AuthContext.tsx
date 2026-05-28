@@ -39,9 +39,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) {
         const body = await res.text().catch(() => '');
         console.warn('Profile fetch failed:', res.status, body);
-        await supabase.auth.signOut();
-        setUser(null);
-        setRole('visitor');
+        // Fall back to auth user metadata so login still works without a DB profile row
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser) {
+          const fallbackUser: User = {
+            id: authUser.id,
+            email: authUser.email || '',
+            full_name: (authUser.user_metadata?.full_name as string) || authUser.email?.split('@')[0] || 'User',
+            role: 'user',
+            created_at: authUser.created_at,
+          };
+          setUser(fallbackUser);
+          setRole('user');
+          setSentryUser({ id: authUser.id, email: authUser.email });
+          posthog.identify(authUser.id, {
+            email: authUser.email,
+            name: fallbackUser.full_name,
+            role: 'user',
+          });
+        } else {
+          setUser(null);
+          setRole('visitor');
+        }
         setAuthLoading(false);
         return;
       }
@@ -52,23 +71,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         id: profile.id,
         email: profile.email,
         full_name: profile.name || '',
-        role: profile.role,
+        role: profile.role || 'user',
         phone: profile.phone || '',
         created_at: profile.created_at
       });
-      setRole(profile.role);
+      setRole(profile.role || 'user');
       
       setSentryUser({ id: profile.id, email: profile.email });
       posthog.identify(profile.id, {
         email: profile.email,
         name: profile.name || '',
-        role: profile.role
+        role: profile.role || 'user',
       });
     } catch (err) {
       console.error('Error fetching user profile:', err);
-      await supabase.auth.signOut();
-      setUser(null);
-      setRole('visitor');
+      // Fall back to auth user metadata on network error
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        const fallbackUser: User = {
+          id: authUser.id,
+          email: authUser.email || '',
+          full_name: (authUser.user_metadata?.full_name as string) || authUser.email?.split('@')[0] || 'User',
+          role: 'user',
+          created_at: authUser.created_at,
+        };
+        setUser(fallbackUser);
+        setRole('user');
+      } else {
+        setUser(null);
+        setRole('visitor');
+      }
     }
     setAuthLoading(false);
   };
@@ -115,6 +147,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (session) {
+        setAuthLoading(true);
         fetchUserProfile(session.user.id);
       } else {
         setUser(null);

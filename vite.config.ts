@@ -286,7 +286,7 @@ export default defineConfig(({ mode }) => {
           '^/.netlify/functions/.*': {
             target: 'http://localhost:3000',
             changeOrigin: true,
-            rewrite: (path) => path.replace(/^\/\.netlify\/functions/, '/api/ai'),
+            rewrite: (path) => path.replace(/^\/\.netlify\/functions/, '/api'),
           },
         },
       },
