@@ -129,7 +129,6 @@ const StorePage: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
 
       <AnimatePresence>
         {selectedProduct && (
