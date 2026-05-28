@@ -1,7 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
 import { getPrisma } from './prisma';
 
-function getSupabase() {
+async function getSupabase() {
+  const { createClient } = await import('@supabase/supabase-js');
   const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) {
@@ -25,7 +25,8 @@ function mapBooking(b: any) {
 async function getUser(request: Request) {
   const token = request.headers.get("authorization")?.split(" ")[1];
   if (!token) return null;
-  const { data: { user }, error } = await getSupabase().auth.getUser(token);
+  const supabase = await getSupabase();
+  const { data: { user }, error } = await supabase.auth.getUser(token);
   if (error || !user) return null;
   return user;
 }

@@ -1,4 +1,3 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import { aiAnalyzeApplicationSchema, aiChatSchema, aiGenerateBriefSchema } from "../src/schemas/ai.schema.js";
 
 const sanitizeChat = (val: any): string => {
@@ -29,6 +28,7 @@ async function handleAnalyze(request: Request) {
     const { application } = body;
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return Response.json({ error: "GEMINI_API_KEY is not configured" }, { status: 500 });
+    const { GoogleGenAI, Type } = await import("@google/genai");
     const ai = new GoogleGenAI({ apiKey });
     const userContext = `
     Applicant: ${sanitize(application.user_name)}
@@ -82,6 +82,7 @@ async function handleChat(request: Request) {
     const { history, message } = body;
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return Response.json({ error: "GEMINI_API_KEY is not configured" }, { status: 500 });
+    const { GoogleGenAI, Type } = await import("@google/genai");
     const ai = new GoogleGenAI({ apiKey });
     const contents = [
       ...history.map((h: any) => ({
@@ -120,6 +121,7 @@ async function handleGenerateBrief(request: Request) {
     const { booking, studentContext, purchasedProducts } = body;
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return Response.json({ error: "GEMINI_API_KEY is not configured" }, { status: 500 });
+    const { GoogleGenAI, Type } = await import("@google/genai");
     const ai = new GoogleGenAI({ apiKey });
     const userContext = `
     Student: ${sanitize(booking.user_name)}

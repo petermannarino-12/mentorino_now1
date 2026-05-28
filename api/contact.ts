@@ -1,8 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
-import { Resend } from "resend";
 import { getPrisma } from './prisma';
 
-function getSupabase() {
+async function getSupabase() {
+  const { createClient } = await import('@supabase/supabase-js');
   const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) {
@@ -11,7 +10,6 @@ function getSupabase() {
   return createClient(url, key);
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admissions@mentorino.me';
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
@@ -53,6 +51,8 @@ export async function POST(request: Request) {
 
     if (process.env.RESEND_API_KEY) {
       try {
+        const { Resend } = await import("resend");
+        const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
           to: ADMIN_EMAIL,

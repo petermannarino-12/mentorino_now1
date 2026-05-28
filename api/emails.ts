@@ -1,7 +1,4 @@
-import { Resend } from "resend";
 import { getPrisma } from './prisma';
-
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
 const SITE_URL = process.env.URL || 'http://localhost:3000';
 
@@ -16,6 +13,8 @@ async function handleBookingConfirmation(request: Request) {
 
     if (process.env.RESEND_API_KEY) {
       try {
+        const { Resend } = await import("resend");
+        const resend = new Resend(process.env.RESEND_API_KEY);
         const template = await (await getPrisma()).email_templates.findUnique({
           where: { id: 'booking_confirmed' },
         });
@@ -56,6 +55,8 @@ async function handleWelcome(request: Request) {
 
     if (process.env.RESEND_API_KEY) {
       try {
+        const { Resend } = await import("resend");
+        const resend = new Resend(process.env.RESEND_API_KEY);
         const template = await (await getPrisma()).email_templates.findUnique({
           where: { id: 'welcome_email' },
         });

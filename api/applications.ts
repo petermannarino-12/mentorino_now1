@@ -1,8 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
-import { Resend } from "resend";
 import { getPrisma } from './prisma';
 
-function getSupabase() {
+async function getSupabase() {
+  const { createClient } = await import('@supabase/supabase-js');
   const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) {
@@ -10,8 +9,6 @@ function getSupabase() {
   }
   return createClient(url, key);
 }
-
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
 const SITE_URL = process.env.URL || 'http://localhost:3000';
 
@@ -68,6 +65,8 @@ async function handleSubmit(request: Request) {
           .replace(/{{program_name}}/g, application.mentor_type || 'Mentorino Program')
           .replace(/{{login_url}}/g, `${SITE_URL}/auth`)
           .replace(/\n/g, '<br>');
+        const { Resend } = await import("resend");
+        const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
           to: email,
@@ -107,7 +106,8 @@ async function handleDelete(request: Request) {
   try {
     const token = request.headers.get("authorization")?.split(" ")[1];
     if (!token) return Response.json({ error: "Unauthorized" }, { status: 401 });
-    const { data: { user }, error: authError } = await getSupabase().auth.getUser(token);
+    const supabase = await getSupabase();
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     if (authError || !user) return Response.json({ error: "Invalid token" }, { status: 401 });
 
     const profile = await (await getPrisma()).profiles.findUnique({
@@ -134,7 +134,7 @@ async function handleDelete(request: Request) {
       select: { id: true },
     });
     if (targetProfile) {
-      const { error: authDeleteError } = await getSupabase().auth.admin.deleteUser(targetProfile.id);
+      const { error: authDeleteError } = await supabase.auth.admin.deleteUser(targetProfile.id);
       if (authDeleteError) console.error("Auth Delete Error:", authDeleteError);
     }
 
@@ -151,7 +151,8 @@ async function handleUpdateStatus(request: Request) {
   try {
     const token = request.headers.get("authorization")?.split(' ')[1];
     if (!token) return Response.json({ error: "Unauthorized: Missing token" }, { status: 401 });
-    const { data: { user }, error: authError } = await getSupabase().auth.getUser(token);
+    const supabase = await getSupabase();
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     if (authError || !user) return Response.json({ error: "Unauthorized: Invalid token" }, { status: 401 });
 
     const profile = await (await getPrisma()).profiles.findUnique({
@@ -203,6 +204,8 @@ async function handleUpdateStatus(request: Request) {
           .replace(/{{program_name}}/g, programName)
           .replace(/{{login_url}}/g, `${SITE_URL}/auth`)
           .replace(/\n/g, '<br>');
+        const { Resend } = await import("resend");
+        const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
           to: application.userEmail,
