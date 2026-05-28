@@ -1,4 +1,4 @@
-export const config = { runtime: 'nodejs20.x' }
+export const config = { runtime: 'nodejs' }
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://mbzaqnqobecmmmkrkouu.supabase.co'
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
