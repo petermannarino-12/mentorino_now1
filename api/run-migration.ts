@@ -1,6 +1,6 @@
 export async function POST() {
   try {
-    const { getPrisma } = await import('./prisma')
+    const { getPrisma } = await import('./prisma.js')
     const prisma = await getPrisma()
     
     const sql = `
