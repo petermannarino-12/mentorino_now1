@@ -220,7 +220,7 @@ const MentorDashboard: React.FC = () => {
             <Route path="mentees" element={
               <MentorMentees 
                 mentees={allApplications?.filter(a => a.status === 'approved') || []}
-                onMessage={(id) => setNotification(`Messaging for mentee (${id.slice(0, 8)}...) — coming soon in v2.0`)}
+                onMessage={(id) => navigate('/dashboard/chat')}
                 onRemove={handleDeleteApplication}
               />
             } />
