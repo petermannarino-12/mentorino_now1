@@ -18,8 +18,7 @@ export async function POST(request: Request) {
     const prisma = await getPrisma()
 
     const rows: any[] = await prisma.$queryRawUnsafe(
-      `SELECT id, email, expires_at, used FROM public.password_reset_tokens
-       WHERE token = $1 LIMIT 1`,
+      'SELECT id, email, expires_at, used FROM public.password_reset_tokens WHERE token = $1 LIMIT 1',
       token
     )
 

@@ -15,6 +15,8 @@
     { "source": "/.netlify/functions/update-application-status", "destination": "/api/applications?from=update-application-status" },
     { "source": "/.netlify/functions/send-booking-confirmation", "destination": "/api/emails?from=send-booking-confirmation" },
     { "source": "/.netlify/functions/send-welcome-email", "destination": "/api/emails?from=send-welcome-email" },
+    { "source": "/.netlify/functions/send-password-reset", "destination": "/api/emails?from=send-password-reset" },
+    { "source": "/.netlify/functions/reset-password", "destination": "/api/pwreset" },
     { "source": "/.netlify/functions/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]

@@ -1,6 +1,6 @@
 import { getPrisma } from './prisma.js';
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
-const SITE_URL = process.env.URL || 'http://localhost:3000';
+const SITE_URL = process.env.SITE_URL || `https://${process.env.VERCEL_URL}` || process.env.URL || 'http://localhost:3000';
 
 async function handleBookingConfirmation(request: Request) {
   try {
@@ -43,6 +43,41 @@ async function handleBookingConfirmation(request: Request) {
   } catch (error: any) {
     console.error("Booking Email Error:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+async function handleSendPasswordReset(request: Request) {
+  try {
+    const { email } = await request.json();
+    if (!email) return Response.json({ error: 'Missing email' }, { status: 400 });
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const crypto = await import('node:crypto');
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    await (await getPrisma()).$executeRawUnsafe(
+      'INSERT INTO public.password_reset_tokens (email, token, expires_at) VALUES ($1, $2, $3)',
+      normalizedEmail, token, expiresAt
+    );
+
+    const resetLink = `${SITE_URL}/reset-password?token=${token}`;
+
+    if (process.env.RESEND_API_KEY) {
+      const { Resend } = await import('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      await resend.emails.send({
+        from: `Mentorino <${FROM_EMAIL}>`,
+        to: normalizedEmail,
+        subject: 'Reset your Mentorino password',
+        html: `<p>Hi,</p><p>You requested a password reset. Click the link below to set a new password:</p><p><a href="${resetLink}">${resetLink}</a></p><p>This link expires in 1 hour.</p><p>If you didn't request this, you can ignore this email.</p><p>Best,<br>Mentorino Team</p>`,
+      });
+    }
+
+    return Response.json({ message: 'Password reset email sent' });
+  } catch (error: any) {
+    console.error('send-password-reset error:', error);
+    return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -90,6 +125,7 @@ function router(from: string | null, request: Request): Promise<Response> | null
   switch (from) {
     case "send-booking-confirmation": return handleBookingConfirmation(request);
     case "send-welcome-email": return handleWelcome(request);
+    case "send-password-reset": return handleSendPasswordReset(request);
     default: return null;
   }
 }
