@@ -232,42 +232,6 @@ const TaskActivityForm: React.FC<TaskActivityFormProps> = ({ onSubmit, isNetwork
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-6">
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center shadow-lg"><GraduationCap size={20} /></div>
-                <h3 className="text-xl font-black uppercase tracking-tighter">Certification Planning</h3>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">(Add the topic only)</label>
-                <input
-                  type="text"
-                  value={certTopic}
-                  onChange={e => setCertTopic(e.target.value)}
-                  className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-medium outline-none focus:border-black transition-all"
-                  placeholder="Topic only..."
-                />
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center shadow-lg"><Compass size={20} /></div>
-                <h3 className="text-xl font-black uppercase tracking-tighter">Career Roadmap</h3>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">(Add the topic only)</label>
-                <input
-                  type="text"
-                  value={roadmapTopic}
-                  onChange={e => setRoadmapTopic(e.target.value)}
-                  className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-medium outline-none focus:border-black transition-all"
-                  placeholder="Topic only..."
-                />
-              </div>
-            </div>
-          </div>
-
           <div className="space-y-8 pt-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center shadow-lg"><Target size={20} /></div>

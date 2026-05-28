@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { EmptyState } from '../components/ui/EmptyState';
 import { 
@@ -26,7 +26,7 @@ import {
   LayoutGrid
 } from 'lucide-react';
 import { useNavigate, Link, useLocation, Routes, Route, Navigate } from 'react-router-dom';
-import { Booking, TaskActivity, NetworkEvent, Announcement, ResourceLink, Feedback } from '../types';
+import { Booking, TaskActivity, NetworkEvent, Announcement, ResourceLink, Feedback, Product } from '../types';
 import { supabase } from '../lib/supabase';
 import TaskActivityForm from '../components/TaskActivityForm';
 import MilestoneList from '../components/milestones/MilestoneList';
@@ -35,7 +35,7 @@ import { useUserDashboardData } from '../hooks/useUserDashboardData';
 import { useAddTaskMutation, useUpdateTaskStatusMutation } from '../hooks/useTasks';
 import { useAttendEventMutation } from '../hooks/useEvents';
 import { useAuth } from '../contexts/AuthContext';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { productService } from '../services/productService';
 import { getPreSessionBrief } from '../services/geminiService';
 import Purchases from './dashboard/Purchases';
@@ -75,6 +75,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
     isLoading
   } = useUserDashboardData();
 
+  const queryClient = useQueryClient();
   const addTaskMutation = useAddTaskMutation();
   const updateTaskMutation = useUpdateTaskStatusMutation();
   const attendEventMutation = useAttendEventMutation();
@@ -101,9 +102,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const upcomingSessions = bookings.filter(b => b.status === 'upcoming');
   const pastSessions = bookings.filter(b => b.status === 'completed');
   
-  // Growth Strategy Completion
-  const growthActivity = taskActivities.find(a => a.user_id === currentUser?.id);
-  const isStrategyComplete = !!growthActivity?.roadmap_topic;
+  const isStrategyComplete = taskActivities.some(a => a.user_id === currentUser?.id && !!a.roadmap_topic);
 
   // All products are available if approved
   const isApproved = application?.status === 'approved';
@@ -159,25 +158,31 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   };
 
   const handleJoinSession = (booking: Booking) => {
-    setNotification(`Joining session with Mentorino...\nDate: ${booking.date}\nTime: ${booking.time}\n\nRedirecting to secure video link.`);
+    const link = booking.meeting_link || 'https://meet.google.com/new';
+    setNotification(`Joining session with Mentorino...\nDate: ${booking.date}\nTime: ${booking.time}`);
     setTimeout(() => {
-      window.open('https://meet.google.com/new', '_blank');
+      window.open(link, '_blank');
       setNotification(null);
     }, 2000);
   };
 
-  const handleDownload = (productName: string) => {
-    setNotification(`Starting download: ${productName}.pdf\nPreparing your high-performance resource...`);
+  const handleDownload = (product: Product) => {
+    if (product.file_url) {
+      window.open(product.file_url, '_blank');
+      setNotification(`Downloading: ${product.full_name}`);
+    } else {
+      setNotification(`Download URL not available for ${product.full_name}.`);
+    }
     setTimeout(() => setNotification(null), 3000);
   };
 
+  const notifiedNoUpcomingRef = useRef(false);
   useEffect(() => {
-    // Only notify once to avoid infinite update loops
-    if (upcomingSessions.length === 0 && pastSessions.length > 0) {
-      // Notification commented out to prevent Maximum update depth errors
-      // setNotification('You have no upcoming sessions left. Book more to continue your progress!');
-      // const timer = setTimeout(() => setNotification(null), 5000);
-      // return () => clearTimeout(timer);
+    if (upcomingSessions.length === 0 && pastSessions.length > 0 && !notifiedNoUpcomingRef.current) {
+      notifiedNoUpcomingRef.current = true;
+      setNotification('You have no upcoming sessions left. Book more to continue your progress!');
+      const timer = setTimeout(() => setNotification(null), 5000);
+      return () => clearTimeout(timer);
     }
   }, [upcomingSessions.length, pastSessions.length]);
 
@@ -586,7 +591,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">{p.category}</p>
                 </div>
               </div>
-              <button onClick={() => handleDownload(p.full_name)} className="p-3 bg-slate-50 rounded-full hover:bg-black hover:text-white hover:scale-110 active:scale-90 transition-all" aria-label={`Download ${p.full_name}`}>
+              <button onClick={() => handleDownload(p)} className="p-3 bg-slate-50 rounded-full hover:bg-black hover:text-white hover:scale-110 active:scale-90 transition-all" aria-label={`Download ${p.full_name}`}>
                 <Download size={14} />
               </button>
             </div>
@@ -721,14 +726,16 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
               
               <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
                 <div className="flex -space-x-3">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="w-7 h-7 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-black text-slate-400 uppercase">
-                      {i}
+                  {event.attendees.slice(0, 3).map((attendee, i) => (
+                    <div key={i} className="w-7 h-7 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[8px] font-black text-slate-400 uppercase">
+                      {attendee.slice(0, 2)}
                     </div>
                   ))}
-                  <div className="w-7 h-7 rounded-full bg-slate-50 border-2 border-white flex items-center justify-center text-[8px] font-black text-slate-300">
-                    +{event.attendees.length}
-                  </div>
+                  {event.attendees.length > 3 && (
+                    <div className="w-7 h-7 rounded-full bg-slate-50 border-2 border-white flex items-center justify-center text-[8px] font-black text-slate-300">
+                      +{event.attendees.length - 3}
+                    </div>
+                  )}
                 </div>
                 <button 
                   onClick={() => isAttending ? setReportingEvent(event) : setJoiningEvent(event)}

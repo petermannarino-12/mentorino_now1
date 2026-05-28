@@ -36,8 +36,17 @@ async function getUser(request: Request) {
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
+    const id = url.searchParams.get("id");
     const from = parseInt(url.searchParams.get("from") || "0");
     const to = parseInt(url.searchParams.get("to") || "49");
+
+    if (id) {
+      const event = await (await getPrisma()).events.findUnique({
+        where: { id },
+      });
+      if (!event) return Response.json({ error: "Event not found" }, { status: 404 });
+      return Response.json(mapEvent(event));
+    }
 
     const data = await (await getPrisma()).events.findMany({
       orderBy: { createdAt: 'desc' },

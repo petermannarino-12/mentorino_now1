@@ -221,8 +221,12 @@ export const MentorEmailTemplates: React.FC<MentorEmailTemplatesProps> = () => {
       {/* Notification Toast */}
       {notification && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-sm animate-in slide-in-from-top-4 duration-500">
-          <div className="bg-black text-white p-5 rounded-3xl shadow-2xl border border-white/10 flex items-center gap-3">
-            <Check size={16} className="text-emerald-400 shrink-0" />
+          <div className={`bg-black text-white p-5 rounded-3xl shadow-2xl border border-white/10 flex items-center gap-3 ${notification.startsWith('Failed') ? 'border-rose-500/30' : ''}`}>
+            {notification.startsWith('Failed') ? (
+              <AlertCircle size={16} className="text-rose-400 shrink-0" />
+            ) : (
+              <Check size={16} className="text-emerald-400 shrink-0" />
+            )}
             <p className="text-[10px] font-black uppercase tracking-widest">{notification}</p>
           </div>
         </div>

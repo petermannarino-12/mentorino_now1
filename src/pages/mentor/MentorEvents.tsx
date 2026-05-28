@@ -23,10 +23,18 @@ export const MentorEvents: React.FC<MentorEventsProps> = ({ events, onAddEvent, 
     created_at: '',
     type: 'online'
   });
+  const [validationErrors, setValidationErrors] = useState<{ title?: string; location?: string }>({});
 
   const handleCreate = () => {
+    const errors: { title?: string; location?: string } = {};
+    if (!newEvent.title.trim()) errors.title = 'Event title is required';
+    if (!newEvent.location.trim()) errors.location = 'Location/Link is required';
+    setValidationErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     onAddEvent({ ...newEvent, id: '' }); // Backend generates the ID
     setIsAddingEvent(false);
+    setValidationErrors({});
     setNewEvent({
       id: '',
       title: '',
@@ -119,14 +127,17 @@ export const MentorEvents: React.FC<MentorEventsProps> = ({ events, onAddEvent, 
               
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Event Title</label>
+                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Event Title *</label>
                   <input 
                     type="text" 
                     value={newEvent.title}
-                    onChange={e => setNewEvent({...newEvent, title: e.target.value})}
+                    onChange={e => { setNewEvent({...newEvent, title: e.target.value}); setValidationErrors(prev => ({...prev, title: undefined})); }}
                     placeholder="E.g. NY Tech Week Panel"
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-black text-sm text-black"
+                    className={`w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:border-black text-sm text-black ${validationErrors.title ? 'border-rose-300 bg-rose-50' : 'border-slate-100'}`}
                   />
+                  {validationErrors.title && (
+                    <p className="text-[8px] font-bold text-rose-500 uppercase tracking-widest ml-1 mt-1">{validationErrors.title}</p>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
@@ -149,14 +160,17 @@ export const MentorEvents: React.FC<MentorEventsProps> = ({ events, onAddEvent, 
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Location / Link</label>
+                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Location / Link *</label>
                   <input 
                     type="text" 
                     value={newEvent.location}
-                    onChange={e => setNewEvent({...newEvent, location: e.target.value})}
+                    onChange={e => { setNewEvent({...newEvent, location: e.target.value}); setValidationErrors(prev => ({...prev, location: undefined})); }}
                     placeholder="E.g. Javits Center, NYC"
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-black text-sm text-black"
+                    className={`w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:border-black text-sm text-black ${validationErrors.location ? 'border-rose-300 bg-rose-50' : 'border-slate-100'}`}
                   />
+                  {validationErrors.location && (
+                    <p className="text-[8px] font-bold text-rose-500 uppercase tracking-widest ml-1 mt-1">{validationErrors.location}</p>
+                  )}
                 </div>
                 <div className="space-y-1">
                   <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Context</label>

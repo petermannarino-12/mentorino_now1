@@ -87,14 +87,18 @@ export async function PATCH(request: Request) {
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await request.json();
-    const { milestones } = body;
-    if (!milestones) {
-      return Response.json({ error: "Missing milestones" }, { status: 400 });
+    const updateData: Record<string, any> = {};
+    if (body.milestones) updateData.milestones = body.milestones;
+    if (body.tasks) updateData.tasks = body.tasks;
+    if (body.name) updateData.name = body.name;
+    if (body.phone) updateData.phone = body.phone;
+    if (Object.keys(updateData).length === 0) {
+      return Response.json({ error: "No valid fields to update" }, { status: 400 });
     }
 
     const row = await (await getPrisma()).profiles.update({
       where: { id: user.id },
-      data: { milestones },
+      data: updateData,
     });
 
     return Response.json(mapProfileRow(row));

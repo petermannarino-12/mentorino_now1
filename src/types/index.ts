@@ -96,6 +96,7 @@ export interface Product {
   price: number;
   image: string;
   category: string;
+  file_url?: string;
   salesCount?: number;
   status?: 'active' | 'draft';
 }
@@ -115,6 +116,7 @@ export interface Booking {
   user_name: string;
   date: string;
   time: string;
+  meeting_link?: string;
   status: 'upcoming' | 'completed' | 'cancelled';
   notes?: string;
 }

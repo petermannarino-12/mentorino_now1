@@ -6,10 +6,17 @@ import { useTasksQuery } from './useTasks';
 import { useEventsQuery } from './useEvents';
 import type { Review } from '../types';
 
+// NOTE: The current data model lacks mentor_id fields on bookings, tasks,
+// events, and applications tables. Once schema is updated, pass the mentor's
+// user ID to the respective queries for proper per-mentor data isolation.
+// For now, queries fetch unfiltered data as a shared view.
+
 export const useMentorDashboardData = () => {
-  const applicationsQuery = useApplicationsQuery();
+  // TODO: When bookings table gains a mentor_id column, filter by current user.
   const bookingsQuery = useBookingsQuery();
+  // TODO: When tasks table gains a mentor_id column, filter by current user.
   const tasksQuery = useTasksQuery();
+  const applicationsQuery = useApplicationsQuery();
   const eventsQuery = useEventsQuery();
   const reviewsQuery = useQuery({
     queryKey: ['reviews'],

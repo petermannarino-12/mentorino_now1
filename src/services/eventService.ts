@@ -35,14 +35,14 @@ export const eventService = {
       method: 'DELETE',
     });
   },
-  async updateAttendees(id: string, attendees: string[]) {
+  async updateAttendees(id: string, userId: string) {
     return api('/.netlify/functions/events', {
       method: 'POST',
-      body: JSON.stringify({ action: 'attend', eventId: id, userId: '' }),
+      body: JSON.stringify({ action: 'attend', eventId: id, userId }),
     });
   },
   async getById(id: string) {
-    return api(`/.netlify/functions/events?from=0&to=0`);
+    return api(`/.netlify/functions/events?id=${id}`);
   },
   async attend(id: string, userId: string) {
     return api('/.netlify/functions/events', {

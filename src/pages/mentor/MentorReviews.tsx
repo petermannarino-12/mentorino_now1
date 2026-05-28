@@ -4,6 +4,7 @@ import { CheckCircle, MessageSquare, ExternalLink, ArrowLeft, ClipboardList, Sta
 import { TaskActivity, Review } from '../../types';
 import { formatToNJ } from '../../lib/dateUtils';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { useLocation } from 'react-router-dom';
 
 const DRAFT_PREFIX = 'review-draft-';
 
@@ -14,8 +15,10 @@ interface MentorReviewsProps {
 }
 
 export const MentorReviews: React.FC<MentorReviewsProps> = ({ pendingTasks, reviews, onSubmitFeedback }) => {
+  const location = useLocation();
+  const preselectedTask = (location.state as { preselectedTask?: TaskActivity })?.preselectedTask;
   const [activeTab, setActiveTab] = useState<'audits' | 'feedback'>('audits');
-  const [selectedTask, setSelectedTask] = useState<TaskActivity | null>(null);
+  const [selectedTask, setSelectedTask] = useState<TaskActivity | null>(preselectedTask || null);
   const [feedbackResponse, setFeedbackResponse] = useState('');
 
   const saveDraft = useCallback(() => {
@@ -32,6 +35,12 @@ export const MentorReviews: React.FC<MentorReviewsProps> = ({ pendingTasks, revi
       setFeedbackResponse(saved || '');
     }
   }, [selectedTask]);
+
+  useEffect(() => {
+    if (preselectedTask) {
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(saveDraft, 3000);

@@ -208,7 +208,7 @@ const MentorDashboard: React.FC = () => {
                 applications={allApplications || []}
                 bookings={allBookings || []}
                 tasks={allTasks || []}
-                onReviewTask={(t) => navigate('/dashboard/reviews')}
+                onReviewTask={(t) => navigate('/dashboard/reviews', { state: { preselectedTask: t } })}
                 onApplicationAction={handleApplicationAction}
                 onNavigate={(path) => navigate(`/dashboard/${path}`)}
                 onLogout={signOut}
@@ -217,7 +217,7 @@ const MentorDashboard: React.FC = () => {
             <Route path="mentees" element={
               <MentorMentees 
                 mentees={allApplications?.filter(a => a.status === 'approved') || []}
-                onMessage={(id) => setNotification('Messaging interface opening...')}
+                onMessage={(id) => setNotification(`Messaging for mentee (${id.slice(0, 8)}...) — coming soon in v2.0`)}
                 onRemove={handleDeleteApplication}
               />
             } />

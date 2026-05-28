@@ -35,6 +35,7 @@ function mapProduct(data: any): Product {
     price: data.price,
     image: data.image || '',
     category: data.category || '',
+    file_url: data.file_url || '',
     salesCount: data.sales_count,
     status: data.status,
   };

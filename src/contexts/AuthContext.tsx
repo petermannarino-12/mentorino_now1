@@ -47,6 +47,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             email: authUser.email || '',
             full_name: (authUser.user_metadata?.full_name as string) || authUser.email?.split('@')[0] || 'User',
             role: 'user',
+            tasks: [],
+            milestones: [],
             created_at: authUser.created_at,
           };
           setUser(fallbackUser);
@@ -73,6 +75,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         full_name: profile.name || '',
         role: profile.role || 'user',
         phone: profile.phone || '',
+        tasks: profile.tasks || [],
+        milestones: profile.milestones || [],
         created_at: profile.created_at
       });
       setRole(profile.role || 'user');
@@ -93,6 +97,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           email: authUser.email || '',
           full_name: (authUser.user_metadata?.full_name as string) || authUser.email?.split('@')[0] || 'User',
           role: 'user',
+          tasks: [],
+          milestones: [],
           created_at: authUser.created_at,
         };
         setUser(fallbackUser);

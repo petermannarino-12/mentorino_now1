@@ -16,6 +16,12 @@ const sanitize = (str: string) => str.replace(/[<>]/g, "").slice(0, 255).trim();
 
 async function handleSubmit(request: Request) {
   try {
+    const token = request.headers.get("authorization")?.split(" ")[1];
+    if (!token) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const supabase = await getSupabase();
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) return Response.json({ error: "Invalid token" }, { status: 401 });
+
     const { application } = await request.json();
     if (!application || !application.user_email) {
       return Response.json({ error: "Invalid application data" }, { status: 400 });
@@ -42,6 +48,7 @@ async function handleSubmit(request: Request) {
         userEmail: email,
         mentorType: application.mentor_type,
         status: 'pending',
+        userId: user.id,
         responses: {
           ...responses,
           user_name: userName,

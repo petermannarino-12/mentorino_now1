@@ -17,6 +17,7 @@ function mapBooking(b: any) {
     user_name: b.userName,
     date: b.date,
     time: b.time,
+    meeting_link: b.meetingLink,
     status: b.status,
     notes: b.notes,
   };
@@ -72,6 +73,7 @@ export async function POST(request: Request) {
         userName: body.user_name || "",
         date: body.date,
         time: body.time,
+        meetingLink: body.meeting_link || "",
         status: body.status || "upcoming",
         notes: body.notes,
       },
