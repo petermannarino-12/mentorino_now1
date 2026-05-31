@@ -6,12 +6,11 @@ import tailwindcss from '@tailwindcss/vite';
 import { createClient } from '@supabase/supabase-js';
 
 const pathMatch = (pathname: string, name: string) =>
-    pathname === `/.netlify/functions/${name}` ||
     pathname === `/api/ai/${name}` ||
     pathname === `/api/${name}`;
 
-const mockNetlifyFunctions = (env: Record<string, string>) => ({
-  name: 'mock-netlify-functions',
+const mockApi = (env: Record<string, string>) => ({
+  name: 'mock-api',
   configureServer(server) {
     server.middlewares.use(async (req, res, next) => {
       const url = new URL(req.url || '', `http://${req.headers.host || 'localhost'}`);
@@ -292,7 +291,7 @@ export default defineConfig(({ mode }) => {
       plugins: [
         react(),
         tailwindcss(),
-        mockNetlifyFunctions(env)
+        mockApi(env)
       ],
       define: {
         'process.env.NODE_ENV': JSON.stringify(mode),
