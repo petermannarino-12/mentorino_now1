@@ -1,4 +1,5 @@
 import { getPrisma } from './prisma.js';
+import { getUserFromToken } from './auth.js';
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
 const SITE_URL = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.URL) || 'http://localhost:3000';
 
@@ -56,11 +57,12 @@ async function handleSendPasswordReset(request: Request) {
 
     const crypto = await import('node:crypto');
     const token = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
     await (await getPrisma()).$executeRawUnsafe(
       'INSERT INTO public.password_reset_tokens (email, token, expires_at) VALUES ($1, $2, $3)',
-      normalizedEmail, token, expiresAt
+      normalizedEmail, hashedToken, expiresAt
     );
 
     const resetLink = `${SITE_URL}/reset-password?token=${token}`;
@@ -85,21 +87,10 @@ async function handleSendPasswordReset(request: Request) {
   }
 }
 
-async function getSupabase() {
-  const { createClient } = await import('@supabase/supabase-js');
-  const url = process.env.VITE_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error('Missing Supabase env vars');
-  return createClient(url, key);
-}
-
 async function handleRequestAccess(request: Request) {
   try {
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const supabase = await getSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+    const user = await getUserFromToken(request);
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { product_id, product_name, message } = await request.json();
     if (!product_id || !product_name) {
@@ -131,11 +122,8 @@ async function handleRequestAccess(request: Request) {
 
 async function handleGrantAccess(request: Request) {
   try {
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const supabase = await getSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+    const user = await getUserFromToken(request);
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const profile = await (await getPrisma()).profiles.findUnique({
       where: { id: user.id },
@@ -175,11 +163,8 @@ async function handleGrantAccess(request: Request) {
 
 async function handleListRequests(request: Request) {
   try {
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const supabase = await getSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+    const user = await getUserFromToken(request);
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const profile = await (await getPrisma()).profiles.findUnique({
       where: { id: user.id },
@@ -210,11 +195,8 @@ async function handleListRequests(request: Request) {
 
 async function handleMyAccess(request: Request) {
   try {
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const supabase = await getSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+    const user = await getUserFromToken(request);
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const rows = await (await getPrisma()).$queryRawUnsafe(
       `SELECT product_id FROM public.product_access_requests
@@ -232,11 +214,8 @@ async function handleMyAccess(request: Request) {
 
 async function handleSendMessage(request: Request) {
   try {
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const supabase = await getSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+    const user = await getUserFromToken(request);
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { receiver_id, content } = await request.json();
     if (!receiver_id || !content) {
@@ -257,11 +236,8 @@ async function handleSendMessage(request: Request) {
 
 async function handleGetConversation(request: Request) {
   try {
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const supabase = await getSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+    const user = await getUserFromToken(request);
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const url = new URL(request.url);
     const withUserId = url.searchParams.get('with');
@@ -285,11 +261,8 @@ async function handleGetConversation(request: Request) {
 
 async function handleGetConversations(request: Request) {
   try {
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const supabase = await getSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+    const user = await getUserFromToken(request);
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const rows = await (await getPrisma()).$queryRawUnsafe(
       `SELECT
@@ -317,11 +290,8 @@ async function handleGetConversations(request: Request) {
 
 async function handleMarkRead(request: Request) {
   try {
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const supabase = await getSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return Response.json({ error: 'Invalid token' }, { status: 401 });
+    const user = await getUserFromToken(request);
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { from_user_id } = await request.json();
     if (!from_user_id) return Response.json({ error: 'Missing from_user_id' }, { status: 400 });

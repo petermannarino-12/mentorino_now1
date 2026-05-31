@@ -1,21 +1,5 @@
 import { aiAnalyzeApplicationSchema, aiChatSchema, aiGenerateBriefSchema } from "../src/schemas/ai.schema.js";
-
-async function getSupabase() {
-  const { createClient } = await import('@supabase/supabase-js');
-  const url = process.env.VITE_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error('Missing Supabase env vars');
-  return createClient(url, key);
-}
-
-async function requireAuth(request: Request) {
-  const token = request.headers.get("authorization")?.split(" ")[1];
-  if (!token) return Response.json({ error: "Unauthorized" }, { status: 401 });
-  const supabase = await getSupabase();
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return Response.json({ error: "Invalid token" }, { status: 401 });
-  return null;
-}
+import { getUserFromToken } from "./auth.js";
 
 const sanitizeChat = (val: any): string => {
   if (val === null || val === undefined) return "Not provided";
@@ -28,6 +12,12 @@ const sanitize = (val: any): string => {
   const str = String(val);
   return str.slice(0, 500).trim();
 };
+
+async function requireAuth(request: Request) {
+  const user = await getUserFromToken(request);
+  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  return null;
+}
 
 async function handleAnalyze(request: Request) {
   const authErr = await requireAuth(request);

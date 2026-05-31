@@ -1,15 +1,5 @@
 import { getPrisma } from './prisma.js';
 
-async function getSupabase() {
-  const { createClient } = await import('@supabase/supabase-js');
-  const url = process.env.VITE_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) {
-    throw new Error(`Missing Supabase env vars: ${!url ? 'VITE_SUPABASE_URL' : ''} ${!key ? 'SUPABASE_SERVICE_ROLE_KEY' : ''}`);
-  }
-  return createClient(url, key);
-}
-
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admissions@mentorino.me';
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;

@@ -14,12 +14,15 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Password must be at least 6 characters' }, { status: 400 })
     }
 
+    const crypto = await import('node:crypto')
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
+
     const { getPrisma } = await import('./prisma.js')
     const prisma = await getPrisma()
 
     const rows: any[] = await prisma.$queryRawUnsafe(
       'SELECT id, email, expires_at, used FROM public.password_reset_tokens WHERE token = $1 LIMIT 1',
-      token
+      hashedToken
     )
 
     const row = rows?.[0]

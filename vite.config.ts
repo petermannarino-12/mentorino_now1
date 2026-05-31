@@ -283,10 +283,9 @@ export default defineConfig(({ mode }) => {
         strictPort: true,
         allowedHosts: ["all"],
         proxy: {
-          '^/.netlify/functions/.*': {
+          '/api': {
             target: 'http://localhost:3000',
             changeOrigin: true,
-            rewrite: (path) => path.replace(/^\/\.netlify\/functions/, '/api'),
           },
         },
       },

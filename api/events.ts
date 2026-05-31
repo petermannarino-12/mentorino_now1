@@ -1,14 +1,5 @@
 import { getPrisma } from './prisma.js';
-
-async function getSupabase() {
-  const { createClient } = await import('@supabase/supabase-js');
-  const url = process.env.VITE_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) {
-    throw new Error(`Missing Supabase env vars: ${!url ? 'VITE_SUPABASE_URL' : ''} ${!key ? 'SUPABASE_SERVICE_ROLE_KEY' : ''}`);
-  }
-  return createClient(url, key);
-}
+import { getUserFromToken } from './auth.js';
 
 function mapEvent(e: any) {
   return {
@@ -22,15 +13,6 @@ function mapEvent(e: any) {
     attendees: e.attendees || [],
     created_at: e.createdAt,
   };
-}
-
-async function getUser(request: Request) {
-  const token = request.headers.get("authorization")?.split(" ")[1];
-  if (!token) return null;
-  const supabase = await getSupabase();
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return null;
-  return user;
 }
 
 export async function GET(request: Request) {
@@ -63,7 +45,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const user = await getUser(request);
+    const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await request.json();
@@ -113,7 +95,7 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const user = await getUser(request);
+    const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
     const profile = await (await getPrisma()).profiles.findUnique({
