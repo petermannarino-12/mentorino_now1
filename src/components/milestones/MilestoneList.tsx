@@ -28,12 +28,12 @@ const MilestoneList: React.FC<Props> = ({ milestones, userId }) => {
     setItems(updated);
     const headers = await getAuthHeaders();
 
-    const profileRes = await fetch(`/.netlify/functions/profiles?id=${userId}`, { headers });
+    const profileRes = await fetch(`/api/profiles?id=${userId}`, { headers });
     const profile = await profileRes.json();
     const existingMilestones = profile?.milestones || [];
     const updatedMilestones = existingMilestones.map((m: Milestone) => m.id === id ? { ...m, completed: !current } : m);
 
-    await fetch('/.netlify/functions/profiles', {
+    await fetch('/api/profiles', {
       method: 'PATCH',
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({ milestones: updatedMilestones }),
@@ -52,11 +52,11 @@ const MilestoneList: React.FC<Props> = ({ milestones, userId }) => {
     };
     const headers = await getAuthHeaders();
 
-    const profileRes = await fetch(`/.netlify/functions/profiles?id=${userId}`, { headers });
+    const profileRes = await fetch(`/api/profiles?id=${userId}`, { headers });
     const profile = await profileRes.json();
     const existing = profile?.milestones || [];
 
-    await fetch('/.netlify/functions/profiles', {
+    await fetch('/api/profiles', {
       method: 'PATCH',
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({ milestones: [...existing, newMilestone] }),

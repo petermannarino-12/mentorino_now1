@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
   const handleSubscribe = async () => {
     if (!email) return;
     setSubmitting(true);
-    const res = await fetch('/.netlify/functions/newsletter', {
+    const res = await fetch('/api/newsletter', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.toLowerCase().trim() }),

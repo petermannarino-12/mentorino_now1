@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchUserProfile = async (userId: string) => {
     try {
       const token = (await supabase.auth.getSession()).data.session?.access_token;
-      const res = await fetch(`/.netlify/functions/profiles?id=${userId}`, {
+      const res = await fetch(`/api/profiles?id=${userId}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 

@@ -50,7 +50,7 @@ export const applicationService = {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
 
-      const response = await fetch('/.netlify/functions/submit-application', {
+      const response = await fetch('/api/submit-application', {
         method: 'POST',
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
@@ -77,7 +77,7 @@ export const applicationService = {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
 
-      const response = await fetch('/.netlify/functions/update-application-status', {
+      const response = await fetch('/api/update-application-status', {
         method: 'POST',
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
@@ -113,7 +113,7 @@ export const applicationService = {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
 
-      const response = await fetch(`/.netlify/functions/delete-application?id=${id}`, {
+      const response = await fetch(`/api/delete-application?id=${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',

@@ -22,19 +22,19 @@ async function api(url: string, options?: RequestInit) {
 
 export const taskService = {
   async fetchAll(from: number = 0, to: number = 49) {
-    return api(`/.netlify/functions/task-activities?from=${from}&to=${to}`);
+    return api(`/api/task-activities?from=${from}&to=${to}`);
   },
   async fetchByUserId(userId: string, from: number = 0, to: number = 49) {
-    return api(`/.netlify/functions/task-activities?userId=${userId}&from=${from}&to=${to}`);
+    return api(`/api/task-activities?userId=${userId}&from=${from}&to=${to}`);
   },
   async insert(activity: Omit<TaskActivity, 'id' | 'created_at'>) {
-    return api('/.netlify/functions/task-activities', {
+    return api('/api/task-activities', {
       method: 'POST',
       body: JSON.stringify(activity),
     });
   },
   async updateStatus(id: string, status: string, response?: string) {
-    return api('/.netlify/functions/task-activities', {
+    return api('/api/task-activities', {
       method: 'POST',
       body: JSON.stringify({ id, status, admin_response: response }),
     });

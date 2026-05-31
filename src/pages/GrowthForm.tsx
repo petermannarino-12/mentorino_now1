@@ -53,7 +53,7 @@ const GrowthForm = () => {
       const token = session.access_token;
       const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const profileRes = await fetch(`/.netlify/functions/profiles?id=${session.user.id}`, { headers: authHeaders });
+      const profileRes = await fetch(`/api/profiles?id=${session.user.id}`, { headers: authHeaders });
       if (!profileRes.ok) {
         navigate('/auth');
         return;
@@ -74,7 +74,7 @@ const GrowthForm = () => {
 
       setCurrentUser(user);
 
-      const actRes = await fetch(`/.netlify/functions/task-activities?userId=${user.id}`, { headers: authHeaders });
+      const actRes = await fetch(`/api/task-activities?userId=${user.id}`, { headers: authHeaders });
       const activities = await actRes.json();
       const existingActivity = Array.isArray(activities) && activities.length > 0 ? activities[0] : null;
       if (existingActivity) {
@@ -130,7 +130,7 @@ const GrowthForm = () => {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const res = await fetch('/.netlify/functions/task-activities', {
+      const res = await fetch('/api/task-activities', {
         method: 'POST',
         headers,
         body: JSON.stringify(activityData),

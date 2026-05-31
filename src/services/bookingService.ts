@@ -22,13 +22,13 @@ async function api(url: string, options?: RequestInit) {
 
 export const bookingService = {
   async fetchAll(from: number = 0, to: number = 49) {
-    return api(`/.netlify/functions/bookings?from=${from}&to=${to}`);
+    return api(`/api/bookings?from=${from}&to=${to}`);
   },
   async fetchByUserId(userId: string, from: number = 0, to: number = 49) {
-    return api(`/.netlify/functions/bookings?userId=${userId}&from=${from}&to=${to}`);
+    return api(`/api/bookings?userId=${userId}&from=${from}&to=${to}`);
   },
   async insert(booking: Omit<Booking, 'id'>) {
-    return api('/.netlify/functions/bookings', {
+    return api('/api/bookings', {
       method: 'POST',
       body: JSON.stringify(booking),
     });

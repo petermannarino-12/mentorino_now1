@@ -72,7 +72,7 @@ const BookingPage: React.FC<BookingPageProps> = () => {
       await addBookingMutation.mutateAsync(newBooking);
 
       // Send booking confirmation email (async, non-blocking)
-      fetch('/.netlify/functions/send-booking-confirmation', {
+      fetch('/api/send-booking-confirmation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ booking: { ...newBooking, user_email: currentUser.email } })

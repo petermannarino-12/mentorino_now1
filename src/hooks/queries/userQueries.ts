@@ -9,7 +9,7 @@ export const useUsersQuery = (enabled: boolean = true) => {
       const token = (await supabase.auth.getSession()).data.session?.access_token;
       const headers: Record<string, string> = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res = await fetch('/.netlify/functions/profiles?limit=50', { headers });
+      const res = await fetch('/api/profiles?limit=50', { headers });
       const profiles = await res.json();
       const mappedUsers: User[] = (Array.isArray(profiles) ? profiles : []).map((p: any) => ({
         id: p.id,

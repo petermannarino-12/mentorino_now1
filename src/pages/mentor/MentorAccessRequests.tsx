@@ -21,7 +21,7 @@ interface AccessRequest {
 
 async function fetchRequests(): Promise<AccessRequest[]> {
   const token = (await supabase.auth.getSession()).data.session?.access_token;
-  const res = await fetch('/.netlify/functions/list-product-requests', {
+  const res = await fetch('/api/list-product-requests', {
     headers: { 'Authorization': `Bearer ${token}` },
   });
   if (!res.ok) throw new Error('Failed to fetch requests');
@@ -53,7 +53,7 @@ export const MentorAccessRequests: React.FC = () => {
     setActioningId(requestId);
     try {
       const token = (await supabase.auth.getSession()).data.session?.access_token;
-      const res = await fetch('/.netlify/functions/handle-product-access', {
+      const res = await fetch('/api/handle-product-access', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ request_id: requestId, action, mentor_notes: mentorNotes || null }),

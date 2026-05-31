@@ -94,7 +94,7 @@ const ResetPasswordPage: React.FC = () => {
 
     try {
       if (isCustomFlow) {
-        const res = await fetch('/.netlify/functions/reset-password', {
+        const res = await fetch('/api/reset-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: customToken, password }),

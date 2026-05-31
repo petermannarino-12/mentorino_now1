@@ -116,7 +116,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
     queryKey: ['my-access'],
     queryFn: async () => {
       const token = (await supabase.auth.getSession()).data.session?.access_token;
-      const res = await fetch('/.netlify/functions/my-product-access', {
+      const res = await fetch('/api/my-product-access', {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!res.ok) return [];
@@ -997,7 +997,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                     setNotesSaving(true);
                     const { data: { session } } = await supabase.auth.getSession();
                     const headers = session?.access_token ? { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
-                    await fetch('/.netlify/functions/bookings', {
+                    await fetch('/api/bookings', {
                       method: 'PATCH',
                       headers,
                       body: JSON.stringify({ id: editingNotesSession.id, notes: notesText }),

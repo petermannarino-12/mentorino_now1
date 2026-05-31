@@ -28,7 +28,7 @@ const StorePage: React.FC = () => {
     setRequestingId(selectedProduct.id);
     try {
       const token = (await supabase.auth.getSession()).data.session?.access_token;
-      const res = await fetch('/.netlify/functions/request-product-access', {
+      const res = await fetch('/api/request-product-access', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({

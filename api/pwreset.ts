@@ -1,8 +1,5 @@
 export const config = { runtime: 'nodejs' }
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://mbzaqnqobecmmmkrkouu.supabase.co'
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
-
 export async function POST(request: Request) {
   try {
     const { token, password } = await request.json()
@@ -38,14 +35,8 @@ export async function POST(request: Request) {
       return Response.json({ error: 'This reset link has expired' }, { status: 400 })
     }
 
-    if (!SERVICE_KEY) {
-      return Response.json({ error: 'Server configuration error' }, { status: 500 })
-    }
-
-    const { createClient } = await import('@supabase/supabase-js')
-    const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    })
+    const { getAuth } = await import('./auth.js')
+    const supabaseAdmin = await getAuth()
 
     const { data: users, error: listError } = await supabaseAdmin.auth.admin.listUsers()
     if (listError) throw listError

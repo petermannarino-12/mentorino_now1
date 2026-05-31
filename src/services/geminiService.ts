@@ -2,7 +2,7 @@ import { Application, Booking } from "../types";
 
 export const getApplicationSummary = async (app: Application) => {
   try {
-    const response = await fetch('/.netlify/functions/analyze-application', {
+    const response = await fetch('/api/analyze-application', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ application: app })
@@ -17,7 +17,7 @@ export const getApplicationSummary = async (app: Application) => {
 
 export const getPreSessionBrief = async (booking: Booking, studentContext: string, purchasedProducts: string[] = []) => {
   try {
-    const response = await fetch('/.netlify/functions/generate-brief', {
+    const response = await fetch('/api/generate-brief', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ booking, studentContext, purchasedProducts })
@@ -33,7 +33,7 @@ export const getPreSessionBrief = async (booking: Booking, studentContext: strin
 
 export const chatWithAssistant = async (history: { role: 'user' | 'model', text: string }[], message: string) => {
   try {
-    const response = await fetch('/.netlify/functions/chat', {
+    const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ history, message })

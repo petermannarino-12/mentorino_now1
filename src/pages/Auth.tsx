@@ -88,7 +88,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
     }
     setIsLoading(true);
     try {
-      const res = await fetch('/.netlify/functions/send-password-reset', {
+      const res = await fetch('/api/send-password-reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() }),
@@ -129,7 +129,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
     try {
       if (isSignUp) {
         // Check if application is approved
-        const appRes = await fetch('/.netlify/functions/check-application', {
+        const appRes = await fetch('/api/check-application', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: data.email.trim() }),
@@ -156,7 +156,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
         }
 
         // Send welcome email (async, non-blocking)
-        fetch('/.netlify/functions/send-welcome-email', {
+        fetch('/api/send-welcome-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: data.email.trim(), name: data.fullName })
