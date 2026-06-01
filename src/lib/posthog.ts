@@ -7,10 +7,13 @@ export const initPostHog = () => {
   if (token && host) {
     posthog.init(token, {
       api_host: host,
-      person_profiles: 'identified_only',
+      person_profiles: 'identified_only', // or 'always'
       capture_pageview: true,
       capture_pageleave: true,
-      session_recording: false,
+      session_recording: {
+        maskAllInputs: true,
+        maskTextSelector: '*',
+      },
     });
   }
 };

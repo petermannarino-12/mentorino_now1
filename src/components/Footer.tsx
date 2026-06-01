@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, Twitter, Linkedin, Youtube, Check, Loader2 } from 'lucide-react';
 
-const Footer: React.FC = React.memo(() => {
+const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -109,6 +109,6 @@ const Footer: React.FC = React.memo(() => {
       </div>
     </footer>
   );
-});
+};
 
 export default Footer;

@@ -315,14 +315,8 @@ export default defineConfig(({ mode }) => {
                 if (id.includes('xlsx')) {
                   return 'vendor-excel';
                 }
-                if (id.includes('lucide-react') || id.includes('motion')) {
+                if (id.includes('lucide-react') || id.includes('recharts') || id.includes('motion')) {
                   return 'vendor-ui';
-                }
-                if (id.includes('recharts')) {
-                  return 'vendor-recharts';
-                }
-                if (id.includes('hls.js')) {
-                  return 'vendor-hls';
                 }
                 if (id.includes('@sentry')) {
                   return 'vendor-sentry';

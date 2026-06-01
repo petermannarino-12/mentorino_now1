@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { cn } from '../../lib/utils';
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
@@ -6,7 +6,7 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   error?: string;
 };
 
-export const Input: React.FC<InputProps> = memo(({ label, error, className, ...props }) => (
+export const Input: React.FC<InputProps> = ({ label, error, className, ...props }) => (
   <div className="flex flex-col gap-1.5">
     {label && <label className="text-sm font-bold text-slate-700">{label}</label>}
     <input

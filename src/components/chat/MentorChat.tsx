@@ -34,8 +34,7 @@ export function MentorChat({ currentUserId }: MentorChatProps) {
       const json = await res.json();
       return json.conversations as Conversation[];
     },
-    refetchInterval: 30000,
-    staleTime: 20000,
+    refetchInterval: 10000,
   });
 
   const { data: profileMap } = useQuery({

@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -31,9 +31,8 @@ import {
 
 import SEO from '../components/SEO';
 import { UserRole } from '../types';
+import SynapseSection from '../components/SynapseSection';
 import Footer from '../components/Footer';
-
-const SynapseSection = lazy(() => import('../components/SynapseSection'));
 interface LandingPageProps {
   currentRole?: UserRole;
 }
@@ -759,7 +758,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ currentRole = 'visitor' }) =>
       </section>
 
       {/* Synapse Experience Section */}
-      <Suspense fallback={<section className="h-screen bg-black" />}><SynapseSection /></Suspense>
+      <SynapseSection />
 
       <Footer />
 
