@@ -24,6 +24,7 @@ export function ChatBox({ currentUserId, otherUserId, otherUserName, apiBase }: 
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const lastUnreadRef = useRef(0);
 
   async function getToken() {
     const session = (await supabase.auth.getSession()).data.session;
@@ -42,7 +43,8 @@ export function ChatBox({ currentUserId, otherUserId, otherUserName, apiBase }: 
       const json = await res.json();
       return json.messages as Message[];
     },
-    refetchInterval: 5000,
+    refetchInterval: 30000,
+    staleTime: 15000,
   });
 
   const sendMutation = useMutation({
@@ -77,8 +79,13 @@ export function ChatBox({ currentUserId, otherUserId, otherUserName, apiBase }: 
   };
 
   useEffect(() => {
-    if (data && data.length > 0) markRead();
-  }, [data]);
+    if (!data) return;
+    const unreadFromOther = data.filter(m => m.sender_id === otherUserId && !m.read).length;
+    if (unreadFromOther > 0 && unreadFromOther !== lastUnreadRef.current) {
+      lastUnreadRef.current = unreadFromOther;
+      markRead();
+    }
+  }, [data, otherUserId]);
 
   const handleSend = () => {
     if (!input.trim()) return;

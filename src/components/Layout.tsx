@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
-import AIChatWidget from './ai/AIChatWidget';
+
+const AIChatWidget = lazy(() => import('./ai/AIChatWidget'));
 import { 
   LayoutDashboard, 
   Users, 
@@ -29,7 +30,7 @@ interface LayoutProps {
   onLogout?: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, role }) => {
+const Layout: React.FC<LayoutProps> = React.memo(({ children, role }) => {
   const { signOut: onLogout } = useAuth();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -230,9 +231,9 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
           </motion.nav>
         </div>
       )}
-      {role !== 'visitor' && <AIChatWidget />}
+      {role !== 'visitor' && <Suspense fallback={null}><AIChatWidget /></Suspense>}
     </div>
   );
-};
+});
 
 export default Layout;

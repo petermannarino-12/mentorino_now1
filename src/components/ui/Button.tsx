@@ -6,7 +6,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
 };
 
-export const Button: React.FC<ButtonProps> = ({ className, variant = "primary", loading, children, ...props }) => {
+export const Button: React.FC<ButtonProps> = React.memo(({ className, variant = "primary", loading, children, ...props }) => {
   const base = "px-6 py-2 rounded-full font-bold uppercase tracking-widest text-xs transition-all min-h-[44px]";
   const variants = {
     primary: "bg-emerald-600 text-white hover:bg-emerald-700",
