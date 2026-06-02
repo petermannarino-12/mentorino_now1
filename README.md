@@ -5,7 +5,7 @@ Premium career, education, and life guidance mentorship platform.
 ## Prerequisites
 
 - Node.js 20+
-- A Supabase project (local or hosted)
+- A Supabase project
 - A Vercel account (for deployment)
 - API keys: Resend (email), Gemini (AI features), Sentry (error tracking), PostHog (analytics)
 
