@@ -187,10 +187,10 @@ async function handleUpdateStatus(request: Request) {
 
         let subject = template?.subject || (status === 'approved'
           ? 'Welcome to Mentorino — Your Application Has Been Accepted!'
-          : 'Update – Mentorino Application');
+          : 'Update – Mentorino\nApplication');
         let body = template?.body || (status === 'approved'
-          ? `Hi {{student_name}},<br><br>Congratulations! Your application to the {{program_name}} program has been approved by {{mentor_name}}.<br><br>You can now create your account and access your member portal.<br><br><a href="{{login_url}}" style="display:inline-block;padding:12px 24px;background:#000;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;">Create Your Account</a><br><br>Best,<br>Mentorino Team`
-          : `Hi {{student_name}},<br><br>Thank you for applying to the {{program_name}}.<br>After careful review by {{mentor_name}},<br>we are unable to accept your application at this time.<br><br>We wish you the best in your journey.<br><br>Best,<br>Mentorino Team`);
+          ? `Hi {{student_name}},<br><br>Congratulations! Your application to the {{program_name}} program has been approved by {{mentor_name}}.<br><br>You can now create your account and access your member portal.<br><br><a href="{{login_url}}" style="display:inline-block;padding:12px 24px;background:#000;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;">Create Your Account</a><br><br>Best,<br>the Mentorino Team`
+          : `Hi {{student_name}},<br><br>Thank you for applying to {{program_name}}.<br><br>After careful review by Peter,<br>we are unable to accept your application at this time.<br><br>We wish you the best in your journey.<br><br>Best,<br>the Mentorino Team`);
         body = body
           .replace(/{{student_name}}/g, studentName)
           .replace(/{{mentor_name}}/g, mentorName)

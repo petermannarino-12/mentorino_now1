@@ -37,16 +37,18 @@ Mentorino Team'
   ),
   (
     'application_rejected',
-    'Update – Mentorino Application',
+    'Update – Mentorino
+Application',
     'Hi {{student_name}},
 
-Thank you for applying to the {{program_name}}.
-After careful review by {{mentor_name}},
+Thank you for applying to {{program_name}}.
+
+After careful review by Peter,
 we are unable to accept your application at this time.
 
 We wish you the best in your journey.
 
 Best,
-Mentorino Team'
+the Mentorino Team'
   )
 ON CONFLICT (id) DO NOTHING;

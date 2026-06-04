@@ -18,8 +18,8 @@ INSERT INTO public.email_templates (id, subject, body) VALUES
   ),
   (
     'application_rejected',
-    'Update – Mentorino Application',
-    'Hi {{student_name}},\n\nThank you for applying to the {{program_name}}.\nAfter careful review by {{mentor_name}},\nwe are unable to accept your application at this time.\n\nWe wish you the best in your journey.\n\nBest,\nMentorino Team'
+    'Update – Mentorino\nApplication',
+    'Hi {{student_name}},\n\nThank you for applying to {{program_name}}.\n\nAfter careful review by Peter,\nwe are unable to accept your application at this time.\n\nWe wish you the best in your journey.\n\nBest,\nthe Mentorino Team'
   ),
   (
     'booking_confirmed',
