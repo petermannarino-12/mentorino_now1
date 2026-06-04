@@ -1,792 +1,817 @@
 {
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\ai.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\.vercel\\repo.json": {
+    "mtime": 1780564370.8503766,
+    "ast_hash": "5f9f1b89ab47e61c20473e80afaf0412",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\ai.ts": {
     "mtime": 1780553444.2430897,
     "ast_hash": "4ab891c9b7c1e4b439b48d6c3bb6312d",
-    "semantic_hash": "4ab891c9b7c1e4b439b48d6c3bb6312d"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\applications.ts": {
-    "mtime": 1780553444.2450936,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\applications.ts": {
+    "mtime": 1780554718.1567836,
     "ast_hash": "be76ecc1e63416e97799c44d16e49ed2",
-    "semantic_hash": "be76ecc1e63416e97799c44d16e49ed2"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\auth.ts": {
-    "mtime": 1780553444.2491014,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\auth.ts": {
+    "mtime": 1780554718.1579561,
     "ast_hash": "4d27ff72c68ec671d30ed1ad795da012",
-    "semantic_hash": "4d27ff72c68ec671d30ed1ad795da012"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\bookings.ts": {
-    "mtime": 1780553444.2511048,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\bookings.ts": {
+    "mtime": 1780554718.1579561,
     "ast_hash": "1f2ffa24ab10d83ce092cc7954103269",
-    "semantic_hash": "1f2ffa24ab10d83ce092cc7954103269"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\contact.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\contact.ts": {
     "mtime": 1780553444.2511048,
     "ast_hash": "f9cda6ae2f19995448fc84be31833c85",
-    "semantic_hash": "f9cda6ae2f19995448fc84be31833c85"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\emails.ts": {
-    "mtime": 1780553444.304591,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\emails.ts": {
+    "mtime": 1780554718.1590438,
     "ast_hash": "19112df818b59d9285dec0dba09d9382",
-    "semantic_hash": "19112df818b59d9285dec0dba09d9382"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\events.ts": {
-    "mtime": 1780553444.304591,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\events.ts": {
+    "mtime": 1780554718.16019,
     "ast_hash": "1556019cbaba96fcc9e35cdbae1d0da2",
-    "semantic_hash": "1556019cbaba96fcc9e35cdbae1d0da2"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\newsletter.ts": {
-    "mtime": 1780553444.306594,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\newsletter.ts": {
+    "mtime": 1780554718.16019,
     "ast_hash": "c21a382ac3ec113ee81a82c776d5adc8",
-    "semantic_hash": "c21a382ac3ec113ee81a82c776d5adc8"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\prisma.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\prisma.ts": {
     "mtime": 1780553444.306594,
     "ast_hash": "8650a9365b390273b8f31c6920bc9523",
-    "semantic_hash": "8650a9365b390273b8f31c6920bc9523"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\profiles.ts": {
-    "mtime": 1780553444.306594,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\profiles.ts": {
+    "mtime": 1780554718.1612897,
     "ast_hash": "76ceaf227113f81cc472649a736ec430",
-    "semantic_hash": "76ceaf227113f81cc472649a736ec430"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\pwreset.ts": {
-    "mtime": 1780553444.308597,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\pwreset.ts": {
+    "mtime": 1780554718.1612897,
     "ast_hash": "91619dbe3dbdc624e3b0894102721896",
-    "semantic_hash": "91619dbe3dbdc624e3b0894102721896"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\rate-limit.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\rate-limit.ts": {
     "mtime": 1780553444.308597,
     "ast_hash": "ff9c5b171b58932f36e98744e70fe113",
-    "semantic_hash": "ff9c5b171b58932f36e98744e70fe113"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\reviews.ts": {
-    "mtime": 1780553444.3105998,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\reviews.ts": {
+    "mtime": 1780554718.162741,
     "ast_hash": "534e0851908b6dcd9e752cd3eccc41b2",
-    "semantic_hash": "534e0851908b6dcd9e752cd3eccc41b2"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\task-activities.ts": {
-    "mtime": 1780553444.3105998,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\task-activities.ts": {
+    "mtime": 1780554718.162741,
     "ast_hash": "bbbacc7bb3dd9e889969ec40b498d0f4",
-    "semantic_hash": "bbbacc7bb3dd9e889969ec40b498d0f4"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\api\\transactions.ts": {
-    "mtime": 1780553444.312603,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\api\\transactions.ts": {
+    "mtime": 1780554718.163946,
     "ast_hash": "ef171e6075c485861c0773480c8ce86d",
-    "semantic_hash": "ef171e6075c485861c0773480c8ce86d"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\database\\email_templates_migration.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\database\\email_templates_migration.sql": {
     "mtime": 1780553444.312603,
     "ast_hash": "0f0acfa556f29f4dec8d1772487a1575",
-    "semantic_hash": "0f0acfa556f29f4dec8d1772487a1575"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\database\\supabase_schema.sql": {
-    "mtime": 1780553444.3146055,
-    "ast_hash": "c6f2ef52267767d8ac196819e9633b29",
-    "semantic_hash": "c6f2ef52267767d8ac196819e9633b29"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\database\\supabase_schema.sql": {
+    "mtime": 1780559848.4424033,
+    "ast_hash": "f44684327ca1839636873c5a8724eaba",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\docs\\metadata.json": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\docs\\metadata.json": {
     "mtime": 1780553444.330715,
     "ast_hash": "7b8130595c317135228a90d9bac20672",
-    "semantic_hash": "7b8130595c317135228a90d9bac20672"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\eslint.config.js": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\eslint.config.js": {
     "mtime": 1780553444.330715,
     "ast_hash": "b82b82156dac49150c4045f01176cbab",
-    "semantic_hash": "b82b82156dac49150c4045f01176cbab"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\opencode.json": {
-    "mtime": 1780553583.8152213,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\opencode.json": {
+    "mtime": 1780554718.294201,
     "ast_hash": "756673ed7e09d7e17745e9e45d4527fc",
-    "semantic_hash": "756673ed7e09d7e17745e9e45d4527fc"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\package.json": {
-    "mtime": 1780553444.3407595,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\package.json": {
+    "mtime": 1780554718.1681476,
     "ast_hash": "79d0126f011fed02c06cbd1430131797",
-    "semantic_hash": "79d0126f011fed02c06cbd1430131797"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\prisma.config.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\prisma.config.ts": {
     "mtime": 1780553444.342763,
     "ast_hash": "f6143a6083213d512c0beaa8d98daf63",
-    "semantic_hash": "f6143a6083213d512c0beaa8d98daf63"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\App.tsx": {
-    "mtime": 1780553444.3569205,
-    "ast_hash": "26a6c3d6ba4449d3ae4290a6e4eea73b",
-    "semantic_hash": "26a6c3d6ba4449d3ae4290a6e4eea73b"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\App.tsx": {
+    "mtime": 1780561368.5000262,
+    "ast_hash": "5437baf97a789a4fbc1e55c9e914abea",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ChunkErrorBoundary.test.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ChunkErrorBoundary.test.tsx": {
     "mtime": 1780553444.3649404,
     "ast_hash": "a831dabd82cae40ad41da9174dd09e77",
-    "semantic_hash": "a831dabd82cae40ad41da9174dd09e77"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ChunkErrorBoundary.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ChunkErrorBoundary.tsx": {
     "mtime": 1780553444.3649404,
     "ast_hash": "d731a84e8c34c2f0b939ec0255c50ea5",
-    "semantic_hash": "d731a84e8c34c2f0b939ec0255c50ea5"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ErrorFallback.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ErrorFallback.tsx": {
     "mtime": 1780553444.3829687,
     "ast_hash": "957c009f453b9c39e4b2de320d1f78a9",
-    "semantic_hash": "957c009f453b9c39e4b2de320d1f78a9"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\Footer.tsx": {
-    "mtime": 1780553444.386418,
-    "ast_hash": "78b413e8fb855fd5739516725e460153",
-    "semantic_hash": "78b413e8fb855fd5739516725e460153"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\Footer.tsx": {
+    "mtime": 1780561349.664377,
+    "ast_hash": "a3ba719af48cf636c0651941a3f8ed42",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\Layout.tsx": {
-    "mtime": 1780553444.386418,
-    "ast_hash": "4a5a9e15c9987d8a856b2679ccf4fb8f",
-    "semantic_hash": "4a5a9e15c9987d8a856b2679ccf4fb8f"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\Layout.tsx": {
+    "mtime": 1780558335.6097484,
+    "ast_hash": "ca967b470c8ca8f796e8a8cf5c4116ed",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ProtectedRoute.test.tsx": {
-    "mtime": 1780553444.388514,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ProtectedRoute.test.tsx": {
+    "mtime": 1780554718.1711755,
     "ast_hash": "0c86d38adc0bcf2f5a46688531505230",
-    "semantic_hash": "0c86d38adc0bcf2f5a46688531505230"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ProtectedRoute.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ProtectedRoute.tsx": {
     "mtime": 1780553444.388514,
     "ast_hash": "a1da42d0d30163e550e783f35b911dbd",
-    "semantic_hash": "a1da42d0d30163e550e783f35b911dbd"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\SEO.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\SEO.tsx": {
     "mtime": 1780553444.3905175,
     "ast_hash": "23d99d68e2addee87c8e94393210a46d",
-    "semantic_hash": "23d99d68e2addee87c8e94393210a46d"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ScrollToTop.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ScrollToTop.tsx": {
     "mtime": 1780553444.3905175,
     "ast_hash": "cb832f15b490bf91ceaa5db274832dbf",
-    "semantic_hash": "cb832f15b490bf91ceaa5db274832dbf"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\SynapseSection.tsx": {
-    "mtime": 1780553444.3934479,
-    "ast_hash": "077f8fd8b8f21d2c0b54cdcf859f671a",
-    "semantic_hash": "077f8fd8b8f21d2c0b54cdcf859f671a"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\SynapseSection.tsx": {
+    "mtime": 1780560937.4909427,
+    "ast_hash": "7f9ed60af78f0fff183fe179a5d2b6f1",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\TaskActivityForm.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\TaskActivityForm.tsx": {
     "mtime": 1780553444.3934479,
     "ast_hash": "2e37e6cf6c46e7d02063074253401d54",
-    "semantic_hash": "2e37e6cf6c46e7d02063074253401d54"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\admin\\AdminDashboardWrapper.tsx": {
-    "mtime": 1780553444.3954518,
-    "ast_hash": "614437dd97fed3b5910476d37f85e3af",
-    "semantic_hash": "614437dd97fed3b5910476d37f85e3af"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\admin\\AdminDashboardWrapper.tsx": {
+    "mtime": 1780559776.1165967,
+    "ast_hash": "ed5247005a0497738f8fc2601b0b6c88",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\admin\\ValidationRulesManager.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\admin\\ValidationRulesManager.tsx": {
     "mtime": 1780553444.3969598,
     "ast_hash": "a8829365489672efdfe6d5f477aa96ce",
-    "semantic_hash": "a8829365489672efdfe6d5f477aa96ce"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ai\\AIChatWidget.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ai\\AIChatWidget.tsx": {
     "mtime": 1780553444.3989635,
     "ast_hash": "67eea7e4e6c15154a71d22a55e6a6a0a",
-    "semantic_hash": "67eea7e4e6c15154a71d22a55e6a6a0a"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\chat\\ChatBox.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\chat\\ChatBox.tsx": {
     "mtime": 1780553444.4009676,
     "ast_hash": "7300e2387244b12a8071990fd22f55e1",
-    "semantic_hash": "7300e2387244b12a8071990fd22f55e1"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\chat\\MentorChat.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\chat\\MentorChat.tsx": {
     "mtime": 1780553444.4009676,
     "ast_hash": "0929a4297a01353ea3831c5630ede5fa",
-    "semantic_hash": "0929a4297a01353ea3831c5630ede5fa"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\chat\\StudentChat.tsx": {
-    "mtime": 1780553444.4029725,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\chat\\StudentChat.tsx": {
+    "mtime": 1780554718.1729174,
     "ast_hash": "5fbe5f410901ca8069909bf1d38bdb8d",
-    "semantic_hash": "5fbe5f410901ca8069909bf1d38bdb8d"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\forms\\NetworkingSection.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\forms\\NetworkingSection.tsx": {
     "mtime": 1780553444.4049804,
     "ast_hash": "da3a80e08b48489f7710d6e57dc23f6f",
-    "semantic_hash": "da3a80e08b48489f7710d6e57dc23f6f"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\forms\\PersonalBrandingSection.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\forms\\PersonalBrandingSection.tsx": {
     "mtime": 1780553444.4069862,
     "ast_hash": "204475fff35556db5727c465cc23a348",
-    "semantic_hash": "204475fff35556db5727c465cc23a348"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\layout\\DashboardWrapper.tsx": {
-    "mtime": 1780553444.4069862,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\layout\\DashboardWrapper.tsx": {
+    "mtime": 1780554718.174082,
     "ast_hash": "10049fb47bd2fc2a08185f7e3cfd1c62",
-    "semantic_hash": "10049fb47bd2fc2a08185f7e3cfd1c62"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\mentor\\ActivitySnapshot.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\mentor\\ActivitySnapshot.tsx": {
     "mtime": 1780553444.4069862,
     "ast_hash": "5d6e47e4fcdfd3c6dbae75c9edc49011",
-    "semantic_hash": "5d6e47e4fcdfd3c6dbae75c9edc49011"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\mentor\\Engagement.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\mentor\\Engagement.tsx": {
     "mtime": 1780553444.4069862,
     "ast_hash": "5a7d635045a5a5ec2db1877e4ea39036",
-    "semantic_hash": "5a7d635045a5a5ec2db1877e4ea39036"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\mentor\\GrowthFeed.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\mentor\\GrowthFeed.tsx": {
     "mtime": 1780553444.4213839,
     "ast_hash": "d3e519e5dc0bf1b6f49492bfe865b23c",
-    "semantic_hash": "d3e519e5dc0bf1b6f49492bfe865b23c"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\mentor\\PendingActions.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\mentor\\PendingActions.tsx": {
     "mtime": 1780553444.4213839,
     "ast_hash": "df6777e03dd761188d08383012f20fd1",
-    "semantic_hash": "df6777e03dd761188d08383012f20fd1"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\mentor\\Statistics.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\mentor\\Statistics.tsx": {
     "mtime": 1780553444.423656,
     "ast_hash": "b01a90c8ad037ad6d45ffd88abec3a98",
-    "semantic_hash": "b01a90c8ad037ad6d45ffd88abec3a98"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\milestones\\MilestoneList.tsx": {
-    "mtime": 1780553444.4276645,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\milestones\\MilestoneList.tsx": {
+    "mtime": 1780554718.1751893,
     "ast_hash": "11b58f9971c196dd4cee85d7fdd52e92",
-    "semantic_hash": "11b58f9971c196dd4cee85d7fdd52e92"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ui\\Button.test.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ui\\Button.test.tsx": {
     "mtime": 1780553444.4294076,
     "ast_hash": "81b07486f0460a7431e23c821803b0be",
-    "semantic_hash": "81b07486f0460a7431e23c821803b0be"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ui\\Button.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ui\\Button.tsx": {
     "mtime": 1780553444.4294076,
     "ast_hash": "0384e26e432abcf406e84ba47cafc360",
-    "semantic_hash": "0384e26e432abcf406e84ba47cafc360"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ui\\Card.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ui\\Card.tsx": {
     "mtime": 1780553444.4314125,
     "ast_hash": "aeee6c2b2b36f3dacf22d12f2815eb1c",
-    "semantic_hash": "aeee6c2b2b36f3dacf22d12f2815eb1c"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ui\\EmptyState.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ui\\EmptyState.tsx": {
     "mtime": 1780553444.4334176,
     "ast_hash": "8a5c82aa30676c4b4b98587abd1dfc3d",
-    "semantic_hash": "8a5c82aa30676c4b4b98587abd1dfc3d"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ui\\ErrorState.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ui\\ErrorState.tsx": {
     "mtime": 1780553444.4354234,
     "ast_hash": "26ad9cb9a7157620a0e9c7cdd2e3296d",
-    "semantic_hash": "26ad9cb9a7157620a0e9c7cdd2e3296d"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ui\\GlobalErrorFallback.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ui\\GlobalErrorFallback.tsx": {
     "mtime": 1780553444.4374278,
     "ast_hash": "96528bbc8f3de188232b026de1ea31b9",
-    "semantic_hash": "96528bbc8f3de188232b026de1ea31b9"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ui\\Input.test.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ui\\Input.test.tsx": {
     "mtime": 1780553444.4374278,
     "ast_hash": "bd43b29ae76f264ef8c0d4790b1ecf79",
-    "semantic_hash": "bd43b29ae76f264ef8c0d4790b1ecf79"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ui\\Input.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ui\\Input.tsx": {
     "mtime": 1780553444.4374278,
     "ast_hash": "9b28a199a8e9b6cf384c2348580315e2",
-    "semantic_hash": "9b28a199a8e9b6cf384c2348580315e2"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ui\\Loader.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ui\\Loader.tsx": {
     "mtime": 1780553444.4374278,
     "ast_hash": "512873b7e6db11f73b91c78aa494c079",
-    "semantic_hash": "512873b7e6db11f73b91c78aa494c079"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ui\\Pagination.test.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ui\\Pagination.test.tsx": {
     "mtime": 1780553444.4374278,
     "ast_hash": "6651189222d938085543cf0f7ed7accf",
-    "semantic_hash": "6651189222d938085543cf0f7ed7accf"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\components\\ui\\Pagination.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\components\\ui\\Pagination.tsx": {
     "mtime": 1780553444.4374278,
     "ast_hash": "824720d230202ec1492ec87569297fce",
-    "semantic_hash": "824720d230202ec1492ec87569297fce"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\constants\\navigation.ts": {
-    "mtime": 1780553444.4432333,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\constants\\navigation.ts": {
+    "mtime": 1780554718.176205,
     "ast_hash": "4ec4d7637ff05819f23bf4a9ae91f51b",
-    "semantic_hash": "4ec4d7637ff05819f23bf4a9ae91f51b"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\contexts\\AuthContext.tsx": {
-    "mtime": 1780553444.445238,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\contexts\\AuthContext.tsx": {
+    "mtime": 1780554718.176205,
     "ast_hash": "800135a0ccf96a432c292e6128f20c27",
-    "semantic_hash": "800135a0ccf96a432c292e6128f20c27"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\hooks\\queries\\userQueries.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\hooks\\queries\\userQueries.ts": {
     "mtime": 1780553444.44903,
     "ast_hash": "bb591a087d32d4d29b447d984cba82de",
-    "semantic_hash": "bb591a087d32d4d29b447d984cba82de"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\hooks\\useApplications.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\hooks\\useApplications.ts": {
     "mtime": 1780553444.451034,
     "ast_hash": "9e831a5119cbed9848100fcc7ba0dfe4",
-    "semantic_hash": "9e831a5119cbed9848100fcc7ba0dfe4"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\hooks\\useBookings.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\hooks\\useBookings.ts": {
     "mtime": 1780553444.451034,
     "ast_hash": "f0ab84a7028044319de4037ced7c0ea5",
-    "semantic_hash": "f0ab84a7028044319de4037ced7c0ea5"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\hooks\\useEvents.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\hooks\\useEnquiries.ts": {
+    "mtime": 1780559721.0165153,
+    "ast_hash": "048712d5fc6a6111932eada4a333606e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\hooks\\useEvents.ts": {
     "mtime": 1780553444.4537146,
     "ast_hash": "7e1b18021b8f268a9b4386c780b0f45a",
-    "semantic_hash": "7e1b18021b8f268a9b4386c780b0f45a"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\hooks\\useMentorDashboard.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\hooks\\useMentorDashboard.ts": {
     "mtime": 1780553444.4537146,
     "ast_hash": "5b429b103fbc61c20bdee2c604f48ba4",
-    "semantic_hash": "5b429b103fbc61c20bdee2c604f48ba4"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\hooks\\useMentorDashboardActions.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\hooks\\useMentorDashboardActions.ts": {
     "mtime": 1780553444.4537146,
     "ast_hash": "0905ab5e4a18e5bce27d7b7fc6ba43bd",
-    "semantic_hash": "0905ab5e4a18e5bce27d7b7fc6ba43bd"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\hooks\\useMentorDashboardData.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\hooks\\useMentorDashboardData.ts": {
     "mtime": 1780553444.4537146,
     "ast_hash": "32bb27ac8c2a99263d9a6c28c09bd597",
-    "semantic_hash": "32bb27ac8c2a99263d9a6c28c09bd597"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\hooks\\useSupabasePaginated.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\hooks\\useSupabasePaginated.ts": {
     "mtime": 1780553444.4537146,
     "ast_hash": "8e156c3be7b8ddc3cfa50f7b6829684a",
-    "semantic_hash": "8e156c3be7b8ddc3cfa50f7b6829684a"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\hooks\\useTasks.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\hooks\\useTasks.ts": {
     "mtime": 1780553444.4581132,
     "ast_hash": "02efd6bb74a73843128dcaa2203e656b",
-    "semantic_hash": "02efd6bb74a73843128dcaa2203e656b"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\hooks\\useUserDashboardData.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\hooks\\useUserDashboardData.ts": {
     "mtime": 1780553444.4581132,
     "ast_hash": "24a7672deb6378a0c27b99883793b703",
-    "semantic_hash": "24a7672deb6378a0c27b99883793b703"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\lib\\dateUtils.test.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\lib\\dateUtils.test.ts": {
     "mtime": 1780553444.4624488,
     "ast_hash": "c884c779be3238e4111f8680ab129784",
-    "semantic_hash": "c884c779be3238e4111f8680ab129784"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\lib\\dateUtils.ts": {
-    "mtime": 1780553444.4624488,
-    "ast_hash": "32eeedb4b51e2c03ace63c3b6d23fe18",
-    "semantic_hash": "32eeedb4b51e2c03ace63c3b6d23fe18"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\lib\\dateUtils.ts": {
+    "mtime": 1780561430.8719313,
+    "ast_hash": "fa7a20a230f42ffe4b0391fd7e67b296",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\lib\\posthog.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\lib\\posthog.ts": {
     "mtime": 1780553444.464452,
     "ast_hash": "e1e917c146828aa3b8fcd982b54713b7",
-    "semantic_hash": "e1e917c146828aa3b8fcd982b54713b7"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\lib\\queryClient.tsx": {
-    "mtime": 1780553444.464452,
-    "ast_hash": "bccfc79e6bf3d815b3cee086bb763aee",
-    "semantic_hash": "bccfc79e6bf3d815b3cee086bb763aee"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\lib\\queryClient.tsx": {
+    "mtime": 1780565035.9225373,
+    "ast_hash": "ead3bd8d6dbc87b3374a2f74a6d62aaa",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\lib\\sentry.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\lib\\sentry.ts": {
     "mtime": 1780553444.4664557,
     "ast_hash": "bbed8f275f8f6b5f72c76af9a48ffbe3",
-    "semantic_hash": "bbed8f275f8f6b5f72c76af9a48ffbe3"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\lib\\supabase.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\lib\\supabase.ts": {
     "mtime": 1780553444.4664557,
     "ast_hash": "e1d5632208d713d671e054e01412b0b8",
-    "semantic_hash": "e1d5632208d713d671e054e01412b0b8"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\lib\\toast.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\lib\\toast.ts": {
     "mtime": 1780553444.4684606,
     "ast_hash": "f98ca382cae127d3ed8c5bae98ab8a3d",
-    "semantic_hash": "f98ca382cae127d3ed8c5bae98ab8a3d"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\lib\\utils.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\lib\\utils.ts": {
     "mtime": 1780553444.4702039,
     "ast_hash": "d9837f38cc05303254571985e3164050",
-    "semantic_hash": "d9837f38cc05303254571985e3164050"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\main.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\main.tsx": {
     "mtime": 1780553444.4702039,
     "ast_hash": "f31a1564006e702c06ce5923b1b23bc2",
-    "semantic_hash": "f31a1564006e702c06ce5923b1b23bc2"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\About.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\About.tsx": {
     "mtime": 1780553444.4722085,
     "ast_hash": "68859ad6a03d171c4ae2c56f84d49300",
-    "semantic_hash": "68859ad6a03d171c4ae2c56f84d49300"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\AdminDashboard.tsx": {
-    "mtime": 1780553444.4762182,
-    "ast_hash": "be5ca9338a1eb49a71864939180fa1b8",
-    "semantic_hash": "be5ca9338a1eb49a71864939180fa1b8"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\AdminDashboard.tsx": {
+    "mtime": 1780561435.0702505,
+    "ast_hash": "0b68eec4b4ab476e7689b1cf0efa4607",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\AdminRevenue.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\AdminRevenue.tsx": {
     "mtime": 1780553444.478276,
     "ast_hash": "f6403994bc45cfed62203d838edf207f",
-    "semantic_hash": "f6403994bc45cfed62203d838edf207f"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Application.tsx": {
-    "mtime": 1780553444.4803226,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Application.tsx": {
+    "mtime": 1780554718.1784277,
     "ast_hash": "2cb049ae74afffa9041ca6e5c76577db",
-    "semantic_hash": "2cb049ae74afffa9041ca6e5c76577db"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Auth.tsx": {
-    "mtime": 1780553444.482327,
-    "ast_hash": "d4a8cac28ee930fe94c9923c785596b8",
-    "semantic_hash": "d4a8cac28ee930fe94c9923c785596b8"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Auth.tsx": {
+    "mtime": 1780557690.027553,
+    "ast_hash": "2a222e1b434cafbbab49f04aa901325e",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Booking.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Booking.tsx": {
     "mtime": 1780553444.482327,
     "ast_hash": "6e27348dc36814c3961af37bb521e677",
-    "semantic_hash": "6e27348dc36814c3961af37bb521e677"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\ConsultationOverview.tsx": {
-    "mtime": 1780553444.4843314,
-    "ast_hash": "2b9d1105547e7afe3b119e15232be181",
-    "semantic_hash": "2b9d1105547e7afe3b119e15232be181"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\ConsultationOverview.tsx": {
+    "mtime": 1780559746.8256302,
+    "ast_hash": "737123508e17ff672fb4fa084cb2a433",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Contact.tsx": {
-    "mtime": 1780553444.4843314,
-    "ast_hash": "4aafce417ff6a72ec690d5b2122e3e80",
-    "semantic_hash": "4aafce417ff6a72ec690d5b2122e3e80"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Contact.tsx": {
+    "mtime": 1780561856.1044686,
+    "ast_hash": "0f975869753293c64de9d7dbb9d49b95",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\FAQ.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\FAQ.tsx": {
     "mtime": 1780553444.4863355,
     "ast_hash": "80e4bb71b3f88ecb4738548aa81f6a3b",
-    "semantic_hash": "80e4bb71b3f88ecb4738548aa81f6a3b"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\GrowthForm.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\GrowthForm.tsx": {
     "mtime": 1780553444.4863355,
     "ast_hash": "7a4f1244138f2a1a55c98e6f14414b6e",
-    "semantic_hash": "7a4f1244138f2a1a55c98e6f14414b6e"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Landing.tsx": {
-    "mtime": 1780553444.4884636,
-    "ast_hash": "35de4a3e26541d15bbee1b767320137a",
-    "semantic_hash": "35de4a3e26541d15bbee1b767320137a"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Landing.tsx": {
+    "mtime": 1780564574.440341,
+    "ast_hash": "5c27785b1432b625dee8e41cd151481c",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\MentorDashboard.tsx": {
-    "mtime": 1780553444.4904675,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\MentorDashboard.tsx": {
+    "mtime": 1780554718.1798494,
     "ast_hash": "011a54bc55004ea3a457a0c57e0cbefe",
-    "semantic_hash": "011a54bc55004ea3a457a0c57e0cbefe"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Mentorship.tsx": {
-    "mtime": 1780553444.4904675,
-    "ast_hash": "1ae154ce4cc211eac53077aeb514e080",
-    "semantic_hash": "1ae154ce4cc211eac53077aeb514e080"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Mentorship.tsx": {
+    "mtime": 1780564575.243033,
+    "ast_hash": "bc2ef3147e72c9d5c7c5d9e25a58b78c",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\NotFound.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\NotFound.tsx": {
     "mtime": 1780553444.4924712,
     "ast_hash": "acff64cfa78fd930f2d93d994149cfa4",
-    "semantic_hash": "acff64cfa78fd930f2d93d994149cfa4"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Privacy.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Privacy.tsx": {
     "mtime": 1780553444.4924712,
     "ast_hash": "2abe7a2faa190c7628dec72a2a03e3e7",
-    "semantic_hash": "2abe7a2faa190c7628dec72a2a03e3e7"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Programs.tsx": {
-    "mtime": 1780553444.4944744,
-    "ast_hash": "d8006c2705661bde4378ad2cd5001502",
-    "semantic_hash": "d8006c2705661bde4378ad2cd5001502"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Programs.tsx": {
+    "mtime": 1780562236.6547613,
+    "ast_hash": "f0e15e3c1471a4f3f9dcefe7fd58f923",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\ResetPassword.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\ResetPassword.tsx": {
     "mtime": 1780553444.4944744,
     "ast_hash": "28930c07458b27c1fefe35e1491ed740",
-    "semantic_hash": "28930c07458b27c1fefe35e1491ed740"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Settings.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Settings.tsx": {
     "mtime": 1780553444.4964795,
     "ast_hash": "c24ffdf24ce4601a8a056061978d566e",
-    "semantic_hash": "c24ffdf24ce4601a8a056061978d566e"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Store.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Store.tsx": {
     "mtime": 1780553444.4964795,
     "ast_hash": "a1adfa18eafd69779a4c9337a0ff3b97",
-    "semantic_hash": "a1adfa18eafd69779a4c9337a0ff3b97"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Survey.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Survey.tsx": {
     "mtime": 1780553444.4964795,
     "ast_hash": "b1b7b28743048b5e3c1eeab2f8d1459c",
-    "semantic_hash": "b1b7b28743048b5e3c1eeab2f8d1459c"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\Terms.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\Terms.tsx": {
     "mtime": 1780553444.4964795,
     "ast_hash": "f7483db83d070c14a5ff527d66a8ff92",
-    "semantic_hash": "f7483db83d070c14a5ff527d66a8ff92"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\UserDashboard.tsx": {
-    "mtime": 1780553444.5006864,
-    "ast_hash": "ae8ae5522db0854bd5856aa0bcf93149",
-    "semantic_hash": "ae8ae5522db0854bd5856aa0bcf93149"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\UserDashboard.tsx": {
+    "mtime": 1780561357.6678653,
+    "ast_hash": "2be62969c02ee76e7cf6f773109502dd",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\dashboard\\Purchases.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\dashboard\\Purchases.tsx": {
     "mtime": 1780553444.5031867,
     "ast_hash": "a4e0769d92ca9e64dc8df19703bc5a7e",
-    "semantic_hash": "a4e0769d92ca9e64dc8df19703bc5a7e"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\mentor\\MentorAccessRequests.tsx": {
-    "mtime": 1780553444.5031867,
-    "ast_hash": "71187f5601095ec008ce7d22d10d0002",
-    "semantic_hash": "71187f5601095ec008ce7d22d10d0002"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\mentor\\MentorAccessRequests.tsx": {
+    "mtime": 1780558615.0121696,
+    "ast_hash": "1776b7635a1a4208aa1513f3f84b89ac",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\mentor\\MentorAccounts.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\mentor\\MentorAccounts.tsx": {
     "mtime": 1780553444.5031867,
     "ast_hash": "f7d826267f03daaecedb0d345a0d1082",
-    "semantic_hash": "f7d826267f03daaecedb0d345a0d1082"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\mentor\\MentorApplications.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\mentor\\MentorApplications.tsx": {
     "mtime": 1780553444.5192363,
     "ast_hash": "113d92bfc18109ae5cadcf0178b9fd9b",
-    "semantic_hash": "113d92bfc18109ae5cadcf0178b9fd9b"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\mentor\\MentorEmailTemplates.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\mentor\\MentorEmailTemplates.tsx": {
     "mtime": 1780553444.5192363,
     "ast_hash": "3c576c36bd2edcd6bf8cf6997dddb86c",
-    "semantic_hash": "3c576c36bd2edcd6bf8cf6997dddb86c"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\mentor\\MentorEvents.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\mentor\\MentorEvents.tsx": {
     "mtime": 1780553444.5216718,
     "ast_hash": "4b48addb9b6b239e4d748d2974c2e45b",
-    "semantic_hash": "4b48addb9b6b239e4d748d2974c2e45b"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\mentor\\MentorMentees.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\mentor\\MentorMentees.tsx": {
     "mtime": 1780553444.5216718,
     "ast_hash": "8519e8603bc5efa11e7ef270d3afb9fd",
-    "semantic_hash": "8519e8603bc5efa11e7ef270d3afb9fd"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\mentor\\MentorOverview.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\mentor\\MentorOverview.tsx": {
     "mtime": 1780553444.5216718,
     "ast_hash": "d2745801bb5899a39ff40dfe82302f10",
-    "semantic_hash": "d2745801bb5899a39ff40dfe82302f10"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\mentor\\MentorReviews.tsx": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\mentor\\MentorReviews.tsx": {
     "mtime": 1780553444.5216718,
     "ast_hash": "ea9cd372c62a843c2f16f3acf074f8b7",
-    "semantic_hash": "ea9cd372c62a843c2f16f3acf074f8b7"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\pages\\mentor\\MentorSessions.tsx": {
-    "mtime": 1780553444.527348,
-    "ast_hash": "d34df026154be06883f3c29fc88cbdc3",
-    "semantic_hash": "d34df026154be06883f3c29fc88cbdc3"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\pages\\mentor\\MentorSessions.tsx": {
+    "mtime": 1780561443.2128909,
+    "ast_hash": "07b7ed3cdc73e847b1509956bb5ecaa4",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\schemas\\ai.schema.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\schemas\\ai.schema.ts": {
     "mtime": 1780553444.5293539,
     "ast_hash": "b265df4041cf83b2884b0942a085bf18",
-    "semantic_hash": "b265df4041cf83b2884b0942a085bf18"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\schemas\\auth.test.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\schemas\\auth.test.ts": {
     "mtime": 1780553444.5313575,
     "ast_hash": "8f97604abdff6a80b2779f6024a7289d",
-    "semantic_hash": "8f97604abdff6a80b2779f6024a7289d"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\schemas\\auth.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\schemas\\auth.ts": {
     "mtime": 1780553444.5313575,
     "ast_hash": "71d0ada92a46083b7e7d0f5e605b8797",
-    "semantic_hash": "71d0ada92a46083b7e7d0f5e605b8797"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\services\\applicationService.ts": {
-    "mtime": 1780553444.5333612,
-    "ast_hash": "26ca14a90f5d653d033bd2851e64d715",
-    "semantic_hash": "26ca14a90f5d653d033bd2851e64d715"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\services\\applicationService.ts": {
+    "mtime": 1780557674.406853,
+    "ast_hash": "5c338df4704a320013e02db30b950fdb",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\services\\bookingService.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\services\\bookingService.ts": {
     "mtime": 1780553444.5353644,
     "ast_hash": "c599f5063ee4ac796deece56f4e3563f",
-    "semantic_hash": "c599f5063ee4ac796deece56f4e3563f"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\services\\emailTemplateService.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\services\\emailTemplateService.ts": {
     "mtime": 1780553444.537368,
     "ast_hash": "5ee48b57794d285b7562de6ca5b78033",
-    "semantic_hash": "5ee48b57794d285b7562de6ca5b78033"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\services\\eventService.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\services\\enquiryService.ts": {
+    "mtime": 1780559718.6941602,
+    "ast_hash": "2ebc5b2780041c16790e789e0b714e63",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\services\\eventService.ts": {
     "mtime": 1780553444.537368,
     "ast_hash": "b6bc160eb99c0117d2aa1655a7fa3bed",
-    "semantic_hash": "b6bc160eb99c0117d2aa1655a7fa3bed"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\services\\geminiService.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\services\\geminiService.ts": {
     "mtime": 1780553444.5393722,
     "ast_hash": "cbaad21ccc776243dae7839698b2e6e5",
-    "semantic_hash": "cbaad21ccc776243dae7839698b2e6e5"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\services\\productService.test.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\services\\productService.test.ts": {
     "mtime": 1780553444.5393722,
     "ast_hash": "b9f9e4fe41476580897ce893f40eabeb",
-    "semantic_hash": "b9f9e4fe41476580897ce893f40eabeb"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\services\\productService.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\services\\productService.ts": {
     "mtime": 1780553444.5393722,
     "ast_hash": "6028937da7a045fcff09d7ccac38f576",
-    "semantic_hash": "6028937da7a045fcff09d7ccac38f576"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\services\\taskService.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\services\\taskService.ts": {
     "mtime": 1780553444.5393722,
     "ast_hash": "a0ab236cdda4fa8a7ac7f1bd58e70ff3",
-    "semantic_hash": "a0ab236cdda4fa8a7ac7f1bd58e70ff3"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\services\\validationService.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\services\\validationService.ts": {
     "mtime": 1780553444.5429,
     "ast_hash": "8826c4eeef1230441e63b357c185e26f",
-    "semantic_hash": "8826c4eeef1230441e63b357c185e26f"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\styles\\theme.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\styles\\theme.ts": {
     "mtime": 1780553444.5429,
     "ast_hash": "62f064669f107f309cabf9d9055d9557",
-    "semantic_hash": "62f064669f107f309cabf9d9055d9557"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\test\\setup.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\test\\setup.ts": {
     "mtime": 1780553444.5429,
     "ast_hash": "b6047cb48430aab17d0c9a3cec1e4bb5",
-    "semantic_hash": "b6047cb48430aab17d0c9a3cec1e4bb5"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\types\\index.ts": {
-    "mtime": 1780553444.5429,
-    "ast_hash": "9b990ceaadef9af37416099adb9f26d9",
-    "semantic_hash": "9b990ceaadef9af37416099adb9f26d9"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\types\\index.ts": {
+    "mtime": 1780559712.2486162,
+    "ast_hash": "d3354eb0f57b22a868c10aa098c713b0",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\src\\vite-env.d.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\src\\vite-env.d.ts": {
     "mtime": 1780553444.5494676,
     "ast_hash": "a88bc104192ad2aa9f161afdaca8ba36",
-    "semantic_hash": "a88bc104192ad2aa9f161afdaca8ba36"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260526095359_contact_messages.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260526095359_contact_messages.sql": {
     "mtime": 1780553444.5532098,
     "ast_hash": "b9be067872966b877e8a13ba91acd9e4",
-    "semantic_hash": "b9be067872966b877e8a13ba91acd9e4"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260526095359_validation_rules.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260526095359_validation_rules.sql": {
     "mtime": 1780553444.5532098,
     "ast_hash": "431dcd8bc305277d3b0b61d7bf79ed73",
-    "semantic_hash": "431dcd8bc305277d3b0b61d7bf79ed73"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260527000001_email_templates.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260527000001_email_templates.sql": {
     "mtime": 1780553444.5552201,
     "ast_hash": "863ea5ed8e1d699600719a2a96756c21",
-    "semantic_hash": "863ea5ed8e1d699600719a2a96756c21"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260527000002_newsletter_subscribers.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260527000002_newsletter_subscribers.sql": {
     "mtime": 1780553444.5572817,
     "ast_hash": "1ff901b753ed041bd542ba8e754c6844",
-    "semantic_hash": "1ff901b753ed041bd542ba8e754c6844"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260527000003_reviews.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260527000003_reviews.sql": {
     "mtime": 1780553444.5592887,
     "ast_hash": "44d76b37db3c05e77852154cd906f685",
-    "semantic_hash": "44d76b37db3c05e77852154cd906f685"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260527000004_products.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260527000004_products.sql": {
     "mtime": 1780553444.5592887,
     "ast_hash": "80aca8c54bc7bdf5abb9245d4514cae1",
-    "semantic_hash": "80aca8c54bc7bdf5abb9245d4514cae1"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260527000005_admin_bootstrap.sql": {
-    "mtime": 1780553444.561293,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260527000005_admin_bootstrap.sql": {
+    "mtime": 1780554718.182122,
     "ast_hash": "bee8bc1661fe587ea0d81578c5cfb8a5",
-    "semantic_hash": "bee8bc1661fe587ea0d81578c5cfb8a5"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260528000001_add_indexes.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260528000001_add_indexes.sql": {
     "mtime": 1780553444.5632966,
     "ast_hash": "092c4e2c5358cf35a265a154cd1123b6",
-    "semantic_hash": "092c4e2c5358cf35a265a154cd1123b6"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260528075402_fix_profiles_columns.sql": {
-    "mtime": 1780553444.5632966,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260528075402_fix_profiles_columns.sql": {
+    "mtime": 1780554718.182122,
     "ast_hash": "157f90872d5daad7bdad19a2f06e84f3",
-    "semantic_hash": "157f90872d5daad7bdad19a2f06e84f3"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260529000001_add_phone_to_profiles.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260529000001_add_phone_to_profiles.sql": {
     "mtime": 1780553444.5632966,
     "ast_hash": "b8a83161c0069116ea16e4112a2864e5",
-    "semantic_hash": "b8a83161c0069116ea16e4112a2864e5"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260529000002_create_transactions.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260529000002_create_transactions.sql": {
     "mtime": 1780553444.5632966,
     "ast_hash": "4aa31e4eb266f2dc98e7eedf1bebade4",
-    "semantic_hash": "4aa31e4eb266f2dc98e7eedf1bebade4"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260530000001_product_access.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260530000001_product_access.sql": {
     "mtime": 1780553444.5673227,
     "ast_hash": "568a737e6ad658cec75c9cd53077d62a",
-    "semantic_hash": "568a737e6ad658cec75c9cd53077d62a"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\supabase\\migrations\\20260531000001_create_messages.sql": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260531000001_create_messages.sql": {
     "mtime": 1780553444.5673227,
     "ast_hash": "1b74586af47f518b9f2c1d814ed184ba",
-    "semantic_hash": "1b74586af47f518b9f2c1d814ed184ba"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\tsconfig.json": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\supabase\\migrations\\20260604000001_enquiries.sql": {
+    "mtime": 1780559711.2000122,
+    "ast_hash": "3e08e593a5789c488a5e15bbf2f85237",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\tsconfig.json": {
     "mtime": 1780553444.5693264,
     "ast_hash": "58ee5bb8af5d5a5994d9d6a9b18750dd",
-    "semantic_hash": "58ee5bb8af5d5a5994d9d6a9b18750dd"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\vercel.json": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\vercel.json": {
     "mtime": 1780553444.5693264,
     "ast_hash": "221004339480b0c335bff2bf1eab6385",
-    "semantic_hash": "221004339480b0c335bff2bf1eab6385"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\vite.config.ts": {
-    "mtime": 1780553444.5713303,
-    "ast_hash": "a4583cd55f6d82445f5120a4c0f67df4",
-    "semantic_hash": "a4583cd55f6d82445f5120a4c0f67df4"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\vite.config.ts": {
+    "mtime": 1780559753.4004052,
+    "ast_hash": "f21e19aedbafd928e821a301f515f502",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\vitest.config.ts": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\vitest.config.ts": {
     "mtime": 1780553444.5713303,
     "ast_hash": "aa13d4f94177bc7127754e73d6ba276e",
-    "semantic_hash": "aa13d4f94177bc7127754e73d6ba276e"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\.github\\workflows\\ci.yml": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\.github\\workflows\\ci.yml": {
     "mtime": 1780553444.238796,
     "ast_hash": "bb8502cab5b4e7d8e06863ada769f803",
-    "semantic_hash": "bb8502cab5b4e7d8e06863ada769f803"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\ARCHITECTURE.md": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\.vercel\\README.txt": {
+    "mtime": 1780564370.8533692,
+    "ast_hash": "2b13c79d37d6ed82a3255b83b6815034",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\ARCHITECTURE.md": {
     "mtime": 1780553991.5579252,
     "ast_hash": "1b5f5a698fb5a3b4f9aa7d6353b80214",
-    "semantic_hash": "1b5f5a698fb5a3b4f9aa7d6353b80214"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\CURRENT_STATE.md": {
-    "mtime": 1780553998.89234,
-    "ast_hash": "7ce1412edd6164019c6aa0f8ac0c18e1",
-    "semantic_hash": "7ce1412edd6164019c6aa0f8ac0c18e1"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\CURRENT_STATE.md": {
+    "mtime": 1780554576.0350332,
+    "ast_hash": "3996d25a23510a706914c68701a83b24",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\README.md": {
-    "mtime": 1780553444.2430897,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\README.md": {
+    "mtime": 1780554718.155452,
     "ast_hash": "e74c487fcf9dc2357435063c058348d3",
-    "semantic_hash": "e74c487fcf9dc2357435063c058348d3"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\TASKS.md": {
-    "mtime": 1780553995.0182133,
-    "ast_hash": "7279e2567944cceb7118ed96d570a561",
-    "semantic_hash": "7279e2567944cceb7118ed96d570a561"
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\TASKS.md": {
+    "mtime": 1780554580.2889721,
+    "ast_hash": "e2d214baa5715913d2dfd55121397899",
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\docs\\PRD.md": {
-    "mtime": 1780553444.3166082,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\docs\\PRD.md": {
+    "mtime": 1780554718.1651416,
     "ast_hash": "ee572eeb04fe0c6995cb1aa72e4a9f11",
-    "semantic_hash": "ee572eeb04fe0c6995cb1aa72e4a9f11"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\docs\\PRISMA-MIGRATION-PLAN.md": {
-    "mtime": 1780553444.3287115,
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\docs\\PRISMA-MIGRATION-PLAN.md": {
+    "mtime": 1780554718.1659524,
     "ast_hash": "06c2357be14d5dc3dbdf9c8f02c6f4bb",
-    "semantic_hash": "06c2357be14d5dc3dbdf9c8f02c6f4bb"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\index.html": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\index.html": {
     "mtime": 1780553444.332718,
     "ast_hash": "2a11ed766a4c2651f6d471d1bc10434f",
-    "semantic_hash": "2a11ed766a4c2651f6d471d1bc10434f"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\public\\robots.txt": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\public\\robots.txt": {
     "mtime": 1780553444.3489237,
     "ast_hash": "5e0bd1c281a62a380d7a948085bfe2d1",
-    "semantic_hash": "5e0bd1c281a62a380d7a948085bfe2d1"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\docs\\PRD.pdf": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\docs\\PRD.pdf": {
     "mtime": 1780553444.3267064,
     "ast_hash": "06c0f963d42e161e82103b494f8ede59",
-    "semantic_hash": "06c0f963d42e161e82103b494f8ede59"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\public\\favicon.svg": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\public\\favicon.svg": {
     "mtime": 1780553444.344766,
     "ast_hash": "1aa12c9559bd78ce2e78fdb4337b0ae0",
-    "semantic_hash": "1aa12c9559bd78ce2e78fdb4337b0ae0"
+    "semantic_hash": ""
   },
-  "C:\\Users\\Naresh.M\\mentorino_now1\\public\\images\\peter-mannarino.jpg": {
+  "C:\\Users\\Naresh.M\\Downloads\\mentorino_now1\\public\\images\\peter-mannarino.jpg": {
     "mtime": 1780553444.3489237,
     "ast_hash": "64870d7ea6ff13f17a473dab94801684",
-    "semantic_hash": "64870d7ea6ff13f17a473dab94801684"
+    "semantic_hash": ""
   }
 }

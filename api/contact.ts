@@ -53,6 +53,16 @@ export async function POST(request: Request) {
                  <strong>Subject:</strong> ${subject || 'N/A'}<br><br>
                  <strong>Message:</strong><br>${sanitize(message)}`
         });
+        await resend.emails.send({
+          from: `Mentorino <${FROM_EMAIL}>`,
+          to: normalizedEmail,
+          subject: "Your message has been received — Mentorino",
+          html: `Hi ${sanitize(name)},<br><br>
+                 We've received your message and will get back to you within 48 hours.<br><br>
+                 <strong>Your message:</strong><br>
+                 ${sanitize(message)}<br><br>
+                 — Mentorino Team`
+        });
       } catch (emailError) {
         console.error("Admin notification email error:", emailError);
       }

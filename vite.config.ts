@@ -310,6 +310,48 @@ const mockApi = (env: Record<string, string>) => ({
         }
       }
 
+      if (pathMatch(url.pathname, 'contact') && req.method === 'POST') {
+        let body = ''; req.on('data', chunk => body += chunk);
+        req.on('end', async () => {
+          try {
+            const { name, email, phone, subject, message } = JSON.parse(body);
+            const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+            await supabase.from('contact_messages').insert({
+              name: (name || '').replace(/[<>]/g, '').trim().slice(0, 255),
+              email: (email || '').toLowerCase().trim(),
+              phone: ((phone || '')).replace(/[<>]/g, '').trim().slice(0, 50),
+              subject: (subject || '').slice(0, 255),
+              message: ((message || '')).replace(/[<>]/g, '').trim().slice(0, 5000),
+            });
+            if (env.RESEND_API_KEY) {
+              try {
+                const { Resend } = await import("resend");
+                const resend = new Resend(env.RESEND_API_KEY);
+                const fromEmail = env.SENDER_EMAIL || 'admissions@mentorino.me';
+                const adminEmail = env.ADMIN_EMAIL || 'admissions@mentorino.me';
+                const cleanedName = (name || '').replace(/[<>]/g, '').trim();
+                const cleanedMsg = (message || '').replace(/[<>]/g, '').trim();
+                await resend.emails.send({
+                  from: `Mentorino <${fromEmail}>`,
+                  to: adminEmail,
+                  subject: `New Contact Message from ${cleanedName}`,
+                  html: `<strong>Name:</strong> ${cleanedName}<br><strong>Email:</strong> ${email}<br><strong>Phone:</strong> ${phone || 'N/A'}<br><strong>Subject:</strong> ${subject || 'N/A'}<br><br><strong>Message:</strong><br>${cleanedMsg}`
+                });
+                await resend.emails.send({
+                  from: `Mentorino <${fromEmail}>`,
+                  to: email,
+                  subject: "Your message has been received — Mentorino",
+                  html: `Hi ${cleanedName},<br><br>We've received your message and will get back to you within 48 hours.<br><br><strong>Your message:</strong><br>${cleanedMsg}<br><br>— Mentorino Team`
+                });
+              } catch (e) { console.error("Contact email error:", e); }
+            }
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ message: "Message sent successfully" }));
+          } catch (e) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
+        });
+        return;
+      }
+
       if ((pathMatch(url.pathname, 'handle-product-access') || (url.pathname === '/api/emails' && url.searchParams.get('from') === 'grant-access')) && req.method === 'POST') {
         let body = ''; req.on('data', chunk => body += chunk);
         req.on('end', async () => {
