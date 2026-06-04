@@ -609,9 +609,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ currentRole = 'visitor' }) =>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
            {[
+              { title: 'Life', icon: Compass, color: 'text-amber-500', desc: 'Decision clarity, confidence, stress management, and personal direction.' },
               { title: 'Schooling', icon: GraduationCap, color: 'text-emerald-500', desc: 'Education choices, course decisions, study planning, and academic confidence.' },
-              { title: 'Career', icon: Briefcase, color: 'text-indigo-500', desc: 'Career clarity, skill roadmap, job preparation, and long-term planning.' },
-              { title: 'Life', icon: Compass, color: 'text-amber-500', desc: 'Decision clarity, confidence, stress management, and personal direction.' }
+              { title: 'Career', icon: Briefcase, color: 'text-indigo-500', desc: 'Career clarity, skill roadmap, job preparation, and long-term planning.' }
             ].map((p, i) => (
              <div 
                key={i} 

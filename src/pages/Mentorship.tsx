@@ -30,7 +30,7 @@ const MentorshipPage: React.FC = () => {
     <div className="max-w-5xl mx-auto py-8 sm:py-12 px-4 sm:px-6 animate-in fade-in duration-700">
       <SEO 
         title="Impact Programs" 
-        description="Structured guidance across three key pillars: Career, Schooling, and Life. Find the right roadmap for your personal and professional growth."
+        description="Structured guidance across three key pillars: Life, Schooling, and Career. Find the right roadmap for your personal and professional growth."
       />
       <button 
         onClick={() => navigate(-1)}
