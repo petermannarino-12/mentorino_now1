@@ -8,7 +8,6 @@ import {
   Calendar, 
   Settings,
   LogOut,
-  Home,
   User,
   ClipboardList,
   BookOpen,
@@ -35,45 +34,43 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navItems = [
-    { label: 'Home', path: '/', icon: Home, roles: ['user', 'mentor', 'admin'] },
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['user', 'mentor', 'admin'] },
-    { label: 'Sessions', path: '/dashboard/sessions', icon: Calendar, roles: ['user', 'mentor', 'admin'] },
-    { label: 'Roadmap', path: '/dashboard/roadmap', icon: Activity, roles: ['user'] },
-    { label: 'Vault', path: '/vault', icon: BookOpen, roles: ['user'] },
-    { label: 'Settings', path: '/settings', icon: Settings, roles: ['user', 'mentor', 'admin'] },
     { label: 'Mentees', path: '/dashboard/mentees', icon: Users, roles: ['mentor', 'admin'] },
+    { label: 'Sessions', path: '/dashboard/sessions', icon: Calendar, roles: ['user', 'mentor', 'admin'] },
     { label: 'Chat', path: '/dashboard/chat', icon: MessageCircle, roles: ['mentor', 'admin'] },
-    { label: 'Messages', path: '/dashboard/chat', icon: MessageCircle, roles: ['user'] },
-    { label: 'Reviews', path: '/dashboard/reviews', icon: Star, roles: ['mentor', 'admin'] },
+    { label: 'Programs', path: '/programs', icon: BookOpen, roles: ['user', 'mentor', 'admin'] },
     { label: 'Events', path: '/dashboard/events', icon: Sparkles, roles: ['mentor', 'admin'] },
-    { label: 'Network', path: '/dashboard/networking', icon: Sparkles, roles: ['user'] },
+    { label: 'Reviews', path: '/dashboard/reviews', icon: Star, roles: ['mentor', 'admin'] },
     { label: 'Inquiries', path: '/dashboard/audits', icon: ClipboardList, roles: ['mentor', 'admin'] },
     { label: 'Access Requests', path: '/dashboard/access-requests', icon: Lock, roles: ['mentor', 'admin'] },
     { label: 'Email Templates', path: '/dashboard/emails', icon: Mail, roles: ['mentor', 'admin'] },
+    { label: 'Settings', path: '/settings', icon: Settings, roles: ['user', 'mentor', 'admin'] },
+    { label: 'Messages', path: '/dashboard/chat', icon: MessageCircle, roles: ['user'] },
+    { label: 'Roadmap', path: '/dashboard/roadmap', icon: Activity, roles: ['user'] },
+    { label: 'Vault', path: '/vault', icon: BookOpen, roles: ['user'] },
+    { label: 'Network', path: '/dashboard/networking', icon: Sparkles, roles: ['user'] },
   ].filter(item => item.roles.includes(role));
 
   const helpItems = [
     { label: 'About Mentor', path: '/about', icon: User },
-    { label: 'Programs', path: '/programs', icon: BookOpen },
     { label: 'FAQ', path: '/faq', icon: HelpCircle },
     { label: 'Contact', path: '/contact', icon: MessageCircle },
   ];
 
   const mobileNavItems = role === 'mentor' ? [
-    { label: 'Home', path: '/', icon: Home },
-    { label: 'Overview', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Mentees', path: '/dashboard/mentees', icon: Users },
     { label: 'Sessions', path: '/dashboard/sessions', icon: Calendar },
-    { label: 'Reviews', path: '/dashboard/reviews', icon: MessageCircle },
+    { label: 'Chat', path: '/dashboard/chat', icon: MessageCircle },
+    { label: 'Reviews', path: '/dashboard/reviews', icon: Star },
     { label: 'Account', path: '/settings', icon: User },
   ] : role === 'admin' ? [
-    { label: 'Home', path: '/', icon: Home },
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Mentees', path: '/dashboard/mentees', icon: Users },
     { label: 'Sessions', path: '/dashboard/sessions', icon: Calendar },
     { label: 'Account', path: '/settings', icon: User },
   ] : [
-    { label: 'Home', path: '/', icon: Home },
+    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Sessions', path: '/dashboard/sessions', icon: Calendar },
     { label: 'Roadmap', path: '/dashboard/roadmap', icon: Activity },
     { label: 'Vault', path: '/vault', icon: BookOpen },
