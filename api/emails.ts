@@ -1,6 +1,6 @@
 import { getPrisma } from './prisma.js';
 import { getUserFromToken } from './auth.js';
-const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
+const FROM_EMAIL = process.env.SENDER_EMAIL || 'peter@mentorino.me';
 const SITE_URL = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.URL) || 'http://localhost:3000';
 
 async function handleBookingConfirmation(request: Request) {
@@ -34,6 +34,7 @@ async function handleBookingConfirmation(request: Request) {
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
           to: email,
+          bcc: process.env.ADMIN_EMAIL || 'peter@mentorino.me',
           subject: `Mentorino — ${subject}`,
           html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:40px 24px;background:#fff;color:#1a1a1a"><div style="width:40px;height:40px;background:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:32px">M</div>${body}<hr style="border:none;border-top:1px solid #eee;margin:32px 0"><p style="font-size:11px;color:#999">Mentorino — mentorship, redefined.</p></div>`,
         });
@@ -75,6 +76,7 @@ async function handleSendPasswordReset(request: Request) {
       await resend.emails.send({
         from: `Mentorino <${FROM_EMAIL}>`,
         to: normalizedEmail,
+        bcc: process.env.ADMIN_EMAIL || 'peter@mentorino.me',
         subject: 'Mentorino — Reset your password',
         html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:40px 24px;background:#fff;color:#1a1a1a"><div style="width:40px;height:40px;background:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:32px">M</div>${html}<hr style="border:none;border-top:1px solid #eee;margin:32px 0"><p style="font-size:11px;color:#999">Mentorino — mentorship, redefined.</p></div>`,
       });
@@ -336,6 +338,7 @@ async function handleWelcome(request: Request) {
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
           to: normalizedEmail,
+          bcc: process.env.ADMIN_EMAIL || 'peter@mentorino.me',
           subject: `Mentorino — ${subject}`,
           html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:40px 24px;background:#fff;color:#1a1a1a"><div style="width:40px;height:40px;background:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:32px">M</div>${body}<hr style="border:none;border-top:1px solid #eee;margin:32px 0"><p style="font-size:11px;color:#999">Mentorino — mentorship, redefined.</p></div>`,
         });

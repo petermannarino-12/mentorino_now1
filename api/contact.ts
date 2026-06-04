@@ -1,7 +1,7 @@
 import { getPrisma } from './prisma.js';
 
-const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admissions@mentorino.me';
+const FROM_EMAIL = process.env.SENDER_EMAIL || 'peter@mentorino.me';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'peter@mentorino.me';
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
 const MAX_SUBMISSIONS = 3;
 const sanitize = (str: string) => str.replace(/[<>]/g, "").trim();
@@ -56,6 +56,7 @@ export async function POST(request: Request) {
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
           to: normalizedEmail,
+          bcc: ADMIN_EMAIL,
           subject: "Your message has been received — Mentorino",
           html: `Hi ${sanitize(name)},<br><br>
                  We've received your message and will get back to you within 48 hours.<br><br>

@@ -1,7 +1,7 @@
 import { getPrisma } from './prisma.js';
 import { getUserFromToken, getAuth } from './auth.js';
 
-const FROM_EMAIL = process.env.SENDER_EMAIL || 'admissions@mentorino.me';
+const FROM_EMAIL = process.env.SENDER_EMAIL || 'peter@mentorino.me';
 const SITE_URL = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || process.env.URL || 'http://localhost:3000';
 
 const sanitize = (str: string) => str.replace(/[<>]/g, "").slice(0, 255).trim();
@@ -66,6 +66,7 @@ async function handleSubmit(request: Request) {
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
           to: email,
+          bcc: process.env.ADMIN_EMAIL || 'peter@mentorino.me',
           subject: subject,
           html: body,
         });
@@ -201,6 +202,7 @@ async function handleUpdateStatus(request: Request) {
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
           to: application.userEmail,
+          bcc: process.env.ADMIN_EMAIL || 'peter@mentorino.me',
           subject: subject,
           html: body,
         });

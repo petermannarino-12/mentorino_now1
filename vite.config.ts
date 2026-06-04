@@ -54,15 +54,16 @@ const mockApi = (env: Record<string, string>) => ({
               if (error) { res.statusCode = 500; res.end(JSON.stringify({ error: error.message })); }
               else if (env.RESEND_API_KEY) {
                 try {
+                  const adminEmail = env.ADMIN_EMAIL || 'peter@mentorino.me';
                   const email = user_email.toLowerCase().trim();
                   const userName = application.user_name || 'Applicant';
                   const siteUrl = env.URL || 'http://localhost:3000';
-                  const fromEmail = env.SENDER_EMAIL || 'admissions@mentorino.me';
+                  const fromEmail = env.SENDER_EMAIL || 'peter@mentorino.me';
                   const { data: template } = await supabase.from('email_templates').select('subject, body').eq('id', 'application_submitted').single();
                   const subject = template?.subject || 'Application Received - Mentorino';
                   let emailBody = template?.body || `Hi {{student_name}},<br><br>We have successfully received your application...`;
                   emailBody = emailBody.replace(/{{student_name}}/g, userName).replace(/{{mentor_name}}/g, 'Mentorino').replace(/{{program_name}}/g, application.mentor_type || 'the Mentorino program').replace(/{{login_url}}/g, `${siteUrl}/auth`).replace(/\n/g, '<br>');
-                  await fetch('https://api.resend.com/emails', { method: 'POST', headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ from: `Mentorino <${fromEmail}>`, to: [email], subject, html: emailBody }) });
+                  await fetch('https://api.resend.com/emails', { method: 'POST', headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ from: `Mentorino <${fromEmail}>`, to: [email], bcc: [adminEmail], subject, html: emailBody }) });
                 } catch (emailErr) { console.error('Local mock email send error:', emailErr); }
                 res.statusCode = 200; res.end(JSON.stringify({ message: "Application submitted successfully" }));
               } else { res.statusCode = 200; res.end(JSON.stringify({ message: "Application submitted successfully" })); }
@@ -241,13 +242,14 @@ const mockApi = (env: Record<string, string>) => ({
               if (updateError) throw updateError;
               if (env.RESEND_API_KEY && (status === 'approved' || status === 'rejected')) {
                 try {
-                  const studentName = appData.responses?.user_name || 'Applicant'; const siteUrl = env.URL || 'http://localhost:3000'; const fromEmail = env.SENDER_EMAIL || 'admissions@mentorino.me';
+                  const adminEmail = env.ADMIN_EMAIL || 'peter@mentorino.me';
+                  const studentName = appData.responses?.user_name || 'Applicant'; const siteUrl = env.URL || 'http://localhost:3000'; const fromEmail = env.SENDER_EMAIL || 'peter@mentorino.me';
                   const templateId = status === 'approved' ? 'application_accepted' : 'application_rejected';
                   const { data: template } = await supabase.from('email_templates').select('subject, body').eq('id', templateId).single();
                   const subject = template?.subject || (status === 'approved' ? 'Welcome to Mentorino — Your Application Has Been Accepted!' : 'Update – Mentorino Application');
                   let emailBody = template?.body || (status === 'approved' ? `Hi {{student_name}},<br><br>Congratulations! Your application has been approved. You can now create your account.<br><br><a href="{{login_url}}">Create Your Account</a><br><br>Best,<br>Mentorino Team` : `Hi {{student_name}},<br><br>Thank you for applying to the {{program_name}}.<br>After careful review by {{mentor_name}},<br>we are unable to accept your application at this time.<br><br>Best,<br>Mentorino Team`);
                   emailBody = emailBody.replace(/{{student_name}}/g, studentName).replace(/{{mentor_name}}/g, 'Mentorino').replace(/{{program_name}}/g, appData.responses?.mentor_type || 'the Mentorino program').replace(/{{login_url}}/g, `${siteUrl}/auth`).replace(/\n/g, '<br>');
-                  await fetch('https://api.resend.com/emails', { method: 'POST', headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ from: `Mentorino <${fromEmail}>`, to: [appData.user_email], subject, html: emailBody }) });
+                  await fetch('https://api.resend.com/emails', { method: 'POST', headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ from: `Mentorino <${fromEmail}>`, to: [appData.user_email], bcc: [adminEmail], subject, html: emailBody }) });
                 } catch (emailErr) { console.error('Local mock email send error:', emailErr); }
               }
               res.statusCode = 200; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ message: "Status updated successfully" }));
@@ -327,22 +329,23 @@ const mockApi = (env: Record<string, string>) => ({
               try {
                 const { Resend } = await import("resend");
                 const resend = new Resend(env.RESEND_API_KEY);
-                const fromEmail = env.SENDER_EMAIL || 'admissions@mentorino.me';
-                const adminEmail = env.ADMIN_EMAIL || 'admissions@mentorino.me';
-                const cleanedName = (name || '').replace(/[<>]/g, '').trim();
-                const cleanedMsg = (message || '').replace(/[<>]/g, '').trim();
-                await resend.emails.send({
-                  from: `Mentorino <${fromEmail}>`,
-                  to: adminEmail,
-                  subject: `New Contact Message from ${cleanedName}`,
-                  html: `<strong>Name:</strong> ${cleanedName}<br><strong>Email:</strong> ${email}<br><strong>Phone:</strong> ${phone || 'N/A'}<br><strong>Subject:</strong> ${subject || 'N/A'}<br><br><strong>Message:</strong><br>${cleanedMsg}`
-                });
-                await resend.emails.send({
-                  from: `Mentorino <${fromEmail}>`,
-                  to: email,
-                  subject: "Your message has been received — Mentorino",
-                  html: `Hi ${cleanedName},<br><br>We've received your message and will get back to you within 48 hours.<br><br><strong>Your message:</strong><br>${cleanedMsg}<br><br>— Mentorino Team`
-                });
+                const fromEmail = env.SENDER_EMAIL || 'peter@mentorino.me';
+                  const adminEmail = env.ADMIN_EMAIL || 'peter@mentorino.me';
+                  const cleanedName = (name || '').replace(/[<>]/g, '').trim();
+                  const cleanedMsg = (message || '').replace(/[<>]/g, '').trim();
+                  await resend.emails.send({
+                    from: `Mentorino <${fromEmail}>`,
+                    to: adminEmail,
+                    subject: `New Contact Message from ${cleanedName}`,
+                    html: `<strong>Name:</strong> ${cleanedName}<br><strong>Email:</strong> ${email}<br><strong>Phone:</strong> ${phone || 'N/A'}<br><strong>Subject:</strong> ${subject || 'N/A'}<br><br><strong>Message:</strong><br>${cleanedMsg}`
+                  });
+                  await resend.emails.send({
+                    from: `Mentorino <${fromEmail}>`,
+                    to: email,
+                    bcc: adminEmail,
+                    subject: "Your message has been received — Mentorino",
+                    html: `Hi ${cleanedName},<br><br>We've received your message and will get back to you within 48 hours.<br><br><strong>Your message:</strong><br>${cleanedMsg}<br><br>— Mentorino Team`
+                  });
               } catch (e) { console.error("Contact email error:", e); }
             }
             res.setHeader('Content-Type', 'application/json');
