@@ -141,6 +141,7 @@ CREATE TABLE public.events (
     description TEXT NOT NULL,
     link TEXT,
     attendees JSONB DEFAULT '[]'::jsonb,
+    created_by UUID,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 

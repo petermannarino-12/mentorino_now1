@@ -108,6 +108,7 @@ model events {
   description String
   link        String?
   attendees   Json?     @default("[]")
+  createdBy   String?   @map("created_by") @db.Uuid
   createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([attendees], map: "idx_events_attendees", type: Gin)
