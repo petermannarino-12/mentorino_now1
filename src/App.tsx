@@ -56,6 +56,7 @@ const AboutPage = lazyRetry(() => import('./pages/About'));
 const ProgramsPage = lazyRetry(() => import('./pages/Programs'));
 const GrowthFormPage = lazyRetry(() => import('./pages/GrowthForm'));
 const ConsultationOverviewPage = lazyRetry(() => import('./pages/ConsultationOverview'));
+const MentorshipPage = lazyRetry(() => import('./pages/Mentorship'));
 const FAQPage = lazyRetry(() => import('./pages/FAQ'));
 const ContactPage = lazyRetry(() => import('./pages/Contact'));
 const TermsPage = lazyRetry(() => import('./pages/Terms'));
@@ -87,6 +88,7 @@ const AnimatedRoutes: React.FC<{
           <Route path="/programs" element={<ProgramsPage />} />
           <Route path="/growth-strategy" element={<GrowthFormPage />} />
           <Route path="/consultation" element={<ConsultationOverviewPage />} />
+          <Route path="/programs/details" element={<MentorshipPage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/terms" element={<TermsPage />} />

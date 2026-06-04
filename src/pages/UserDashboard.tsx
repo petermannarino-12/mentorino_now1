@@ -668,7 +668,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
               <Download className="mx-auto text-slate-300 mb-4" size={32} />
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">No resources available in the vault</p>
               <p className="text-xs text-slate-400 mt-2 max-w-xs mx-auto">Request access to products in the Store. Once granted, they will appear here.</p>
-              <button onClick={() => navigate('/store')} className="mt-6 px-8 py-3 bg-black text-white text-[9px] font-black uppercase tracking-widest rounded-full hover:scale-105 transition-all">Go to Store</button>
+              <button onClick={() => navigate('/vault')} className="mt-6 px-8 py-3 bg-black text-white text-[9px] font-black uppercase tracking-widest rounded-full hover:scale-105 transition-all">Go to Store</button>
             </div>
           )}
         </div>
@@ -1172,9 +1172,9 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
       <footer className="pt-10 pb-24 md:pb-12 flex flex-col items-center gap-4 text-center">
          <p className="text-[8px] font-black uppercase tracking-[1em] text-slate-200">Clarity • Performance</p>
          <div className="flex items-center gap-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-            <Link to="/help" className="hover:text-black transition-colors">Support</Link>
-            <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
-            <Link to="/auth" className="hover:text-black transition-colors">Legal</Link>
+             <Link to="/contact" className="hover:text-black transition-colors">Support</Link>
+             <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
+             <Link to="/privacy" className="hover:text-black transition-colors">Legal</Link>
          </div>
       </footer>
 

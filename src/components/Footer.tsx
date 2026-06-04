@@ -50,22 +50,21 @@ const Footer: React.FC = () => {
             <div>
               <h4 className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500 mb-6 sm:mb-8">Programs</h4>
               <ul className="space-y-3 sm:space-y-4">
-                {['Career Mastery', 'Academic Clarity', 'Life Strategy', '1-on-1 Audit'].map((item) => (
-                  <li key={item}>
-                    <Link to="/programs" className="text-slate-500 hover:text-black transition-colors text-xs sm:text-sm font-medium">{item}</Link>
-                  </li>
-                ))}
+                <li>
+                  <Link to="/programs" className="text-slate-500 hover:text-black transition-colors text-xs sm:text-sm font-medium">Programs</Link>
+                </li>
               </ul>
             </div>
 
             <div className="sm:mt-8">
               <h4 className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500 mb-6 sm:mb-8">Company</h4>
               <ul className="space-y-3 sm:space-y-4">
-                {['About Mentor', 'Methodology', 'Stories', 'Contact'].map((item) => (
-                  <li key={item}>
-                    <Link to="/about" className="text-slate-500 hover:text-black transition-colors text-xs sm:text-sm font-medium">{item}</Link>
-                  </li>
-                ))}
+                <li>
+                  <Link to="/about" className="text-slate-500 hover:text-black transition-colors text-xs sm:text-sm font-medium">About Mentor</Link>
+                </li>
+                <li>
+                  <Link to="/contact" className="text-slate-500 hover:text-black transition-colors text-xs sm:text-sm font-medium">Contact</Link>
+                </li>
               </ul>
             </div>
           </div>

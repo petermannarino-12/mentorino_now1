@@ -1111,7 +1111,7 @@ Mentorino Support Team`;
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {[
           { label: 'Availability', icon: Clock, onClick: () => setShowAvailabilityModal(true) },
-          { label: 'Digital Products', icon: Package, onClick: () => navigate('/store') },
+          { label: 'Digital Products', icon: Package, onClick: () => navigate('/vault') },
           { label: 'Revenue/Fin', icon: CreditCard, onClick: () => navigate('/admin/revenue') }, // wired in App.tsx
           { label: 'AI Partner', icon: Sparkles, onClick: () => setActiveTab('ai') },
           { label: 'Guidelines', icon: BookOpen, onClick: () => setShowGuidelinesModal(true) },
