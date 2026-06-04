@@ -1281,7 +1281,7 @@ Mentorino Support Team`;
                   <div key={day} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
                     <span className="text-xs font-black uppercase">{day}</span>
                     <div className="flex gap-2">
-                      <span className="text-[10px] font-bold text-slate-400">09:00 - 17:00</span>
+                      <span className="text-[10px] font-bold text-slate-400">9:00 AM EST - 5:00 PM EST</span>
                       <button onClick={() => showNotification("Time slot settings opened.")} className="text-blue-500 hover:text-blue-600"><Settings size={14} /></button>
                     </div>
                   </div>

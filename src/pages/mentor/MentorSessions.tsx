@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Calendar, Clock, X, AlertCircle } from 'lucide-react';
 import { Booking } from '../../types';
-import { formatToNJ } from '../../lib/dateUtils';
+import { formatToNJ, timeToEST } from '../../lib/dateUtils';
 
 interface DaySchedule {
   day: string;
@@ -247,7 +247,7 @@ export const MentorSessions: React.FC<MentorSessionsProps> = ({ bookings, onStar
                    <span className={`text-[10px] sm:text-sm font-black uppercase truncate min-w-0 mr-2 ${enabled ? 'text-slate-900' : 'text-slate-300'}`}>{day}</span>
                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                       <span className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-widest whitespace-nowrap bg-white/50 px-2 py-0.5 rounded-lg border transition-colors ${enabled ? 'text-slate-400 border-slate-200/50' : 'text-slate-300 border-slate-100'}`}>
-                        {enabled ? `${start} - ${end}` : 'Unavailable'}
+                        {enabled ? `${timeToEST(start)} - ${timeToEST(end)}` : 'Unavailable'}
                       </span>
                       <button
                         onClick={() => toggleDay(day)}

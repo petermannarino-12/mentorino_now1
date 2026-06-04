@@ -55,6 +55,17 @@ export function getNJISOString(): string {
 }
 
 /**
+ * Converts 24-hour military time (e.g. "09:00", "17:00") to 12-hour format with EST
+ */
+export function timeToEST(time: string): string {
+  const [h, m] = time.split(':').map(Number);
+  if (isNaN(h) || isNaN(m)) return time;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${m.toString().padStart(2, '0')} ${ampm} EST`;
+}
+
+/**
  * Formats for dashboard display
  */
 export function formatDashboardDate(date: string | Date): string {

@@ -5,7 +5,7 @@ import {
   Briefcase,
   ShieldCheck,
   ClipboardList,
-  Terminal,
+  Hammer,
   CheckCircle2,
   ArrowRight,
   ArrowLeft
@@ -50,9 +50,9 @@ const Programs = () => {
     },
     {
       id: 'breaking-into-it',
-      title: 'Breaking into IT Career',
+      title: 'Breaking into IT',
       description: 'Transition into the IT field with foundational skills, practical knowledge, and a clear entry strategy.',
-      icon: <Terminal className="w-6 h-6" />,
+      icon: <Construction className="w-6 h-6" />,
       duration: '14 Weeks',
       level: 'Beginner',
       topics: ['IT Fundamentals', 'Help Desk Skills', 'Networking Basics', 'Career Transition'],
@@ -64,7 +64,7 @@ const Programs = () => {
     <div className="min-h-screen pt-24 pb-20">
       <SEO 
         title="Academy Programs" 
-        description="Explore our specialized mentorship programs in IT Career Planning, Cybersecurity, Project Management, and IT Career Transition."
+        description="Explore our specialized mentorship programs in IT Career Planning, Cybersecurity, Project Management, and Breaking into IT."
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Back Button */}
