@@ -20,6 +20,7 @@ const mockProductRow = {
   category: 'Resource',
   sales_count: 5,
   status: 'active',
+  file_url: null,
 };
 
 describe('productService', () => {
@@ -47,6 +48,7 @@ describe('productService', () => {
         category: 'Resource',
         salesCount: 5,
         status: 'active',
+        file_url: '',
       }]);
     });
 
@@ -79,6 +81,7 @@ describe('productService', () => {
         category: 'Resource',
         salesCount: 5,
         status: 'active',
+        file_url: '',
       });
     });
 

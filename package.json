@@ -11,12 +11,15 @@
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "vitest run && playwright test",
+    "test:audit": "playwright test --project=chromium"
   },
   "dependencies": {
     "@google/genai": "1.3.0",
     "@hookform/resolvers": "^5.2.2",
-
     "@posthog/react": "^1.9.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
@@ -47,7 +50,6 @@
     "morgan": "^1.10.1",
     "motion": "^12.38.0",
     "pg": "^8.21.0",
-    "playwright": "^1.60.0",
     "posthog-js": "^1.372.10",
     "puppeteer-core": "^25.1.0",
     "react": "19.0.0",
@@ -66,6 +68,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -77,6 +80,7 @@
     "@vitejs/plugin-react": "^5.0.0",
     "dotenv": "^17.4.2",
     "jsdom": "^29.1.1",
+    "playwright": "^1.60.0",
     "prisma": "^7.8.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
