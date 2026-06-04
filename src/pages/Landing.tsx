@@ -26,13 +26,17 @@ import {
   Twitter,
   Linkedin,
   Youtube,
-  Mail
+  Mail,
+  Calendar,
+  Loader,
+  XCircle
 } from 'lucide-react';
 
 import SEO from '../components/SEO';
 import { UserRole } from '../types';
 import SynapseSection from '../components/SynapseSection';
 import Footer from '../components/Footer';
+import { enquiryService } from '../services/enquiryService';
 interface LandingPageProps {
   currentRole?: UserRole;
 }
@@ -40,9 +44,50 @@ interface LandingPageProps {
 const LandingPage: React.FC<LandingPageProps> = ({ currentRole = 'visitor' }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [showEnquiryForm, setShowEnquiryForm] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [formError, setFormError] = useState('');
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
+  };
+
+  const handleOpenEnquiryForm = () => {
+    setShowEnquiryForm(true);
+    setSubmitted(false);
+    setFormError('');
+  };
+
+  const handleCloseEnquiryForm = () => {
+    setShowEnquiryForm(false);
+    setFormData({ name: '', email: '', phone: '', message: '' });
+    setSubmitted(false);
+    setFormError('');
+  };
+
+  const handleSubmitEnquiry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError('');
+    if (!formData.name.trim() || !formData.email.trim()) {
+      setFormError('Name and email are required.');
+      return;
+    }
+    setSubmitting(true);
+    const { error } = await enquiryService.submit({
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone.trim() || undefined,
+      service_type: 'rapid_response_call',
+      message: formData.message.trim() || undefined,
+    });
+    setSubmitting(false);
+    if (error) {
+      setFormError(error);
+    } else {
+      setSubmitted(true);
+    }
   };
 
   const navLinks = [
@@ -658,23 +703,27 @@ const LandingPage: React.FC<LandingPageProps> = ({ currentRole = 'visitor' }) =>
                 <Star className="text-white" size={24} />
               </div>
               <div className="space-y-4 relative z-10">
-                <h3 className="text-3xl font-black uppercase tracking-tight text-white">The Growth Engine.</h3>
+                <h3 className="text-3xl font-black uppercase tracking-tight text-white">Rapid Response Call Booking</h3>
                 <p className="text-white/40 leading-relaxed font-medium">
-                  A continuous engagement model. Full access to the trajectory roadmap, weekly audits, and real-time support.
+                  Get quick, personalized guidance on your most important academic, career, startup, or professional challenges.
                 </p>
               </div>
               <ul className="space-y-4 relative z-10">
-                {["Weekly Audit sessions", "Private Dashboard access", "Real-time query support"].map((item, i) => (
+                {["One-on-one consultation", "Personalized recommendations", "Actionable next steps", "Priority response and scheduling"].map((item, i) => (
                   <li key={i} className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white/50">
                     <Star size={14} className="text-indigo-400" />
                     {item}
                   </li>
                 ))}
               </ul>
+              <div className="pt-4 mt-auto relative z-10 flex items-baseline gap-2">
+                <p className="text-3xl font-black text-emerald-400">$25</p>
+                <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/30">Per Session</p>
+              </div>
               <div className="pt-8 mt-auto w-full relative z-10">
-                <Link to="/apply" className="btn-normal w-full bg-white text-black hover:scale-105">
-                  Join The Program
-                </Link>
+                <button onClick={handleOpenEnquiryForm} className="btn-normal w-full bg-white text-black hover:scale-105">
+                  Request Rapid Response Call
+                </button>
               </div>
             </motion.div>
           </div>
@@ -765,6 +814,71 @@ const LandingPage: React.FC<LandingPageProps> = ({ currentRole = 'visitor' }) =>
 
       <Footer />
 
+      {showEnquiryForm && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-md rounded-[48px] p-10 shadow-2xl relative animate-in slide-in-from-bottom-8 duration-500">
+            <button onClick={handleCloseEnquiryForm} className="absolute top-6 right-6 p-2 bg-slate-50 rounded-full hover:bg-slate-100 transition-colors">
+              <XCircle size={20} className="text-slate-400" />
+            </button>
+            {submitted ? (
+              <div className="text-center space-y-6 py-8">
+                <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-3xl flex items-center justify-center mx-auto">
+                  <CheckCircle2 size={32} />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-black uppercase tracking-tighter">Request Submitted</h2>
+                  <p className="text-sm text-slate-500 font-medium">Thank you, {formData.name}! We have received your request for a <strong>Rapid Response Call</strong>. We will get back to you shortly.</p>
+                </div>
+                <button onClick={handleCloseEnquiryForm} className="px-10 py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full hover:bg-slate-800 transition-all">
+                  Done
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="text-center space-y-2">
+                  <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-3xl flex items-center justify-center mx-auto"><Calendar size={32} /></div>
+                  <h2 className="text-2xl font-black uppercase tracking-tighter">Request a Call</h2>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rapid Response Call Booking</p>
+                </div>
+                <form onSubmit={handleSubmitEnquiry} className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name *</label>
+                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-xs font-medium focus:bg-white focus:border-black transition-all outline-none"
+                      placeholder="John Doe" required />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Email *</label>
+                    <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-xs font-medium focus:bg-white focus:border-black transition-all outline-none"
+                      placeholder="john@example.com" required />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone</label>
+                    <input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-xs font-medium focus:bg-white focus:border-black transition-all outline-none"
+                      placeholder="+1 (555) 000-0000" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Message (optional)</label>
+                    <textarea value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})}
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-xs font-medium focus:bg-white focus:border-black transition-all outline-none min-h-[80px]"
+                      placeholder="Your questions or details..." />
+                  </div>
+                  {formError && (
+                    <p className="text-red-500 text-[10px] font-black uppercase tracking-widest text-center">{formError}</p>
+                  )}
+                  <button type="submit" disabled={submitting}
+                    className="w-full py-5 bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full hover:bg-slate-800 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                    {submitting && <Loader size={14} className="animate-spin" />}
+                    {submitting ? 'Submitting...' : 'Submit Request'}
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
