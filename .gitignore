@@ -33,4 +33,8 @@ src/generated/prisma
 
 .vercel
 
-.vercel
+# Graphify generated artifacts
+graphify-out/
+
+# Vite mock temp
+.vite-temp
