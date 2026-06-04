@@ -93,6 +93,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
   const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
   const [showBin, setShowBin] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
 
   const localApplications = applications.filter(a => a.status !== 'deleted');
   const binApplications = applications.filter(a => a.status === 'deleted');
@@ -434,7 +435,9 @@ Mentorino Support Team`;
     </div>
   );
 
-  const renderApplications = () => (
+  const renderApplications = () => {
+    const filteredApps = statusFilter === 'all' ? localApplications : localApplications.filter(a => a.status === statusFilter);
+    return (
     <div className="space-y-6 animate-in fade-in duration-700 pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-2">
         <div className="flex flex-col">
@@ -442,6 +445,13 @@ Mentorino Support Team`;
           <p className="text-[8px] text-slate-400 font-bold uppercase mt-1">Total: {localApplications.length}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-1 bg-slate-50 rounded-full p-1">
+            {(['all', 'pending', 'approved', 'rejected'] as const).map(f => (
+              <button key={f} onClick={() => setStatusFilter(f)}
+                className={`text-[7px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full transition-all ${statusFilter === f ? 'bg-black text-white' : 'text-slate-400 hover:text-slate-700'}`}
+              >{f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}</button>
+            ))}
+          </div>
           <button 
             onClick={() => setShowBin(!showBin)}
             className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full transition-all ${showBin ? 'bg-black text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
@@ -459,7 +469,7 @@ Mentorino Support Team`;
       </div>
 
       <div className="space-y-4">
-        {localApplications.length > 0 ? localApplications.map(app => (
+        {filteredApps.length > 0 ? filteredApps.map(app => (
           <div key={app.id} onClick={() => setSelectedApp(app)} className="bg-white p-6 rounded-[40px] border border-black/[0.03] shadow-sm flex items-center justify-between group cursor-pointer hover:border-black/10 active:scale-[0.98] transition-all">
             <div className="flex items-center gap-4 overflow-hidden">
                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center font-black text-lg">
@@ -540,6 +550,7 @@ Mentorino Support Team`;
       )}
     </div>
   );
+  };
 
   const renderSessions = () => (
     <div className="space-y-6 animate-in fade-in duration-700 pb-12">
