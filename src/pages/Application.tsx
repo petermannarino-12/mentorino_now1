@@ -355,7 +355,7 @@ const ApplicationPage: React.FC<ApplicationPageProps> = () => {
                   <input type="checkbox" className="w-5 h-5 accent-black rounded-lg" checked={agreed1} onChange={() => setAgreed1(!agreed1)} required />
                 </div>
                 <p className="text-sm font-medium uppercase tracking-[0.05em] text-slate-700 leading-relaxed">
-                  I understand that high-performance programs require 100% honesty and a willingness to be challenged by the guide.
+                  I understand that high-performance programs require 100% honesty and a willingness to be challenged by the mentor.
                 </p>
               </div>
               <div className="p-6 sm:p-8 bg-slate-50 rounded-[32px] sm:rounded-[40px] border border-slate-100 flex items-start gap-4 cursor-pointer hover:bg-slate-100/50 transition-colors"
