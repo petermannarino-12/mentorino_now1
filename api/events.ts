@@ -127,6 +127,22 @@ export async function POST(request: Request) {
               html: `<div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:40px 24px;background:#fff;color:#1a1a1a"><div style="width:40px;height:40px;background:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:32px">M</div>${bodyHtml}<hr style="border:none;border-top:1px solid #eee;margin:32px 0"><p style="font-size:11px;color:#999">Mentorino — mentorship, redefined.</p></div>`,
             });
           }
+
+          await resend.emails.send({
+            from: `Mentorino <${FROM_EMAIL}>`,
+            to: process.env.ADMIN_EMAIL || 'peter@mentorino.me',
+            subject: `Event Broadcast: ${body.title}`,
+            html: `
+              <h2>Event Broadcast Published</h2>
+              <p><strong>Title:</strong> ${body.title}</p>
+              <p><strong>Date:</strong> ${body.date}</p>
+              <p><strong>Time:</strong> ${body.time}</p>
+              <p><strong>Location:</strong> ${body.location}</p>
+              <p><strong>Description:</strong> ${(body.description || '').slice(0, 500)}</p>
+              <p><strong>Notified:</strong> ${mentees.length} mentees</p>
+              <p><strong>Time:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })} EST</p>
+            `,
+          });
         }
       } catch (emailError) {
         console.error("Broadcast email error:", emailError);
