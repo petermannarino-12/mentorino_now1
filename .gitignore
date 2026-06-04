@@ -32,4 +32,3 @@ supabase/.temp/
 src/generated/prisma
 
 .vercel
-.env*
