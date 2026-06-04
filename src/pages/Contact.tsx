@@ -99,8 +99,7 @@ const ContactPage: React.FC = () => {
             <h3 className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 border-b border-black/[0.03] pb-4">Contact Details</h3>
             <div className="space-y-4 sm:space-y-6">
               {[
-                { icon: Mail, label: 'Inquiry', val: 'peter@mentorino.me' },
-                { icon: MessageSquare, label: 'Support', val: 'support@mentorino.me' },
+                { icon: Mail, label: 'Email', val: 'peter@mentorino.me' },
                 { icon: Globe, label: 'Location', val: 'Global (Online Only)' }
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-4 sm:gap-6 group">
