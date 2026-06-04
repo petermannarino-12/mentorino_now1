@@ -1,10 +1,55 @@
-import React from 'react';
-import { Calendar, Clock, Star, ArrowRight, Video, ArrowLeft } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, Clock, Star, ArrowRight, Video, ArrowLeft, XCircle, CheckCircle2, Loader } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
+import { enquiryService } from '../services/enquiryService';
 
 const ConsultationOverviewPage: React.FC = () => {
   const navigate = useNavigate();
+  const [showForm, setShowForm] = useState<'free_intro_call' | 'rapid_response_call' | null>(null);
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  const handleOpenForm = (type: 'free_intro_call' | 'rapid_response_call') => {
+    setShowForm(type);
+    setSubmitted(false);
+    setFormError('');
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(null);
+    setFormData({ name: '', email: '', phone: '', message: '' });
+    setSubmitted(false);
+    setFormError('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError('');
+    if (!formData.name.trim() || !formData.email.trim()) {
+      setFormError('Name and email are required.');
+      return;
+    }
+    setSubmitting(true);
+    const { error } = await enquiryService.submit({
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone.trim() || undefined,
+      service_type: showForm!,
+      message: formData.message.trim() || undefined,
+    });
+    setSubmitting(false);
+    if (error) {
+      setFormError(error);
+    } else {
+      setSubmitted(true);
+    }
+  };
+
+  const serviceLabel = showForm === 'free_intro_call' ? 'Free Program Introduction Call' : 'Rapid Response Call Booking';
+
   return (
     <div className="max-w-4xl mx-auto py-16 px-6 animate-in fade-in duration-700">
       <SEO 
@@ -24,23 +69,53 @@ const ConsultationOverviewPage: React.FC = () => {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
-        <div className="bg-white p-10 rounded-[48px] border border-black/[0.03] space-y-6 shadow-sm hover:border-black/10 transition-all">
-          <div className="p-4 bg-slate-50 w-fit rounded-2xl text-black"><Clock size={24} /></div>
-          <h3 className="text-xl font-black uppercase tracking-tight">The 60-Minute Audit</h3>
-          <p className="text-slate-400 text-sm leading-relaxed font-medium">Ideal for quick clarity on a specific decision, a CV review, or academic path choice. Includes a digital summary of the call and action items.</p>
+        <div className="bg-white p-10 rounded-[48px] border border-black/[0.03] space-y-6 shadow-sm hover:border-black/10 transition-all flex flex-col">
+          <div className="p-4 bg-slate-50 w-fit rounded-2xl text-black"><Video size={24} /></div>
+          <div className="space-y-2">
+            <h3 className="text-xl font-black uppercase tracking-tight">Free Program Introduction Call</h3>
+            <p className="text-slate-400 text-sm leading-relaxed font-medium">A free 20-30 minute introductory call designed to help prospective participants understand the program, discuss their goals, ask questions, and determine whether the program is the right fit for them. No commitment required.</p>
+          </div>
+          <ul className="space-y-3">
+            {["Understand the program structure", "Discuss goals and challenges", "Get answers to questions", "Explore program fit", "No commitment required"].map((item, i) => (
+              <li key={i} className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <CheckCircle2 size={14} className="text-indigo-500" />
+                {item}
+              </li>
+            ))}
+          </ul>
+          <div className="pt-4 mt-auto">
+            <p className="text-3xl font-black">Free</p>
+            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-300">No commitment</p>
+          </div>
           <div className="pt-4">
-            <p className="text-3xl font-black">$250</p>
-            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-300">Per Session</p>
+            <button onClick={() => handleOpenForm('free_intro_call')} className="btn-normal w-full bg-slate-950 text-white hover:bg-black">
+              Book Free Call
+            </button>
           </div>
         </div>
-        <div className="bg-black text-white p-10 rounded-[48px] space-y-6 shadow-2xl relative overflow-hidden group">
+        <div className="bg-black text-white p-10 rounded-[48px] space-y-6 shadow-2xl relative overflow-hidden group flex flex-col">
           <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:scale-110 transition-transform"><Star size={80} /></div>
           <div className="p-4 bg-white/10 w-fit rounded-2xl text-white"><Star size={24} /></div>
-          <h3 className="text-xl font-black uppercase tracking-tight">Rapid Response Call</h3>
-          <p className="text-white/40 text-sm leading-relaxed font-medium">A high-intensity, immediate strategy session for when you're at a critical junction and need an expert perspective within 24-48 hours.</p>
-          <div className="pt-4">
-            <p className="text-3xl font-black text-emerald-400">$450</p>
+          <div className="space-y-2 relative z-10">
+            <h3 className="text-xl font-black uppercase tracking-tight">Rapid Response Call Booking</h3>
+            <p className="text-white/40 text-sm leading-relaxed font-medium">Need quick guidance or answers to pressing questions? Book a rapid response call and get direct support within a short timeframe.</p>
+          </div>
+          <ul className="space-y-3 relative z-10">
+            {["Urgent academic or career-related questions", "Program guidance and clarification", "Quick feedback on decisions", "Personalized advice", "Fast response and scheduling"].map((item, i) => (
+              <li key={i} className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white/50">
+                <Star size={14} className="text-indigo-400" />
+                {item}
+              </li>
+            ))}
+          </ul>
+          <div className="pt-4 mt-auto relative z-10">
+            <p className="text-3xl font-black text-emerald-400">$25</p>
             <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/30">Priority Booking</p>
+          </div>
+          <div className="pt-4 relative z-10">
+            <button onClick={() => handleOpenForm('rapid_response_call')} className="btn-normal w-full bg-white text-black hover:scale-105">
+              Book Rapid Response Call
+            </button>
           </div>
         </div>
       </div>
@@ -80,6 +155,72 @@ const ConsultationOverviewPage: React.FC = () => {
           </Link>
         </div>
       </div>
+
+      {showForm && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-md rounded-[48px] p-10 shadow-2xl relative animate-in slide-in-from-bottom-8 duration-500">
+            <button onClick={handleCloseForm} className="absolute top-6 right-6 p-2 bg-slate-50 rounded-full hover:bg-slate-100 transition-colors">
+              <XCircle size={20} className="text-slate-400" />
+            </button>
+            {submitted ? (
+              <div className="text-center space-y-6 py-8">
+                <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-3xl flex items-center justify-center mx-auto">
+                  <CheckCircle2 size={32} />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-black uppercase tracking-tighter">Request Submitted</h2>
+                  <p className="text-sm text-slate-500 font-medium">Thank you, {formData.name}! We have received your enquiry for the <strong>{serviceLabel}</strong>. We will get back to you shortly.</p>
+                </div>
+                <button onClick={handleCloseForm} className="px-10 py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full hover:bg-slate-800 transition-all">
+                  Done
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="text-center space-y-2">
+                  <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-3xl flex items-center justify-center mx-auto"><Calendar size={32} /></div>
+                  <h2 className="text-2xl font-black uppercase tracking-tighter">Book Your Call</h2>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{serviceLabel}</p>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name *</label>
+                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-xs font-medium focus:bg-white focus:border-black transition-all outline-none"
+                      placeholder="John Doe" required />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Email *</label>
+                    <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-xs font-medium focus:bg-white focus:border-black transition-all outline-none"
+                      placeholder="john@example.com" required />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone</label>
+                    <input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-xs font-medium focus:bg-white focus:border-black transition-all outline-none"
+                      placeholder="+1 (555) 000-0000" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Message (optional)</label>
+                    <textarea value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})}
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-xs font-medium focus:bg-white focus:border-black transition-all outline-none min-h-[80px]"
+                      placeholder="Any questions or details..." />
+                  </div>
+                  {formError && (
+                    <p className="text-red-500 text-[10px] font-black uppercase tracking-widest text-center">{formError}</p>
+                  )}
+                  <button type="submit" disabled={submitting}
+                    className="w-full py-5 bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full hover:bg-slate-800 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                    {submitting && <Loader size={14} className="animate-spin" />}
+                    {submitting ? 'Submitting...' : `Submit ${showForm === 'free_intro_call' ? 'Free Call Request' : 'Booking Request'}`}
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

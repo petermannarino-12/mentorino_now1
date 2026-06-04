@@ -26,7 +26,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { getApplicationSummary, chatWithAssistant, getPreSessionBrief } from '../services/geminiService';
-import { Application, Booking, User, AIChatMessage, TaskActivity, NetworkEvent, Announcement } from '../types';
+import { Application, Booking, User, AIChatMessage, TaskActivity, NetworkEvent, Announcement, Enquiry } from '../types';
 import { formatToNJ, getNJISOString } from '../lib/dateUtils';
 import ValidationRulesManager from '../components/admin/ValidationRulesManager';
 import SEO from '../components/SEO';
@@ -47,9 +47,11 @@ interface AdminDashboardProps {
   announcements?: Announcement[];
   onAddAnnouncement?: (ann: Announcement) => void;
   onDeleteAnnouncement?: (id: string) => void;
+  enquiries?: Enquiry[];
+  onUpdateEnquiryStatus?: (id: string, status: 'new' | 'contacted' | 'closed') => void;
 }
 
-type AdminTab = 'home' | 'applications' | 'sessions' | 'activities' | 'networking' | 'students' | 'more' | 'ai' | 'crm' | 'broadcast' | 'validation';
+type AdminTab = 'home' | 'applications' | 'sessions' | 'activities' | 'networking' | 'students' | 'more' | 'ai' | 'crm' | 'broadcast' | 'validation' | 'enquiries';
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ 
   applications, 
@@ -66,7 +68,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onRefresh,
   announcements: propAnnouncements = [],
   onAddAnnouncement: _onAddAnnouncement,
-  onDeleteAnnouncement
+  onDeleteAnnouncement,
+  enquiries: enquiriesList = [],
+  onUpdateEnquiryStatus
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -296,6 +300,7 @@ Mentorino Support Team`;
           { label: 'Networking', value: events.length, icon: Sparkles, color: 'text-indigo-500', tab: 'networking', trend: 'Live' },
           { label: 'Strategy Audits', value: taskActivities.filter(t => t.status === 'pending').length, icon: Activity, color: 'text-emerald-500', tab: 'activities', trend: 'Action' },
           { label: 'Sessions', value: upcomingBookings.length, icon: Calendar, color: 'text-blue-500', tab: 'sessions', trend: '+5%' },
+          { label: 'Enquiries', value: enquiriesList.length, icon: Mail, color: 'text-purple-500', tab: 'enquiries', trend: `${enquiriesList.filter(e => e.status === 'new').length} New` },
         ].map((stat, i) => (
           <motion.div 
             key={i} 
@@ -1038,6 +1043,69 @@ Mentorino Support Team`;
     </div>
   );
 
+  const renderEnquiries = () => (
+    <div className="space-y-6 animate-in fade-in duration-700 pb-12">
+      <div className="flex items-center justify-between px-2">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Consultation Enquiries</h3>
+        <span className="text-[9px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full">{enquiriesList.filter(e => e.status === 'new').length} New</span>
+      </div>
+
+      <div className="space-y-4">
+        {enquiriesList.length > 0 ? enquiriesList.map(enquiry => (
+          <div key={enquiry.id} className="bg-white p-6 rounded-[40px] border border-black/[0.03] shadow-sm space-y-4 hover:border-black/10 transition-all">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center font-black text-lg">
+                  {(enquiry.name || '?').charAt(0)}
+                </div>
+                <div>
+                  <h4 className="text-sm font-black uppercase">{enquiry.name}</h4>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">{enquiry.email}</span>
+                    <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${enquiry.service_type === 'free_intro_call' ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600'}`}>
+                      {enquiry.service_type === 'free_intro_call' ? 'Free Intro Call' : 'Rapid Response'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${enquiry.status === 'new' ? 'bg-amber-50 text-amber-600' : enquiry.status === 'contacted' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-400'}`}>
+                {enquiry.status}
+              </span>
+            </div>
+            {enquiry.phone && (
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Phone: {enquiry.phone}</p>
+            )}
+            {enquiry.message && (
+              <p className="text-[11px] font-medium text-slate-600 italic leading-relaxed">"{enquiry.message}"</p>
+            )}
+            <div className="flex items-center justify-between pt-2 border-t border-slate-50">
+              <span className="text-[8px] font-bold text-slate-300 uppercase">{new Date(enquiry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              <div className="flex gap-2">
+                {enquiry.status === 'new' && (
+                  <button onClick={() => onUpdateEnquiryStatus?.(enquiry.id, 'contacted')}
+                    className="px-4 py-2 bg-blue-50 text-blue-600 text-[8px] font-black uppercase tracking-widest rounded-full hover:bg-blue-100 transition-all">
+                    Mark Contacted
+                  </button>
+                )}
+                {enquiry.status !== 'closed' && (
+                  <button onClick={() => onUpdateEnquiryStatus?.(enquiry.id, 'closed')}
+                    className="px-4 py-2 bg-slate-50 text-slate-400 text-[8px] font-black uppercase tracking-widest rounded-full hover:bg-slate-100 transition-all">
+                    Close
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )) : (
+          <div className="bg-slate-50 p-12 rounded-[48px] text-center border border-dashed border-slate-200">
+            <Calendar size={32} className="mx-auto text-slate-300 mb-4" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">No enquiries yet</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   const renderMore = () => (
     <div className="space-y-10 animate-in fade-in duration-700 pb-12">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1167,6 +1235,7 @@ Mentorino Support Team`;
             {activeTab === 'broadcast' && <>Strategy <br /><span className="text-slate-200">Broadcast.</span></>}
             {activeTab === 'more' && <>System <br /><span className="text-slate-200">Tools.</span></>}
             {activeTab === 'ai' && <>AI <br /><span className="text-slate-200">Partner.</span></>}
+            {activeTab === 'enquiries' && <>Enquiries <br /><span className="text-slate-200">Inbox.</span></>}
             {activeTab === 'validation' && <>Validation <br /><span className="text-slate-200">Engine.</span></>}
           </h1>
         </header>
@@ -1188,6 +1257,7 @@ Mentorino Support Team`;
               {activeTab === 'students' && renderStudents()}
               {activeTab === 'crm' && renderCRM()}
               {activeTab === 'broadcast' && renderBroadcast()}
+              {activeTab === 'enquiries' && renderEnquiries()}
               {activeTab === 'more' && renderMore()}
               {activeTab === 'ai' && renderAI()}
               {activeTab === 'validation' && <ValidationRulesManager />}

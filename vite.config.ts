@@ -266,6 +266,50 @@ const mockApi = (env: Record<string, string>) => ({
         return;
       }
 
+      if (pathMatch(url.pathname, 'enquiries')) {
+        if (req.method === 'GET') {
+          try {
+            const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+            const { data } = await supabase.from('enquiries').select('*').order('created_at', { ascending: false });
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(data || []));
+          } catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
+          return;
+        }
+        if (req.method === 'POST') {
+          let body = ''; req.on('data', chunk => body += chunk);
+          req.on('end', async () => {
+            try {
+              const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+              const enquiry = JSON.parse(body);
+              const { data } = await supabase.from('enquiries').insert({
+                name: enquiry.name,
+                email: enquiry.email,
+                phone: enquiry.phone || null,
+                service_type: enquiry.service_type,
+                message: enquiry.message || null
+              }).select().single();
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(data));
+            } catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
+          });
+          return;
+        }
+        if (req.method === 'PATCH') {
+          let body = ''; req.on('data', chunk => body += chunk);
+          req.on('end', async () => {
+            try {
+              const { id, status } = JSON.parse(body);
+              const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+              const { data } = await supabase.from('enquiries').update({ status }).eq('id', id).select().single();
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(data));
+            } catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
+          });
+          return;
+        }
+      }
+
       if ((pathMatch(url.pathname, 'handle-product-access') || (url.pathname === '/api/emails' && url.searchParams.get('from') === 'grant-access')) && req.method === 'POST') {
         let body = ''; req.on('data', chunk => body += chunk);
         req.on('end', async () => {

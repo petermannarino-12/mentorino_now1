@@ -5,6 +5,7 @@ import { useUsersQuery } from '../../hooks/queries/userQueries';
 import { useBookings } from '../../hooks/useBookings';
 import { useTasks, useUpdateTaskStatusMutation } from '../../hooks/useTasks';
 import { useEvents, useAddEventMutation, useDeleteEventMutation } from '../../hooks/useEvents';
+import { useEnquiries, useUpdateEnquiryStatusMutation } from '../../hooks/useEnquiries';
 import { Loader } from '../ui/Loader';
 import AdminDashboard from '../../pages/AdminDashboard';
 
@@ -23,12 +24,14 @@ const AdminDashboardWrapper: React.FC<AdminDashboardWrapperProps> = ({
   const { bookings, loading: bookingsLoading } = useBookings();
   const { taskActivities, loading: tasksLoading } = useTasks();
   const { events, loading: eventsLoading } = useEvents();
+  const { enquiries, loading: enquiriesLoading } = useEnquiries();
 
   const updateAppMutation = useUpdateApplicationStatusMutation();
   const deleteAppMutation = useDeleteApplicationMutation();
   const updateTaskStatusMutation = useUpdateTaskStatusMutation();
   const addEventMutation = useAddEventMutation();
   const deleteEventMutation = useDeleteEventMutation();
+  const updateEnquiryStatusMutation = useUpdateEnquiryStatusMutation();
 
   const handleUpdateApp = useCallback((id: string, status: 'approved' | 'rejected' | 'pending' | 'deleted') => {
     updateAppMutation.mutate({ id, status });
@@ -46,6 +49,10 @@ const AdminDashboardWrapper: React.FC<AdminDashboardWrapperProps> = ({
     addEventMutation.mutate(event);
   }, [addEventMutation]);
 
+  const handleUpdateEnquiryStatus = useCallback((id: string, status: 'new' | 'contacted' | 'closed') => {
+    updateEnquiryStatusMutation.mutate({ id, status });
+  }, [updateEnquiryStatusMutation]);
+
   const handleDeleteEvent = useCallback((id: string) => {
     deleteEventMutation.mutate(id);
   }, [deleteEventMutation]);
@@ -58,7 +65,7 @@ const AdminDashboardWrapper: React.FC<AdminDashboardWrapperProps> = ({
     queryClient.invalidateQueries({ queryKey: ['events'] });
   }, [queryClient]);
 
-  if (appsLoading || usersLoading || bookingsLoading || tasksLoading || eventsLoading) {
+  if (appsLoading || usersLoading || bookingsLoading || tasksLoading || eventsLoading || enquiriesLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader />
@@ -73,11 +80,13 @@ const AdminDashboardWrapper: React.FC<AdminDashboardWrapperProps> = ({
       bookings={bookings}
       taskActivities={taskActivities}
       events={events}
+      enquiries={enquiries}
       onUpdateApp={handleUpdateApp}
       onDeleteApp={handleDeleteApp}
       onUpdateTaskActivity={handleUpdateTaskActivity}
       onAddEvent={handleAddEvent}
       onDeleteEvent={handleDeleteEvent}
+      onUpdateEnquiryStatus={handleUpdateEnquiryStatus}
       onLogout={onLogout || (() => {})}
       onRefresh={handleRefresh}
     />

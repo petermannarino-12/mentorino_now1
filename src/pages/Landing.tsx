@@ -621,13 +621,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ currentRole = 'visitor' }) =>
                 <Video className="text-indigo-600" size={24} />
               </div>
               <div className="space-y-4">
-                <h3 className="text-3xl font-black uppercase tracking-tight">The 1-on-1 Strategy Call.</h3>
+                <div className="flex items-center gap-3">
+                  <h3 className="text-3xl font-black uppercase tracking-tight">1:1 Program Introduction Call.</h3>
+                  <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase tracking-widest rounded-full">Free</span>
+                </div>
                 <p className="text-slate-500 leading-relaxed font-medium">
-                  A high-intensity audit for people who are stuck at a specific crossroads and need immediate outside perspective.
+                  Not sure where to start? Book a no-pressure intro call and we will map out where you are, where you want to be, and whether the program is the right fit — zero commitment, all clarity.
                 </p>
               </div>
               <ul className="space-y-4">
-                {["60min Deep-Dive session", "Personalized Strategy PDF", "Action-Item Checklist"].map((item, i) => (
+                {["30min personal discovery call", "Custom trajectory roadmap", "No commitment — just clarity"].map((item, i) => (
                   <li key={i} className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
                     <CheckCircle2 size={14} className="text-indigo-500" />
                     {item}
@@ -636,7 +639,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ currentRole = 'visitor' }) =>
               </ul>
               <div className="pt-8 mt-auto w-full">
                 <Link to="/consultation" className="btn-normal w-full bg-slate-950 text-white hover:bg-black">
-                  Book A Call
+                  Book Your Free Call
                 </Link>
               </div>
             </motion.div>

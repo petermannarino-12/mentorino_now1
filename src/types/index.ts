@@ -187,6 +187,17 @@ export interface TaskActivity {
   interview_recommendation: string;
 }
 
+export interface Enquiry {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  service_type: 'free_intro_call' | 'rapid_response_call';
+  message?: string;
+  status: 'new' | 'contacted' | 'closed';
+  created_at: string;
+}
+
 export type RuleOperator = 'required' | 'minLength' | 'maxLength' | 'pattern' | 'min' | 'max' | 'custom';
 
 export interface ValidationRule {
