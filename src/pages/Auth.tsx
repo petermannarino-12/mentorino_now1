@@ -129,7 +129,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
     try {
       if (isSignUp) {
         // Check if application is approved
-        const appRes = await fetch('/api/check-application', {
+        const appRes = await fetch('/api/applications?from=check-application', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: data.email.trim() }),

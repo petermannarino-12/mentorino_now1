@@ -9,13 +9,16 @@ const pathMatch = (pathname: string, name: string) =>
     pathname === `/api/ai/${name}` ||
     pathname === `/api/${name}`;
 
+const isAppFrom = (url: URL, from: string) =>
+    url.pathname === '/api/applications' && url.searchParams.get('from') === from;
+
 const mockApi = (env: Record<string, string>) => ({
   name: 'mock-api',
   configureServer(server) {
     server.middlewares.use(async (req, res, next) => {
       const url = new URL(req.url || '', `http://${req.headers.host || 'localhost'}`);
       
-      if (pathMatch(url.pathname, 'delete-application') && req.method === 'DELETE') {
+      if ((pathMatch(url.pathname, 'delete-application') || isAppFrom(url, 'delete-application')) && req.method === 'DELETE') {
         try {
           const id = url.searchParams.get('id');
           if (!id) {
@@ -38,7 +41,7 @@ const mockApi = (env: Record<string, string>) => ({
         return;
       }
 
-      if (pathMatch(url.pathname, 'submit-application') && req.method === 'POST') {
+      if ((pathMatch(url.pathname, 'submit-application') || isAppFrom(url, 'submit-application')) && req.method === 'POST') {
          let body = '';
          req.on('data', chunk => body += chunk);
          req.on('end', async () => {
@@ -216,7 +219,7 @@ const mockApi = (env: Record<string, string>) => ({
         return;
       }
 
-      if (pathMatch(url.pathname, 'check-application') && req.method === 'POST') {
+      if ((pathMatch(url.pathname, 'check-application') || isAppFrom(url, 'check-application')) && req.method === 'POST') {
         let body = ''; req.on('data', chunk => body += chunk);
         req.on('end', async () => {
           try { const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY); const { email } = JSON.parse(body); const { data } = await supabase.from('applications').select('status').eq('user_email', email.toLowerCase().trim()).maybeSingle(); const isApproved = data?.status === 'approved'; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ is_approved: isApproved })); }
@@ -225,7 +228,7 @@ const mockApi = (env: Record<string, string>) => ({
         return;
       }
 
-      if (pathMatch(url.pathname, 'update-application-status') && req.method === 'POST') {
+      if ((pathMatch(url.pathname, 'update-application-status') || isAppFrom(url, 'update-application-status')) && req.method === 'POST') {
          let body = ''; req.on('data', chunk => body += chunk);
          req.on('end', async () => {
             try {
