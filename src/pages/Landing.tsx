@@ -666,9 +666,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ currentRole = 'visitor' }) =>
                 <Video className="text-indigo-600" size={24} />
               </div>
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-3xl font-black uppercase tracking-tight">1:1 Program Introduction Call.</h3>
-                  <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase tracking-widest rounded-full">Free</span>
+                <div className="flex items-start gap-3">
+                  <h3 className="text-3xl font-black uppercase tracking-tight flex-1">1:1 Program Introduction Call.</h3>
+                  <span className="px-4 py-1.5 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-emerald-200/50 animate-pulse">Free</span>
                 </div>
                 <p className="text-slate-500 leading-relaxed font-medium">
                   Not sure where to start? Book a no-pressure intro call and we will map out where you are, where you want to be, and whether the program is the right fit — zero commitment, all clarity.
