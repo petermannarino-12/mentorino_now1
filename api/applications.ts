@@ -65,9 +65,23 @@ async function handleSubmit(request: Request) {
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
           to: email,
-          bcc: process.env.ADMIN_EMAIL || 'peter@mentorino.me',
           subject: subject,
           html: body,
+        });
+
+        await resend.emails.send({
+          from: `Mentorino <${FROM_EMAIL}>`,
+          to: process.env.ADMIN_EMAIL || 'peter@mentorino.me',
+          subject: `New Application Submitted — ${userName}`,
+          html: `
+            <h2>New Application Submitted</h2>
+            <p><strong>Name:</strong> ${userName}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${sanitize(application.user_phone || '')}</p>
+            <p><strong>Mentor Type:</strong> ${application.mentor_type || 'Not specified'}</p>
+            <p><strong>Goals:</strong> ${(application.goals || '').slice(0, 500)}</p>
+            <p><strong>Time:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })} EST</p>
+          `,
         });
       } catch (emailError) {
         console.error("Email send error:", emailError);
