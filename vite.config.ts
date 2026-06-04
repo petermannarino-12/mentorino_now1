@@ -256,6 +256,34 @@ const mockApi = (env: Record<string, string>) => ({
          return;
       }
 
+      if ((pathMatch(url.pathname, 'list-product-requests') || (url.pathname === '/api/emails' && url.searchParams.get('from') === 'list-requests')) && (req.method === 'GET' || req.method === 'POST')) {
+        try {
+          const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+          const { data } = await supabase.from('product_access_requests').select('*').order('created_at', { ascending: false });
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ requests: data || [] }));
+        } catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
+        return;
+      }
+
+      if ((pathMatch(url.pathname, 'handle-product-access') || (url.pathname === '/api/emails' && url.searchParams.get('from') === 'grant-access')) && req.method === 'POST') {
+        let body = ''; req.on('data', chunk => body += chunk);
+        req.on('end', async () => {
+          try {
+            const { request_id, action, mentor_notes } = JSON.parse(body);
+            const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+            if (action === 'grant') {
+              await supabase.from('product_access_requests').update({ status: 'granted', mentor_notes: mentor_notes || null, granted_at: new Date().toISOString() }).eq('id', request_id);
+            } else {
+              await supabase.from('product_access_requests').update({ status: 'denied', mentor_notes: mentor_notes || null }).eq('id', request_id);
+            }
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ message: `Access ${action === 'grant' ? 'granted' : 'denied'}` }));
+          } catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
+        });
+        return;
+      }
+
       next();
     });
   }
