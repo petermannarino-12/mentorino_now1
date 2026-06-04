@@ -1,6 +1,9 @@
 import { getPrisma } from './prisma.js';
 import { getUserFromToken } from './auth.js';
 
+const FROM_EMAIL = process.env.SENDER_EMAIL || 'peter@mentorino.me';
+const SITE_URL = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || process.env.URL || 'http://localhost:3000';
+
 function mapEvent(e: any) {
   return {
     id: e.id,
