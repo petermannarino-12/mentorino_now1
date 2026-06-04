@@ -9,7 +9,6 @@ const sanitize = (str: string) => str.replace(/[<>]/g, "").slice(0, 255).trim();
 async function handleSubmit(request: Request) {
   try {
     const user = await getUserFromToken(request);
-    if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
     const { application } = await request.json();
     if (!application || !application.user_email) {
@@ -37,7 +36,7 @@ async function handleSubmit(request: Request) {
         userEmail: email,
         mentorType: application.mentor_type,
         status: 'pending',
-        userId: user.id,
+        userId: user?.id || null,
         responses: {
           ...responses,
           user_name: userName,
