@@ -203,7 +203,7 @@ const Programs = () => {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button 
-                  onClick={() => navigate('/booking')}
+                  onClick={() => navigate('/consultation')}
                   className="btn-normal bg-white text-black px-8 sm:px-10 py-4 sm:py-5"
                 >
                   Talk to a Mentor
