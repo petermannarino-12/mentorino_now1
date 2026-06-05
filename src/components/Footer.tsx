@@ -97,13 +97,7 @@ const Footer: React.FC = () => {
           <p className="text-slate-500 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-center sm:text-left">
             © 2024 Mentorino Trajectory Coaching. ALL RIGHTS RESERVED.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-            <Link to="/auth?role=mentor" className="hover:text-black transition-colors text-indigo-600">Mentor Portal</Link>
-            <div className="flex items-center gap-2 text-indigo-500">
-              <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></div>
-              <span>Status: Optimal</span>
-            </div>
-          </div>
+
         </div>
       </div>
     </footer>
