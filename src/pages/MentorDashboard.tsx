@@ -4,9 +4,22 @@ import {
   Bell,
   Info,
   ArrowLeft,
-  AlertCircle
+  AlertCircle,
+  Menu,
+  X,
+  LayoutDashboard,
+  Users,
+  Calendar,
+  Star,
+  ClipboardList,
+  Lock,
+  Sparkles,
+  Mail,
+  User,
+  MessageCircle,
+  LogOut
 } from 'lucide-react';
-import { useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import { Booking, NetworkEvent } from '../types';
 import { useMentorDashboardActions } from '../hooks/useMentorDashboardActions';
 import { Loader } from '../components/ui/Loader';
@@ -30,6 +43,7 @@ const MentorDashboard: React.FC = () => {
   const { user: currentUser, signOut } = useAuth();
   const [notification, setNotification] = useState<string | null>(null);
   const [timedOut, setTimedOut] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const {
     applications: allApplications,
@@ -103,6 +117,24 @@ const MentorDashboard: React.FC = () => {
     );
   }
 
+  const mentorNavItems = [
+    { label: 'Overview', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Mentees', path: '/dashboard/mentees', icon: Users },
+    { label: 'Sessions', path: '/dashboard/sessions', icon: Calendar },
+    { label: 'Reviews', path: '/dashboard/reviews', icon: Star },
+    { label: 'Inquiry Audit', path: '/dashboard/audits', icon: ClipboardList },
+    { label: 'Access Requests', path: '/dashboard/access-requests', icon: Lock },
+    { label: 'Events', path: '/dashboard/events', icon: Sparkles },
+    { label: 'Email Templates', path: '/dashboard/emails', icon: Mail },
+    { label: 'Accounts', path: '/dashboard/accounts', icon: User },
+    { label: 'Chat', path: '/dashboard/chat', icon: MessageCircle },
+  ];
+
+  const isActive = (path: string) => {
+    if (path === '/dashboard') return location.pathname === '/dashboard';
+    return location.pathname.startsWith(path);
+  };
+
   const getTitle = () => {
     const path = location.pathname;
     if (path === '/dashboard') return 'Overview';
@@ -172,31 +204,96 @@ const MentorDashboard: React.FC = () => {
         </div>
       </header>
 
-      {/* Header for Mobile */}
-      <header className="lg:hidden pt-8 pb-4 px-6 bg-[#FDFDFD]">
-        <div className="flex items-center gap-4">
+      {/* Mobile Top Bar */}
+      <header className="lg:hidden fixed top-0 left-0 w-full h-16 bg-white border-b border-black/[0.03] z-50 flex items-center justify-between px-4">
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
           {location.pathname !== '/dashboard' && (
             <button 
               onClick={() => navigate('/dashboard')}
-              className="w-10 h-10 flex items-center justify-center bg-white border border-slate-100 rounded-full shadow-md text-slate-900 active:scale-90 transition-all"
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors"
+              aria-label="Back to dashboard"
             >
               <ArrowLeft size={18} />
             </button>
           )}
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-               <span className="w-1.5 h-1.5 bg-black rounded-full"></span>
-               <span className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400">Mentor Console</span>
-            </div>
-            <h1 className="text-2xl font-black tracking-tighter text-slate-900 uppercase leading-none">
-               {getTitle()}
-            </h1>
-          </div>
+        </div>
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-1.5 h-1.5 bg-black rounded-full shrink-0"></div>
+          <span className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 truncate">{getTitle()}</span>
         </div>
       </header>
 
+      {/* Mobile Drawer */}
+      <>
+        {isMobileMenuOpen && (
+          <div 
+            className="lg:hidden fixed inset-0 bg-black/50 z-[70]"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+        <motion.aside
+          initial={false}
+          animate={isMobileMenuOpen ? { x: 0 } : { x: '-100%' }}
+          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+          className="lg:hidden fixed top-0 left-0 h-screen w-72 bg-white border-r border-slate-100 z-[80] flex flex-col"
+        >
+          <div className="p-6 flex items-center justify-between">
+            <Link to="/" className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+              <span className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white text-xs font-bold">M</span>
+              MENTORINO
+            </Link>
+            <button 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors"
+              aria-label="Close menu"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4">
+            <nav className="space-y-1">
+              <p className="px-4 text-[8px] font-black text-slate-300 uppercase tracking-widest mb-2">Console</p>
+              {mentorNavItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`
+                    flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                    ${isActive(item.path) 
+                      ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' 
+                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}
+                  `}
+                >
+                  <item.icon size={18} />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="p-4 border-t border-slate-50 mt-auto">
+            <button 
+              onClick={() => { setIsMobileMenuOpen(false); if (window.confirm('Are you sure you want to log out?')) signOut(); }}
+              className="flex items-center gap-3 px-4 py-3 w-full text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all group"
+            >
+              <LogOut size={18} className="group-hover:translate-x-1 transition-transform" />
+              <span className="text-sm font-medium">Log Out</span>
+            </button>
+          </div>
+        </motion.aside>
+      </>
+
       {/* Main Content Area */}
-      <main className="flex-1 p-6 md:p-8 lg:p-12">
+      <main className="flex-1 p-6 md:p-8 lg:p-12 pt-20 lg:pt-12">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
