@@ -1,5 +1,6 @@
 import { getPrisma } from './prisma.js';
 import { getUserFromToken } from './auth.js';
+import { checkRateLimit } from './rate-limit.js';
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'peter@mentorino.me';
 const SITE_URL = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.URL) || 'http://localhost:3000';
 
@@ -408,6 +409,187 @@ async function handleResetPassword(request: Request) {
   }
 }
 
+async function handleContact(request: Request) {
+  try {
+    const body = await request.json();
+    const { name, email, phone, subject, message } = body;
+
+    if (!name || !email || !message) {
+      return Response.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const sanitize = (str: string) => str.replace(/[<>]/g, "").trim();
+    const normalizedEmail = email.toLowerCase().trim();
+    const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
+    const MAX_SUBMISSIONS = 3;
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'peter@mentorino.me';
+
+    const fiveMinAgo = new Date(Date.now() - RATE_LIMIT_WINDOW_MS);
+    const count = await (await getPrisma()).contact_messages.count({
+      where: {
+        email: normalizedEmail,
+        createdAt: { gte: fiveMinAgo },
+      },
+    });
+
+    if ((count || 0) >= MAX_SUBMISSIONS) {
+      return Response.json({ error: "Too many submissions. Please wait a few minutes before trying again." }, { status: 429 });
+    }
+
+    await (await getPrisma()).contact_messages.create({
+      data: {
+        name: sanitize(name).slice(0, 255),
+        email: normalizedEmail,
+        phone: sanitize(phone || '').slice(0, 50),
+        subject: subject?.slice(0, 255),
+        message: sanitize(message).slice(0, 5000),
+      },
+    });
+
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const { Resend } = await import("resend");
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        await resend.emails.send({
+          from: `Mentorino <${FROM_EMAIL}>`,
+          to: ADMIN_EMAIL,
+          subject: `New Contact Message from ${sanitize(name)}`,
+          html: `<strong>Name:</strong> ${sanitize(name)}<br>
+                 <strong>Email:</strong> ${normalizedEmail}<br>
+                 <strong>Phone:</strong> ${sanitize(phone || 'N/A')}<br>
+                 <strong>Subject:</strong> ${subject || 'N/A'}<br><br>
+                 <strong>Message:</strong><br>${sanitize(message)}`
+        });
+        await resend.emails.send({
+          from: `Mentorino <${FROM_EMAIL}>`,
+          to: normalizedEmail,
+          bcc: ADMIN_EMAIL,
+          subject: "Your message has been received — Mentorino",
+          html: `Hi ${sanitize(name)},<br><br>
+                 We've received your message and will get back to you within 48 hours.<br><br>
+                 <strong>Your message:</strong><br>
+                 ${sanitize(message)}<br><br>
+                 — Mentorino Team`
+        });
+      } catch (emailError) {
+        console.error("Admin notification email error:", emailError);
+      }
+    }
+
+    return Response.json({ message: "Message sent successfully" });
+  } catch (error: any) {
+    console.error("Contact Error:", error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+async function handleNewsletter(request: Request) {
+  try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    if (!checkRateLimit(ip, 10, 60_000)) return Response.json({ error: 'Too many requests' }, { status: 429 });
+
+    const body = await request.json();
+    if (!body.email) {
+      return Response.json({ error: "Missing email" }, { status: 400 });
+    }
+
+    await (await getPrisma()).newsletter_subscribers.upsert({
+      where: { email: body.email.toLowerCase().trim() },
+      update: {},
+      create: { email: body.email.toLowerCase().trim() },
+    });
+
+    return Response.json({ message: "Subscribed successfully" });
+  } catch (error: any) {
+    console.error("Newsletter Error:", error);
+    return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
+  }
+}
+
+async function handleReview(request: Request) {
+  try {
+    const body = await request.json();
+    if (!body.reviewer_name || !body.reviewer_email || body.rating === undefined) {
+      return Response.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const email = body.reviewer_email.toLowerCase().trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return Response.json({ error: "Invalid email format" }, { status: 400 });
+    }
+
+    const rating = parseInt(body.rating);
+    if (isNaN(rating) || rating < 1 || rating > 5) {
+      return Response.json({ error: "Rating must be a number between 1 and 5" }, { status: 400 });
+    }
+
+    if (body.reviewer_name.length > 100) {
+      return Response.json({ error: "Name too long" }, { status: 400 });
+    }
+
+    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const recent = await (await getPrisma()).reviews.findMany({
+      where: {
+        reviewerEmail: email,
+        createdAt: { gte: fiveMinAgo },
+      },
+    });
+    if (recent.length >= 3) {
+      return Response.json({ error: "Too many reviews. Please wait a few minutes." }, { status: 429 });
+    }
+
+    const data = await (await getPrisma()).reviews.create({
+      data: {
+        reviewerName: body.reviewer_name.trim().slice(0, 100),
+        reviewerEmail: email,
+        rating,
+        comment: body.comment ? body.comment.trim().slice(0, 2000) : null,
+      },
+    });
+
+    return Response.json({ id: data.id, message: "Review submitted" });
+  } catch (error: any) {
+    console.error("Reviews Error:", error);
+    return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
+  }
+}
+
+async function handleTransaction(request: Request) {
+  try {
+    const user = await getUserFromToken(request);
+    if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+    const profile = await (await getPrisma()).profiles.findUnique({
+      where: { id: user.id },
+      select: { role: true },
+    });
+    if (!profile || profile.role !== 'admin') {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    if (!body.product_id || !body.amount) {
+      return Response.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const data = await (await getPrisma()).transactions.create({
+      data: {
+        userId: body.user_id || user.id,
+        userName: body.user_name || user.email || "",
+        amount: body.amount,
+        product: body.product || "",
+        productId: body.product_id,
+        status: body.status || "pending",
+      },
+    });
+
+    return Response.json({ id: data.id, message: "Transaction created" });
+  } catch (error: any) {
+    console.error("Transactions Error:", error);
+    return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
+  }
+}
+
 function router(from: string | null, request: Request): Promise<Response> | null {
   switch (from) {
     case "send-booking-confirmation": return handleBookingConfirmation(request);
@@ -422,6 +604,10 @@ function router(from: string | null, request: Request): Promise<Response> | null
     case "get-conversations": return handleGetConversations(request);
     case "mark-read": return handleMarkRead(request);
     case "reset-password": return handleResetPassword(request);
+    case "contact": return handleContact(request);
+    case "newsletter": return handleNewsletter(request);
+    case "review": return handleReview(request);
+    case "transaction": return handleTransaction(request);
     default: return null;
   }
 }

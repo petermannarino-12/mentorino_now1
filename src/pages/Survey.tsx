@@ -26,7 +26,7 @@ const SurveyPage: React.FC = () => {
   const handleSubmit = async () => {
     if (!rating) return;
     setSubmitting(true);
-    const res = await fetch('/api/reviews', {
+    const res = await fetch('/api/emails?from=review', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -48,22 +48,18 @@ mentorino_now1/
 │   ├── schemas/                  # Zod schemas (ai, auth)
 │   ├── styles/                   # Design tokens (theme.ts)
 │   └── constants/                # Navigation constants
-├── api/                          # Vercel serverless functions (15 files)
+├── api/                          # Vercel serverless functions (8 endpoint + 3 util files)
 │   ├── auth.ts                   # Supabase admin client, token verification, role auth
 │   ├── prisma.ts                 # Prisma client singleton
 │   ├── rate-limit.ts             # IP-based rate limiter
 │   ├── ai.ts                     # Gemini endpoints (chat, analyze, brief)
 │   ├── applications.ts           # Application CRUD
 │   ├── bookings.ts               # Booking CRUD
-│   ├── contact.ts                # Contact form
-│   ├── emails.ts                 # Email template management
+│   ├── emails.ts                 # Multi-purpose router: email + messaging + contact + newsletter + reviews + transactions
+│   ├── enquiries.ts              # Enquiry CRUD
 │   ├── events.ts                 # Event CRUD
-│   ├── newsletter.ts             # Newsletter subscription
 │   ├── profiles.ts               # Profile get/update
-│   ├── pwreset.ts                # Password reset tokens
-│   ├── reviews.ts                # Review submission
-│   ├── task-activities.ts        # Task activity CRUD
-│   └── transactions.ts           # Transaction creation
+│   └── task-activities.ts        # Task activity CRUD
 ├── prisma/
 │   └── schema.prisma             # 17 database models
 ├── supabase/

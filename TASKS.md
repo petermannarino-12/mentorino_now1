@@ -9,6 +9,8 @@
 
 ## Completed
 
+- Vercel Hobby plan limit fix — consolidated `contact.ts`, `newsletter.ts`, `reviews.ts`, `transactions.ts` into `emails.ts` router, reducing endpoint count from 12 to 8
+
 - Payment gateway (Stripe) — client decided not needed; The Vault remains access-request only
 - Initial project scaffolding (React 19 + Vite 6 + TypeScript)
 - Landing, About, Programs, FAQ, Contact pages
