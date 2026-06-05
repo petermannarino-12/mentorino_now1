@@ -175,7 +175,10 @@ async function handleUpdateStatus(request: Request) {
 
     const updated = await (await getPrisma()).applications.update({
       where: { id },
-      data: { status },
+      data: {
+        status,
+        approvedBy: status === 'approved' ? user.id : null,
+      },
     });
 
     if (process.env.RESEND_API_KEY && (status === 'approved' || status === 'rejected')) {
@@ -224,10 +227,65 @@ async function handleUpdateStatus(request: Request) {
       status: updated.status,
       created_at: updated.createdAt,
       responses: updated.responses,
+      approved_by: updated.approvedBy,
     });
   } catch (error: any) {
     console.error("Update Status Error:", error);
     return Response.json({ error: "Failed to update status." }, { status: 500 });
+  }
+}
+
+async function handleGetMyApplication(request: Request) {
+  try {
+    const user = await getUserFromToken(request);
+    if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+    const profile = await (await getPrisma()).profiles.findUnique({
+      where: { id: user.id },
+      select: { email: true },
+    });
+    if (!profile || !profile.email) {
+      return Response.json({ application: null });
+    }
+
+    const app = await (await getPrisma()).applications.findFirst({
+      where: { userEmail: profile.email.toLowerCase().trim() },
+      select: {
+        id: true,
+        userEmail: true,
+        mentorType: true,
+        status: true,
+        userName: true,
+        goals: true,
+        userId: true,
+        approvedBy: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!app || app.status !== 'approved' || !app.approvedBy) {
+      return Response.json({ application: null });
+    }
+
+    const mentorProfile = await (await getPrisma()).profiles.findUnique({
+      where: { id: app.approvedBy },
+      select: { id: true, fullName: true, email: true },
+    });
+
+    return Response.json({
+      application: {
+        ...app,
+        mentor: mentorProfile ? {
+          id: mentorProfile.id,
+          name: mentorProfile.fullName || 'Mentor',
+          email: mentorProfile.email,
+        } : null,
+      },
+    });
+  } catch (error: any) {
+    console.error("get-my-application error:", error);
+    return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
   }
 }
 
@@ -253,6 +311,8 @@ function router(from: string | null, request: Request): Promise<Response> | null
     case "check-application": return handleCheck(request);
     case "delete-application": return handleDelete(request);
     case "update-application-status": return handleUpdateStatus(request);
+    case "get-my-application": return handleGetMyApplication(request);
+    case "program-stats": return handleProgramStats();
     default: return null;
   }
 }
@@ -273,6 +333,7 @@ export async function DELETE(request: Request) {
 
 export async function GET(request: Request) {
   const from = new URL(request.url).searchParams.get("from");
-  if (from === "program-stats") return handleProgramStats();
+  const handler = router(from, request);
+  if (handler) return handler;
   return Response.json({ error: "Not found" }, { status: 404 });
 }

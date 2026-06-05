@@ -268,19 +268,25 @@ async function handleGetConversations(request: Request) {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const rows = await (await getPrisma()).$queryRawUnsafe(
-      `SELECT
-         CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END AS other_user_id,
-         MAX(created_at) AS last_message_at,
+      `WITH conversation_users AS (
+         SELECT DISTINCT
+           CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END AS other_user_id
+         FROM public.messages
+         WHERE sender_id = $1 OR receiver_id = $1
+       )
+       SELECT
+         cu.other_user_id,
+         (SELECT MAX(created_at) FROM public.messages
+          WHERE (sender_id = $1 AND receiver_id = cu.other_user_id)
+             OR (receiver_id = $1 AND sender_id = cu.other_user_id)) AS last_message_at,
          (SELECT content FROM public.messages
-          WHERE (sender_id = $1 AND receiver_id = CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END)
-             OR (receiver_id = $1 AND sender_id = CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END)
+          WHERE (sender_id = $1 AND receiver_id = cu.other_user_id)
+             OR (receiver_id = $1 AND sender_id = cu.other_user_id)
           ORDER BY created_at DESC LIMIT 1) AS last_message,
          (SELECT COUNT(*) FROM public.messages
-          WHERE receiver_id = $1 AND sender_id = CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END AND read = false) AS unread
-       FROM public.messages
-       WHERE sender_id = $1 OR receiver_id = $1
-       GROUP BY other_user_id
-       ORDER BY last_message_at DESC`,
+          WHERE receiver_id = $1 AND sender_id = cu.other_user_id AND read = false) AS unread
+       FROM conversation_users cu
+       ORDER BY last_message_at DESC NULLS LAST`,
       user.id
     );
 

@@ -14,6 +14,15 @@ interface MentorChatProps {
   currentUserId: string;
 }
 
+interface StudentProfile {
+  id: string;
+  full_name: string;
+  email: string;
+  phone?: string;
+  role?: string;
+  mentorship_status?: string;
+}
+
 export function MentorChat({ currentUserId }: MentorChatProps) {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
@@ -53,6 +62,21 @@ export function MentorChat({ currentUserId }: MentorChatProps) {
     },
   });
 
+  const { data: selectedStudentProfile } = useQuery({
+    queryKey: ['student-profile', selectedUserId],
+    queryFn: async () => {
+      if (!selectedUserId) return null;
+      const token = await getToken();
+      if (!token) return null;
+      const res = await fetch(`/api/profiles?id=${selectedUserId}`, {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return null;
+      return await res.json() as StudentProfile;
+    },
+    enabled: !!selectedUserId,
+  });
+
   const selectedConv = conversations?.find(c => c.other_user_id === selectedUserId);
 
   if (selectedUserId && selectedConv) {
@@ -66,6 +90,30 @@ export function MentorChat({ currentUserId }: MentorChatProps) {
             ← Back to conversations
           </button>
         </div>
+        {selectedStudentProfile && (
+          <div style={{
+            margin: '8px 12px', padding: '12px 16px', background: '#f8f8f8',
+            borderRadius: 12, display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: '50%', background: '#000', color: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontWeight: 700, fontSize: 16, flexShrink: 0,
+            }}>
+              {(selectedStudentProfile.full_name || 'S').charAt(0)}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 600, fontSize: 14 }}>{selectedStudentProfile.full_name || 'Student'}</div>
+              <div style={{ fontSize: 12, color: '#888' }}>{selectedStudentProfile.email}</div>
+            </div>
+            <div style={{
+              padding: '4px 10px', background: '#000', color: '#fff', borderRadius: 20,
+              fontSize: 10, fontWeight: 600, whiteSpace: 'nowrap',
+            }}>
+              {selectedStudentProfile.role || 'student'}
+            </div>
+          </div>
+        )}
         <div style={{ flex: 1 }}>
           <ChatBox
             currentUserId={currentUserId}

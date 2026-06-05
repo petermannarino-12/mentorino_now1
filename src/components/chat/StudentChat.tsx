@@ -13,14 +13,13 @@ export function StudentChat({ currentUserId }: StudentChatProps) {
       const session = (await supabase.auth.getSession()).data.session;
       const token = session?.access_token;
       if (!token) throw new Error('Not authenticated');
-      const res = await fetch('/api/profiles?limit=50', {
+      const res = await fetch('/api/applications?from=get-my-application', {
         headers: { authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('Failed to load profiles');
-      const profiles = await res.json();
-      const mentor = profiles.find((p: any) => p.role === 'mentor' || p.role === 'admin');
-      if (!mentor) return null;
-      return { id: mentor.id, name: mentor.full_name || 'Mentor' };
+      if (!res.ok) throw new Error('Failed to load application');
+      const json = await res.json();
+      if (!json.application || !json.application.mentor) return null;
+      return { id: json.application.mentor.id, name: json.application.mentor.name || 'Mentor' };
     },
   });
 

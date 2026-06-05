@@ -61,6 +61,29 @@ const mockApi = (env: Record<string, string>) => ({
         return;
       }
 
+      if ((pathMatch(url.pathname, 'get-my-application') || (url.pathname === '/api/applications' && url.searchParams.get('from') === 'get-my-application')) && req.method === 'GET') {
+        try {
+          const token = req.headers.authorization?.split(' ')[1];
+          if (!token) { res.statusCode = 401; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Unauthorized' })); return; }
+          const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+          const { data: { user } } = await supabase.auth.getUser(token);
+          if (!user) { res.statusCode = 401; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Unauthorized' })); return; }
+          const { data: profile } = await supabase.from('profiles').select('email').eq('id', user.id).single();
+          if (!profile || !profile.email) { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ application: null })); return; }
+          const { data: app } = await supabase.from('applications').select('*').eq('user_email', profile.email.toLowerCase().trim()).order('created_at', { ascending: false }).limit(1).single();
+          if (!app || app.status !== 'approved' || !app.approved_by) { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ application: null })); return; }
+          const { data: mentorProfile } = await supabase.from('profiles').select('id, full_name, email').eq('id', app.approved_by).single();
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({
+            application: {
+              ...app,
+              mentor: mentorProfile ? { id: mentorProfile.id, name: mentorProfile.full_name || 'Mentor', email: mentorProfile.email } : null,
+            },
+          }));
+        } catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
+        return;
+      }
+
       if ((pathMatch(url.pathname, 'submit-application') || isAppFrom(url, 'submit-application')) && req.method === 'POST') {
          let body = '';
          req.on('data', chunk => body += chunk);
@@ -267,6 +290,112 @@ const mockApi = (env: Record<string, string>) => ({
             } catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
          });
          return;
+      }
+
+      if (url.pathname === '/api/emails' && url.searchParams.get('from') === 'send-message' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', async () => {
+          try {
+            const { receiver_id, content } = JSON.parse(body);
+            const token = req.headers.authorization?.split(' ')[1];
+            if (!token) { res.statusCode = 401; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Unauthorized' })); return; }
+            const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+            const { data: { user } } = await supabase.auth.getUser(token);
+            if (!user) { res.statusCode = 401; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Unauthorized' })); return; }
+            const { error } = await supabase.from('messages').insert({
+              sender_id: user.id,
+              receiver_id,
+              content: content.trim().slice(0, 5000),
+            });
+            if (error) throw error;
+            res.statusCode = 200; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ message: 'Message sent' }));
+          } catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
+        });
+        return;
+      }
+
+      if (url.pathname === '/api/emails' && url.searchParams.get('from') === 'get-conversation' && req.method === 'GET') {
+        try {
+          const withUserId = url.searchParams.get('with');
+          if (!withUserId) { res.statusCode = 400; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Missing with param' })); return; }
+          const token = req.headers.authorization?.split(' ')[1];
+          if (!token) { res.statusCode = 401; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Unauthorized' })); return; }
+          const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+          const { data: { user } } = await supabase.auth.getUser(token);
+          if (!user) { res.statusCode = 401; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Unauthorized' })); return; }
+          const { data, error } = await supabase
+            .from('messages')
+            .select('*')
+            .or(`and(sender_id.eq.${user.id},receiver_id.eq.${withUserId}),and(sender_id.eq.${withUserId},receiver_id.eq.${user.id})`)
+            .order('created_at', { ascending: true });
+          if (error) throw error;
+          res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ messages: data || [] }));
+        } catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
+        return;
+      }
+
+      if (url.pathname === '/api/emails' && url.searchParams.get('from') === 'get-conversations' && req.method === 'GET') {
+        try {
+          const token = req.headers.authorization?.split(' ')[1];
+          if (!token) { res.statusCode = 401; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Unauthorized' })); return; }
+          const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+          const { data: { user } } = await supabase.auth.getUser(token);
+          if (!user) { res.statusCode = 401; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Unauthorized' })); return; }
+          const { data, error } = await supabase.rpc('get_conversations', { user_id: user.id });
+          if (!error && data) {
+            res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ conversations: data }));
+            return;
+          }
+          const { data: allMessages } = await supabase
+            .from('messages')
+            .select('*')
+            .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+            .order('created_at', { ascending: false });
+          const conversationMap = new Map();
+          (allMessages || []).forEach((msg: any) => {
+            const otherId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
+            if (!conversationMap.has(otherId)) {
+              conversationMap.set(otherId, {
+                other_user_id: otherId,
+                last_message: msg.content,
+                last_message_at: msg.created_at,
+                unread: msg.receiver_id === user.id && !msg.read ? 1 : 0,
+              });
+            } else {
+              const conv = conversationMap.get(otherId);
+              if (msg.receiver_id === user.id && !msg.read) conv.unread += 1;
+            }
+          });
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ conversations: Array.from(conversationMap.values()) }));
+        } catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
+        return;
+      }
+
+      if (url.pathname === '/api/emails' && url.searchParams.get('from') === 'mark-read' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', async () => {
+          try {
+            const { from_user_id } = JSON.parse(body);
+            if (!from_user_id) { res.statusCode = 400; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Missing from_user_id' })); return; }
+            const token = req.headers.authorization?.split(' ')[1];
+            if (!token) { res.statusCode = 401; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Unauthorized' })); return; }
+            const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+            const { data: { user } } = await supabase.auth.getUser(token);
+            if (!user) { res.statusCode = 401; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: 'Unauthorized' })); return; }
+            const { error } = await supabase
+              .from('messages')
+              .update({ read: true })
+              .eq('receiver_id', user.id)
+              .eq('sender_id', from_user_id)
+              .eq('read', false);
+            if (error) throw error;
+            res.statusCode = 200; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ message: 'Messages marked as read' }));
+          } catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
+        });
+        return;
       }
 
       if ((pathMatch(url.pathname, 'list-product-requests') || (url.pathname === '/api/emails' && url.searchParams.get('from') === 'list-requests')) && (req.method === 'GET' || req.method === 'POST')) {
