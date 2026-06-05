@@ -27,6 +27,8 @@ export async function GET(request: Request) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    await ensureTable();
+
     const rows = await (await getPrisma()).$queryRawUnsafe(
       'SELECT * FROM public.enquiries ORDER BY created_at DESC'
     );
@@ -38,6 +40,27 @@ export async function GET(request: Request) {
   }
 }
 
+let _tableEnsured = false;
+
+async function ensureTable() {
+  if (_tableEnsured) return;
+  try {
+    await (await getPrisma()).$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS public.enquiries (
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT,
+        service_type TEXT NOT NULL CHECK (service_type IN ('free_intro_call', 'rapid_response_call')),
+        message TEXT,
+        status TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'closed')),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+      );
+    `);
+    _tableEnsured = true;
+  } catch {}
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -47,6 +70,8 @@ export async function POST(request: Request) {
     if (!['free_intro_call', 'rapid_response_call'].includes(body.service_type)) {
       return Response.json({ error: 'Invalid service_type' }, { status: 400 });
     }
+
+    await ensureTable();
 
     const rows = await (await getPrisma()).$queryRawUnsafe(
       `INSERT INTO public.enquiries (name, email, phone, service_type, message)
@@ -68,6 +93,8 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+    await ensureTable();
+
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 

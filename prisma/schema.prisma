@@ -37,6 +37,20 @@ model applications {
 }
 
 /// Row-level security enabled — access is enforced at the application layer
+model enquiries {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  email       String
+  phone       String?
+  serviceType String    @map("service_type")
+  message     String?
+  status      String?   @default("new")
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@schema("public")
+}
+
+/// Row-level security enabled — access is enforced at the application layer
 model profiles {
   id        String    @id @db.Uuid
   email     String    @unique

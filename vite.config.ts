@@ -15,6 +15,26 @@ const isAppFrom = (url: URL, from: string) =>
 const mockApi = (env: Record<string, string>) => ({
   name: 'mock-api',
   configureServer(server) {
+    (async () => {
+      try {
+        const { default: { Pool } }: any = await import('pg');
+        const pool = new Pool({ connectionString: env.DATABASE_URL, max: 1 });
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS public.enquiries (
+            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT,
+            service_type TEXT NOT NULL CHECK (service_type IN ('free_intro_call', 'rapid_response_call')),
+            message TEXT,
+            status TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'closed')),
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+          );
+        `);
+        await pool.end();
+      } catch {}
+    })();
+
     server.middlewares.use(async (req, res, next) => {
       const url = new URL(req.url || '', `http://${req.headers.host || 'localhost'}`);
       
