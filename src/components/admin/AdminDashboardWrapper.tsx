@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, lazy, Suspense } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApplicationsQuery, useUpdateApplicationStatusMutation, useDeleteApplicationMutation } from '../../hooks/useApplications';
 import { useUsersQuery } from '../../hooks/queries/userQueries';
@@ -7,7 +7,8 @@ import { useTasks, useUpdateTaskStatusMutation } from '../../hooks/useTasks';
 import { useEvents, useAddEventMutation, useDeleteEventMutation } from '../../hooks/useEvents';
 import { useEnquiries, useUpdateEnquiryStatusMutation } from '../../hooks/useEnquiries';
 import { Loader } from '../ui/Loader';
-import AdminDashboard from '../../pages/AdminDashboard';
+
+const AdminDashboard = lazy(() => import('../../pages/AdminDashboard'));
 
 interface AdminDashboardWrapperProps {
   currentUser?: any;
@@ -74,22 +75,24 @@ const AdminDashboardWrapper: React.FC<AdminDashboardWrapperProps> = ({
   }
 
   return (
-    <AdminDashboard
-      applications={applications}
-      users={users}
-      bookings={bookings}
-      taskActivities={taskActivities}
-      events={events}
-      enquiries={enquiries}
-      onUpdateApp={handleUpdateApp}
-      onDeleteApp={handleDeleteApp}
-      onUpdateTaskActivity={handleUpdateTaskActivity}
-      onAddEvent={handleAddEvent}
-      onDeleteEvent={handleDeleteEvent}
-      onUpdateEnquiryStatus={handleUpdateEnquiryStatus}
-      onLogout={onLogout || (() => {})}
-      onRefresh={handleRefresh}
-    />
+    <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader /></div>}>
+      <AdminDashboard
+        applications={applications}
+        users={users}
+        bookings={bookings}
+        taskActivities={taskActivities}
+        events={events}
+        enquiries={enquiries}
+        onUpdateApp={handleUpdateApp}
+        onDeleteApp={handleDeleteApp}
+        onUpdateTaskActivity={handleUpdateTaskActivity}
+        onAddEvent={handleAddEvent}
+        onDeleteEvent={handleDeleteEvent}
+        onUpdateEnquiryStatus={handleUpdateEnquiryStatus}
+        onLogout={onLogout || (() => {})}
+        onRefresh={handleRefresh}
+      />
+    </Suspense>
   );
 };
 

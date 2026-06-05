@@ -425,29 +425,30 @@ export default defineConfig(({ mode }) => {
       build: {
         outDir: 'dist',
         reportCompressedSize: false,
+        cssCodeSplit: false,
         rollupOptions: {
           output: {
             manualChunks(id) {
               if (id.includes('node_modules')) {
-                if (id.includes('jspdf') || id.includes('jspdf-autotable')) {
-                  return 'vendor-pdf';
-                }
-                if (id.includes('xlsx')) {
-                  return 'vendor-excel';
-                }
-                if (id.includes('lucide-react') || id.includes('recharts') || id.includes('motion')) {
-                  return 'vendor-ui';
-                }
-                if (id.includes('@sentry')) {
-                  return 'vendor-sentry';
-                }
-                if (id.includes('posthog-js')) {
-                  return 'vendor-posthog';
-                }
-                if (id.includes('@supabase/supabase-js')) {
-                  return 'vendor-supabase';
-                }
-                return 'vendor';
+                if (id.includes('jspdf') || id.includes('jspdf-autotable') || id.includes('html2canvas') || id.includes('base64-arraybuffer') || id.includes('css-line-break')) return 'vendor-pdf';
+                if (id.includes('xlsx')) return 'vendor-excel';
+                if (id.includes('@sentry')) return 'vendor-sentry';
+                if (id.includes('posthog-js')) return 'vendor-posthog';
+                if (id.includes('@supabase/supabase-js')) return 'vendor-supabase';
+                if (id.includes('react-dom') || id.includes('react/') || id.includes('scheduler')) return 'vendor-react';
+                if (id.includes('react-router')) return 'vendor-router';
+                if (id.includes('@tanstack/react-query')) return 'vendor-query';
+                if (id.includes('motion')) return 'vendor-motion';
+                if (id.includes('lucide-react') || id.includes('recharts')) return 'vendor-ui';
+                if (id.includes('react-hook-form') || id.includes('@hookform/resolvers')) return 'vendor-forms';
+                if (id.includes('sonner')) return 'vendor-toast';
+                if (id.includes('zod')) return 'vendor-validation';
+                if (id.includes('react-helmet-async')) return 'vendor-helmet';
+                if (id.includes('react-error-boundary')) return 'vendor-error';
+                if (id.includes('tailwind-merge') || id.includes('clsx')) return 'vendor-utils';
+                if (id.includes('hls.js')) return 'vendor-video';
+                if (id.includes('@google/genai') || id.includes('marked')) return 'vendor-ai';
+                return 'vendor-core'; // remaining small deps
               }
             }
           }

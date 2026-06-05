@@ -22,6 +22,7 @@ Feature-complete mentorship platform with all major systems implemented. The Pri
 - Build/test/lint/typecheck pipeline
 - CI/CD with Vercel + GitHub Actions
 - Prisma ORM (all API endpoints migrated)
+- The Vault (digital storefront, access-request fulfilment only — payment gateway intentionally omitted per client decision)
 - Graphify knowledge graph
 
 ## In Progress
@@ -30,7 +31,6 @@ Feature-complete mentorship platform with all major systems implemented. The Pri
 
 ## Known Issues
 
-- No payment gateway integrated (The Vault uses access requests only)
 - Test coverage is minimal
 - No staging environment configured
 - Local dev requires external services (Supabase, Gemini, Resend, Sentry, PostHog) — no offline mock mode

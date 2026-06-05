@@ -2,7 +2,6 @@
 
 ## Active
 
-- [ ] Implement payment gateway (Stripe) for The Vault
 - [ ] Add comprehensive test coverage
 - [ ] Set up staging deployment
 - [ ] Add offline/mock mode for local development
@@ -10,6 +9,7 @@
 
 ## Completed
 
+- Payment gateway (Stripe) — client decided not needed; The Vault remains access-request only
 - Initial project scaffolding (React 19 + Vite 6 + TypeScript)
 - Landing, About, Programs, FAQ, Contact pages
 - Mentorship application pipeline (4-step form + approval workflow)

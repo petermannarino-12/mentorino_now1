@@ -494,11 +494,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ currentRole = 'visitor' }) =>
               className="relative group"
             >
               <div className="aspect-[4/5] bg-slate-900 rounded-[64px] overflow-hidden border border-white/10 relative">
-                <img 
-                  src="/images/peter-mannarino.jpg" 
-                  alt="Mentorino" 
-                  className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-1000 scale-110 group-hover:scale-100"
-                />
+                <picture>
+                  <source srcSet="/images/peter-mannarino.webp" type="image/webp" />
+                  <img 
+                    src="/images/peter-mannarino.jpg" 
+                    alt="Mentorino" 
+                    loading="lazy"
+                    className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-1000 scale-110 group-hover:scale-100"
+                  />
+                </picture>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
                 <div className="absolute bottom-12 left-12">
                   <div className="flex items-center gap-3 mb-2">
