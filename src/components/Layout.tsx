@@ -16,7 +16,9 @@ import {
   Sparkles,
   Lock,
   Mail,
-  Star
+  Star,
+  Menu,
+  X
 } from 'lucide-react';
 import { UserRole } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -31,6 +33,7 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
   const { signOut: onLogout } = useAuth();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['user', 'mentor', 'admin'] },
@@ -56,26 +59,6 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
     { label: 'Contact', path: '/contact', icon: MessageCircle },
   ];
 
-  const mobileNavItems = role === 'mentor' ? [
-    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'Mentees', path: '/dashboard/mentees', icon: Users },
-    { label: 'Sessions', path: '/dashboard/sessions', icon: Calendar },
-    { label: 'Chat', path: '/dashboard/chat', icon: MessageCircle },
-    { label: 'Reviews', path: '/dashboard/reviews', icon: Star },
-    { label: 'Account', path: '/settings', icon: User },
-  ] : role === 'admin' ? [
-    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'Mentees', path: '/dashboard/mentees', icon: Users },
-    { label: 'Sessions', path: '/dashboard/sessions', icon: Calendar },
-    { label: 'Account', path: '/settings', icon: User },
-  ] : [
-    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'Sessions', path: '/dashboard/sessions', icon: Calendar },
-    { label: 'Roadmap', path: '/dashboard/roadmap', icon: Activity },
-    { label: 'Vault', path: '/vault', icon: BookOpen },
-    { label: 'Account', path: '/settings', icon: User },
-  ];
-
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
     const currentFull = location.pathname + location.search;
@@ -99,15 +82,106 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
         <div className="absolute bottom-[20%] right-[-5%] w-[30%] h-[30%] bg-emerald-500/5 rounded-full blur-[100px]"></div>
         <div className="absolute top-[30%] right-[10%] w-[20%] h-[20%] bg-amber-500/5 rounded-full blur-[80px]"></div>
       </div>
-      {/* Mobile Top Bar - Hidden on landing page to avoid overlap */}
+      {/* Mobile Top Bar */}
       {role !== 'visitor' && !isLandingPage && (
         <motion.div 
           initial={{ y: -100 }}
           animate={{ y: 0 }}
           className="lg:hidden fixed top-0 left-0 w-full h-16 bg-white border-b border-black/[0.03] z-50 flex items-center justify-between px-6"
         >
-           <Link to="/" className="text-sm font-black tracking-tighter text-black uppercase">Mentorino</Link>
+          <Link to="/" className="text-sm font-black tracking-tighter text-black uppercase">Mentorino</Link>
+          <button 
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
         </motion.div>
+      )}
+
+      {/* Mobile Drawer */}
+      {role !== 'visitor' && !isLandingPage && (
+        <>
+          {isMobileMenuOpen && (
+            <div 
+              className="lg:hidden fixed inset-0 bg-black/50 z-[70]"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+          )}
+          <motion.aside
+            initial={false}
+            animate={isMobileMenuOpen ? { x: 0 } : { x: '-100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="lg:hidden fixed top-0 left-0 h-screen w-72 bg-white border-r border-slate-100 z-[80] flex flex-col"
+          >
+            <div className="p-6 flex items-center justify-between">
+              <Link to="/" className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+                <span className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white text-xs font-bold">M</span>
+                MENTORINO
+              </Link>
+              <button 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors"
+                aria-label="Close menu"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-4">
+              <nav className="space-y-1">
+                <p className="px-4 text-[8px] font-black text-slate-300 uppercase tracking-widest mb-2">Main Menu</p>
+                {navItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`
+                      flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                      ${isActive(item.path) 
+                        ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' 
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}
+                    `}
+                  >
+                    <item.icon size={18} />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </Link>
+                ))}
+              </nav>
+
+              <div className="pt-4 mt-4 border-t border-slate-50">
+                <p className="px-4 text-[8px] font-black text-slate-300 uppercase tracking-widest mb-2">Information</p>
+                {helpItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`
+                      flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                      ${isActive(item.path) 
+                        ? 'bg-slate-100 text-black' 
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}
+                    `}
+                  >
+                    <item.icon size={18} />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-slate-50 mt-auto">
+              <button 
+                onClick={() => { setIsMobileMenuOpen(false); if (window.confirm('Are you sure you want to log out?')) onLogout(); }}
+                className="flex items-center gap-3 px-4 py-3 w-full text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all group"
+              >
+                <LogOut size={18} className="group-hover:translate-x-1 transition-transform" />
+                <span className="text-sm font-medium">Log Out</span>
+              </button>
+            </div>
+          </motion.aside>
+        </>
       )}
 
       {/* Desktop Sidebar */}
@@ -179,53 +253,12 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 w-full ${(role === 'visitor' || isLandingPage) ? '' : 'pb-24 sm:pb-32 lg:pb-12 pt-16 lg:pt-0'}`}>
+      <main className={`flex-1 w-full ${(role === 'visitor' || isLandingPage) ? '' : 'pt-16 lg:pt-0'}`}>
         <div className="h-full">
           {children}
         </div>
       </main>
 
-      {/* Premium Bottom Nav (Mobile) */}
-      {role !== 'visitor' && !isLandingPage && (
-        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-sm z-[100]">
-          <motion.nav 
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="bg-black/95 backdrop-blur-2xl border border-white/10 rounded-[28px] p-2 flex justify-around items-center shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-          >
-            {mobileNavItems.map((item) => {
-              const active = isActive(item.path);
-              return (
-                <Link 
-                  key={item.path + (item.label === 'Sessions' ? 'sessions' : '')} 
-                  to={item.path}
-                  className="relative py-2.5 px-1 flex flex-col items-center gap-1 group min-w-[56px]"
-                >
-                  <div className={`relative z-10 transition-all duration-300 ${
-                    active ? 'text-white scale-110' : 'text-slate-500 scale-100 group-hover:text-slate-300'
-                  }`}>
-                    <item.icon size={16} strokeWidth={active ? 2.5 : 2} />
-                  </div>
-                  <span className={`relative z-10 text-[7px] font-black uppercase tracking-[0.1em] transition-all duration-300 ${
-                    active ? 'text-white' : 'text-slate-400'
-                  }`}>
-                    {item.label}
-                  </span>
-                  
-                  {active && (
-                    <motion.div
-                      layoutId="active-nav-global"
-                      className="absolute inset-0 bg-white/10 rounded-2xl"
-                      initial={false}
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
-          </motion.nav>
-        </div>
-      )}
     </div>
   );
 };
