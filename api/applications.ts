@@ -17,33 +17,26 @@ async function handleSubmit(request: Request) {
     const email = application.user_email.toLowerCase().trim();
     const userName = sanitize(application.user_name || 'Applicant');
 
-    const recent = await (await getPrisma()).applications.findMany({
-      where: { userEmail: email },
-      orderBy: { createdAt: 'desc' },
-      take: 1,
-    });
-    if (recent.length > 0) {
-      const lastSubmit = new Date(recent[0].createdAt!).getTime();
-      const now = new Date().getTime();
-      if (now - lastSubmit < 1000 * 60 * 60 * 24) {
-        return Response.json({ error: "You have already submitted an application recently. Please wait 24 hours." }, { status: 429 });
-      }
-    }
-
     const { user_email, mentor_type, status, id, created_at, ...responses } = application;
-    await (await getPrisma()).applications.create({
-      data: {
-        userEmail: email,
-        mentorType: application.mentor_type,
-        status: 'pending',
-        userId: user?.id || null,
-        responses: {
-          ...responses,
-          user_name: userName,
-          user_phone: sanitize(application.user_phone || ''),
-          goals: application.goals ? application.goals.slice(0, 2000) : ''
-        },
-      },
+
+    const upsertData = {
+      userEmail: email,
+      mentorType: application.mentor_type,
+      status: 'pending',
+      userId: user?.id || null,
+      userName,
+      userPhone: sanitize(application.user_phone || ''),
+      meetingPreference: application.meeting_preference || 'Virtual',
+      frequency: application.frequency || '',
+      goals: application.goals ? application.goals.slice(0, 2000) : '',
+      seriousness: application.seriousness || 5,
+      responses: { ...responses },
+    };
+
+    await (await getPrisma()).applications.upsert({
+      where: { userEmail: email },
+      create: upsertData,
+      update: upsertData,
     });
 
     if (process.env.RESEND_API_KEY) {

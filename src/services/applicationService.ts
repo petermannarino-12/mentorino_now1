@@ -53,7 +53,7 @@ export const applicationService = {
       const response = await fetch('/api/applications?from=submit-application', {
         method: 'POST',
         headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ application: app })

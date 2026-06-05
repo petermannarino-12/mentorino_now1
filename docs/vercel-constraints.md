@@ -31,3 +31,7 @@ To stay within the limit without upgrading to Pro:
 ### To Remove the Limit
 
 Upgrade Vercel project to a Pro plan ($20/mo) or create a Team.
+
+---
+
+See `docs/rules.md` for all permanent project rules.

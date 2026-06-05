@@ -6,25 +6,15 @@ import { Application } from '../types';
 import SEO from '../components/SEO';
 import { getNJISOString } from '../lib/dateUtils';
 import { notifyError } from '../lib/toast';
-import { useAuth } from '../contexts/AuthContext';
-import { useApplicationsQuery, useAddApplicationMutation } from '../hooks/useApplications';
+import { useAddApplicationMutation } from '../hooks/useApplications';
 
 interface ApplicationPageProps {
-  // Compatibility props
   onApply?: any;
-  existingApp?: any;
 }
 
 const ApplicationPage: React.FC<ApplicationPageProps> = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { data: applications } = useApplicationsQuery(user?.email || undefined);
   const addApplicationMutation = useAddApplicationMutation();
-
-  const existingApp = applications?.find(a => 
-    (a.user_id && a.user_id === user?.id) || 
-    (a.user_email && user?.email && a.user_email.toLowerCase().trim() === user.email.toLowerCase().trim())
-  );
 
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -132,7 +122,7 @@ const ApplicationPage: React.FC<ApplicationPageProps> = () => {
     { code: '+966', country: 'SA', flag: '🇸🇦' },
   ];
 
-  if (isSubmitted || existingApp) {
+  if (isSubmitted) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 animate-in fade-in zoom-in duration-500">
         <div className="w-20 h-20 sm:w-24 sm:h-24 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mb-6 sm:mb-8 shadow-xl">
@@ -140,9 +130,7 @@ const ApplicationPage: React.FC<ApplicationPageProps> = () => {
         </div>
         <h1 className="text-2xl sm:text-3xl md:text-5xl font-black mb-3 sm:mb-4 text-slate-900 uppercase tracking-tighter">Application Sent</h1>
         <p className="text-[10px] sm:text-sm md:text-lg text-slate-500 max-w-md mx-auto mb-8 sm:mb-10 leading-relaxed font-medium">
-          {(existingApp?.status === 'approved') 
-            ? "Mentorino has accepted your application! Check your inbox for the welcome orientation."
-            : "Mentorino is currently reviewing your intent. You will receive an automated response via email within 48 hours."}
+          Mentorino is currently reviewing your intent. You will receive an automated response via email within 48 hours.
         </p>
         <button 
           onClick={() => navigate('/')}
