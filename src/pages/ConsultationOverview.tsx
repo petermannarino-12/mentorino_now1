@@ -150,9 +150,9 @@ const ConsultationOverviewPage: React.FC = () => {
           <Link to="/apply" className="px-10 py-5 bg-white text-black text-[10px] font-black uppercase tracking-[0.3em] rounded-full hover:scale-105 transition-all shadow-xl">
             Apply First
           </Link>
-          <Link to="/booking" className="inline-flex items-center gap-3 px-10 py-5 bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full hover:bg-white/20 transition-all">
+          <button onClick={() => handleOpenForm('free_intro_call')} className="inline-flex items-center gap-3 px-10 py-5 bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full hover:bg-white/20 transition-all">
             View Availability <ArrowRight size={14} />
-          </Link>
+          </button>
         </div>
       </div>
 

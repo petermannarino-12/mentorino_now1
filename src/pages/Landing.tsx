@@ -332,7 +332,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ currentRole = 'visitor' }) =>
                 <Link to="/apply" className="btn-normal bg-white text-black w-full sm:w-auto shadow-[0_0_50px_rgba(255,255,255,0.1)]">
                   START APPLICATION
                 </Link>
-                <Link to="/booking" className="btn-normal bg-transparent border border-white/20 text-white w-full sm:w-auto hover:bg-white/5">
+                <Link to="/consultation" className="btn-normal bg-transparent border border-white/20 text-white w-full sm:w-auto hover:bg-white/5">
                   VIEW CONSULTATION
                 </Link>
               </motion.div>
