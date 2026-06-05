@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, Target, Users, Shield, ArrowLeft } from 'lucide-react';
+import { Users, ArrowLeft, Brain, Briefcase, Crosshair } from 'lucide-react';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
 import { useNavigate } from 'react-router-dom';
@@ -101,9 +101,9 @@ const AboutPage: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {[
-              { title: 'Calm Clarity', desc: 'No hype, no motivation talk. Just structured analysis of your current state vs your desired state.', icon: Shield },
-              { title: 'Real Experience', icon: Award, desc: 'Advice rooted in two decades of corporate and entrepreneurial reality, not textbook theory.' },
-              { title: 'Extreme Truth', icon: Target, desc: 'Honest feedback that others are too polite to give, but you need to hear to grow.' }
+              { title: 'Calm Clarity', desc: 'No hype, no motivation talk. Just structured analysis of your current state vs your desired state.', icon: Brain },
+              { title: 'Real Experience', icon: Briefcase, desc: 'Advice rooted in two decades of corporate and entrepreneurial reality, not textbook theory.' },
+              { title: 'Extreme Truth', icon: Crosshair, desc: 'Honest feedback that others are too polite to give, but you need to hear to grow.' }
             ].map((p, i) => (
               <div key={i} className="p-8 sm:p-12 bg-white border border-black/[0.03] rounded-[40px] sm:rounded-[60px] space-y-4 sm:space-y-6 shadow-sm hover:shadow-xl transition-all duration-500 group">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-50 rounded-xl sm:rounded-2xl flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-all">
