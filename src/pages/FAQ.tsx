@@ -90,7 +90,9 @@ const FAQPage: React.FC = () => {
       <div className="mt-12 sm:mt-20 p-8 sm:p-12 bg-slate-900 text-white rounded-[32px] sm:rounded-[48px] text-center space-y-4 sm:space-y-6">
         <h3 className="text-xs sm:text-sm font-black uppercase tracking-widest">Still have questions?</h3>
         <p className="text-[10px] sm:text-xs text-white/40 font-medium">Our team is ready to help you find the right path.</p>
-        <button onClick={() => navigate('/contact')} className="btn-normal bg-white text-black px-8 sm:px-10 py-4 sm:py-5">Contact Support</button>
+        <div className="flex justify-center">
+          <button onClick={() => navigate('/contact')} className="btn-normal bg-white text-black px-8 sm:px-10 py-4 sm:py-5">Contact Support</button>
+        </div>
       </div>
       <Footer />
     </div>
