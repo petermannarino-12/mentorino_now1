@@ -238,6 +238,22 @@ async function handleUpdateStatus(request: Request) {
   }
 }
 
+async function handleProgramStats() {
+  try {
+    const rows: { mentor_type: string; count: bigint }[] = await (await getPrisma()).$queryRawUnsafe(
+      `SELECT mentor_type, COUNT(*)::int as count FROM public.applications GROUP BY mentor_type ORDER BY mentor_type`
+    );
+    const stats: { mentor_type: string; count: number }[] = (rows || []).map(r => ({
+      mentor_type: r.mentor_type || 'unspecified',
+      count: Number(r.count),
+    }));
+    return Response.json({ programs: stats });
+  } catch (error: any) {
+    console.error("program-stats Error:", error);
+    return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
+  }
+}
+
 function router(from: string | null, request: Request): Promise<Response> | null {
   switch (from) {
     case "submit-application": return handleSubmit(request);
@@ -259,5 +275,11 @@ export async function DELETE(request: Request) {
   const from = new URL(request.url).searchParams.get("from");
   const handler = router(from, request);
   if (handler) return handler;
+  return Response.json({ error: "Not found" }, { status: 404 });
+}
+
+export async function GET(request: Request) {
+  const from = new URL(request.url).searchParams.get("from");
+  if (from === "program-stats") return handleProgramStats();
   return Response.json({ error: "Not found" }, { status: 404 });
 }

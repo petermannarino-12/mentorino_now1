@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Calendar, PlusCircle, LogOut, Users, X } from 'lucide-react';
 import { NetworkEvent } from '../../types';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { timeToEST, formatToNJ } from '../../lib/dateUtils';
 
 interface MentorEventsProps {
   events: NetworkEvent[];
@@ -89,7 +90,7 @@ export const MentorEvents: React.FC<MentorEventsProps> = ({ events, onAddEvent, 
               </div>
               <div className="min-w-0">
                  <h4 className="text-sm sm:text-lg font-black uppercase tracking-tight mb-0.5 sm:mb-1 leading-tight truncate">{event.title}</h4>
-                 <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">{event.date} @ {event.location}</p>
+                 <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">{formatToNJ(event.date, { month: 'short', day: 'numeric', year: 'numeric' })} | {timeToEST(event.time)} @ {event.location}</p>
                  <p className="text-[8px] sm:text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-1.5 sm:mt-2 flex items-center gap-2">
                    <Users size={12} /> {event.attendees.length} Students Attending
                  </p>

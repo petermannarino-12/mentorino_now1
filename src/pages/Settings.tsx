@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User as UserIcon, Bell, Lock, Globe, Shield, CreditCard, CheckCircle2, LogOut, ArrowLeft, Info, X } from 'lucide-react';
+import { User as UserIcon, Lock, Shield, CheckCircle2, LogOut, ArrowLeft, Info, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { User } from '../types';
@@ -107,16 +107,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout, currentUser }) =>
             <p className="text-xs text-slate-500 leading-relaxed font-medium">Password, multi-factor authentication, and active session management will be available here.</p>
           </div>
         );
-      case 'billing':
-        return (
-          <div className="bg-white p-6 sm:p-10 md:p-12 rounded-[32px] sm:rounded-[48px] border border-black/[0.03] shadow-sm">
-            <div className="flex items-center gap-3 mb-6 sm:mb-10">
-              <h3 className="text-lg sm:text-xl font-black uppercase">Billing & Subscription</h3>
-              <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[8px] font-black uppercase tracking-widest rounded-full border border-amber-200/50">Coming Soon</span>
-            </div>
-            <p className="text-xs text-slate-500 leading-relaxed font-medium">Invoices, payment methods, and subscription plan management will be available here.</p>
-          </div>
-        );
       default:
         return null;
     }
@@ -145,7 +135,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout, currentUser }) =>
           {[
             { id: 'profile', label: 'Profile', icon: UserIcon },
             { id: 'security', label: 'Security', icon: Lock },
-            { id: 'billing', label: 'Billing', icon: CreditCard },
+
           ].map((item) => (
             <button 
               key={item.id} 

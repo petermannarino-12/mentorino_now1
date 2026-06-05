@@ -1,65 +1,86 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   Briefcase,
   ShieldCheck,
   ClipboardList,
-  Hammer,
   CheckCircle2,
   ArrowRight,
   ArrowLeft,
-  Construction
+  Construction,
+  Users
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 
+const PROGRAMS_DEF = [
+  {
+    id: 'it-career-planning',
+    title: 'IT Career Planning',
+    description: 'Build a strategic roadmap for your IT career with personalized guidance on certifications, skills, and job placement.',
+    icon: <Briefcase className="w-6 h-6" />,
+    duration: '12 Weeks',
+    level: 'All Levels',
+    topics: ['Career Path Assessment', 'Certification Roadmap', 'Resume Strategy', 'Interview Preparation'],
+    color: 'bg-blue-500'
+  },
+  {
+    id: 'cybersecurity-analyst',
+    title: 'Becoming a Cybersecurity Analyst',
+    description: 'Protect systems and networks from digital attacks. Master ethical hacking, networking security, and compliance.',
+    icon: <ShieldCheck className="w-6 h-6" />,
+    duration: '18 Weeks',
+    level: 'Beginner to Intermediate',
+    topics: ['Network Security', 'Ethical Hacking', 'Incident Response', 'Compliance & GRC'],
+    color: 'bg-purple-500'
+  },
+  {
+    id: 'project-management',
+    title: 'Project Management',
+    description: 'Develop the skills to lead projects effectively using industry-standard frameworks and practical methodologies.',
+    icon: <ClipboardList className="w-6 h-6" />,
+    duration: '10 Weeks',
+    level: 'Beginner',
+    topics: ['Agile & Scrum', 'Risk Management', 'Stakeholder Communication', 'PMP Prep'],
+    color: 'bg-emerald-500'
+  },
+  {
+    id: 'breaking-into-it',
+    title: 'Breaking into IT',
+    description: 'Transition into the IT field with foundational skills, practical knowledge, and a clear entry strategy.',
+    icon: <Construction className="w-6 h-6" />,
+    duration: '14 Weeks',
+    level: 'Beginner',
+    topics: ['IT Fundamentals', 'Help Desk Skills', 'Networking Basics', 'Career Transition'],
+    color: 'bg-orange-500'
+  }
+];
+
 const Programs = () => {
   const navigate = useNavigate();
+  const { role } = useAuth();
+  const [programStats, setProgramStats] = useState<Record<string, number>>({});
+  const [loadingStats, setLoadingStats] = useState(false);
+  const isStaff = role === 'mentor' || role === 'admin';
 
-  const programs = [
-    {
-      id: 'it-career-planning',
-      title: 'IT Career Planning',
-      description: 'Build a strategic roadmap for your IT career with personalized guidance on certifications, skills, and job placement.',
-      icon: <Briefcase className="w-6 h-6" />,
-      duration: '12 Weeks',
-      level: 'All Levels',
-      topics: ['Career Path Assessment', 'Certification Roadmap', 'Resume Strategy', 'Interview Preparation'],
-      color: 'bg-blue-500'
-    },
-    {
-      id: 'cybersecurity-analyst',
-      title: 'Becoming a Cybersecurity Analyst',
-      description: 'Protect systems and networks from digital attacks. Master ethical hacking, networking security, and compliance.',
-      icon: <ShieldCheck className="w-6 h-6" />,
-      duration: '18 Weeks',
-      level: 'Beginner to Intermediate',
-      topics: ['Network Security', 'Ethical Hacking', 'Incident Response', 'Compliance & GRC'],
-      color: 'bg-purple-500'
-    },
-    {
-      id: 'project-management',
-      title: 'Project Management',
-      description: 'Develop the skills to lead projects effectively using industry-standard frameworks and practical methodologies.',
-      icon: <ClipboardList className="w-6 h-6" />,
-      duration: '10 Weeks',
-      level: 'Beginner',
-      topics: ['Agile & Scrum', 'Risk Management', 'Stakeholder Communication', 'PMP Prep'],
-      color: 'bg-emerald-500'
-    },
-    {
-      id: 'breaking-into-it',
-      title: 'Breaking into IT',
-      description: 'Transition into the IT field with foundational skills, practical knowledge, and a clear entry strategy.',
-      icon: <Construction className="w-6 h-6" />,
-      duration: '14 Weeks',
-      level: 'Beginner',
-      topics: ['IT Fundamentals', 'Help Desk Skills', 'Networking Basics', 'Career Transition'],
-      color: 'bg-orange-500'
-    }
-  ];
+  useEffect(() => {
+    if (!isStaff) return;
+    setLoadingStats(true);
+    fetch('/api/applications?from=program-stats')
+      .then(r => r.json())
+      .then(data => {
+        const map: Record<string, number> = {};
+        (data.programs || []).forEach((p: { mentor_type: string; count: number }) => {
+          map[p.mentor_type] = p.count;
+        });
+        setProgramStats(map);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingStats(false));
+  }, [isStaff]);
 
   return (
     <div className="min-h-screen pt-24 pb-20">
@@ -87,21 +108,23 @@ const Programs = () => {
             transition={{ duration: 0.6 }}
           >
             <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 bg-slate-50 px-3 py-1 rounded-full mb-4 sm:mb-6 inline-block">
-              Curated Learning Paths
+              {isStaff ? 'Enrollment Overview' : 'Curated Learning Paths'}
             </span>
             <h1 className="text-4xl sm:text-6xl font-black tracking-tighter text-slate-900 mb-4 sm:mb-6 leading-[0.9]">
-              Specialized <br className="hidden sm:block"/>
-              <span className="text-slate-400 italic">Academy Programs</span>
+              {isStaff ? 'Program ' : 'Specialized '}<br className="hidden sm:block"/>
+              <span className="text-slate-400 italic">{isStaff ? 'Enrollments' : 'Academy Programs'}</span>
             </h1>
             <p className="text-base sm:text-xl text-slate-500 font-medium leading-relaxed">
-              Mentorship-first programs designed for industry-ready proficiency.
+              {isStaff ? 'See how many students have joined each program.' : 'Mentorship-first programs designed for industry-ready proficiency.'}
             </p>
           </motion.div>
         </div>
 
         {/* Programs Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {programs.map((program, index) => (
+          {PROGRAMS_DEF.map((program, index) => {
+            const count = programStats[program.id] ?? 0;
+            return (
             <motion.div
               key={program.id}
               initial={{ opacity: 0, y: 30 }}
@@ -138,44 +161,57 @@ const Programs = () => {
                 </div>
               </div>
 
-              <button 
-                onClick={() => navigate('/apply')}
-                className="btn-compact w-full py-3.5 sm:py-4 bg-slate-50 group-hover:bg-black group-hover:text-white text-slate-900 flex items-center justify-center gap-2"
-              >
-                Enroll Now
-                <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 -ml-4 group-hover:ml-0 transition-all duration-500" />
-              </button>
+              {isStaff ? (
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <Users size={16} className="text-slate-400" />
+                    <span className="text-sm font-black text-slate-500">
+                      {loadingStats ? '...' : `${count} enrolled`}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => navigate('/apply')}
+                  className="btn-compact w-full py-3.5 sm:py-4 bg-slate-50 group-hover:bg-black group-hover:text-white text-slate-900 flex items-center justify-center gap-2"
+                >
+                  Enroll Now
+                  <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 -ml-4 group-hover:ml-0 transition-all duration-500" />
+                </button>
+              )}
             </motion.div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* CTA Section */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="mt-16 sm:mt-32 p-8 sm:p-16 bg-black rounded-[40px] sm:rounded-[64px] text-center relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-white/5 rounded-full -mr-24 -mt-24 sm:-mr-32 sm:-mt-32 blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-white/5 rounded-full -ml-32 -mb-32 sm:-ml-48 sm:-mb-48 blur-3xl"></div>
-          
-          <div className="relative z-10 max-w-2xl mx-auto">
-            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tighter mb-4 sm:mb-6">
-              Not sure which track fits?
-            </h2>
-            <p className="text-white/60 mb-8 sm:mb-10 text-sm sm:text-lg">
-              Book a free discovery session with our career mentors.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button 
-                onClick={() => navigate('/booking')}
-                className="btn-normal bg-white text-black px-8 sm:px-10 py-4 sm:py-5"
-              >
-                Talk to a Mentor
-              </button>
+        {!isStaff && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="mt-16 sm:mt-32 p-8 sm:p-16 bg-black rounded-[40px] sm:rounded-[64px] text-center relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-white/5 rounded-full -mr-24 -mt-24 sm:-mr-32 sm:-mt-32 blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-white/5 rounded-full -ml-32 -mb-32 sm:-ml-48 sm:-mb-48 blur-3xl"></div>
+            
+            <div className="relative z-10 max-w-2xl mx-auto">
+              <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tighter mb-4 sm:mb-6">
+                Not sure which track fits?
+              </h2>
+              <p className="text-white/60 mb-8 sm:mb-10 text-sm sm:text-lg">
+                Book a free discovery session with our career mentors.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button 
+                  onClick={() => navigate('/booking')}
+                  className="btn-normal bg-white text-black px-8 sm:px-10 py-4 sm:py-5"
+                >
+                  Talk to a Mentor
+                </button>
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
         <Footer />
       </div>
     </div>

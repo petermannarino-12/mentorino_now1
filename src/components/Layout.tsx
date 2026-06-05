@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
-import AIChatWidget from './ai/AIChatWidget';
 import { 
   LayoutDashboard, 
   Users, 
@@ -227,7 +226,6 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
           </motion.nav>
         </div>
       )}
-      {role !== 'visitor' && <AIChatWidget />}
     </div>
   );
 };
