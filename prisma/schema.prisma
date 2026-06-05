@@ -214,15 +214,6 @@ model contact_messages {
 }
 
 /// Row-level security enabled — access is enforced at the application layer
-model newsletter_subscribers {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email      String    @unique
-  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
-
-  @@schema("public")
-}
-
-/// Row-level security enabled — access is enforced at the application layer
 model validation_rules {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   field         String

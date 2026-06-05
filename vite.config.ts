@@ -231,15 +231,6 @@ const mockApi = (env: Record<string, string>) => ({
         return;
       }
 
-      if (pathMatch(url.pathname, 'newsletter') && req.method === 'POST') {
-        let body = ''; req.on('data', chunk => body += chunk);
-        req.on('end', async () => {
-          try { const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY); const { email } = JSON.parse(body); await supabase.from('newsletter_subscribers').insert({ email: email.toLowerCase().trim() }); res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ message: "Subscribed successfully" })); }
-          catch (e: any) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: e.message })); }
-        });
-        return;
-      }
-
       if ((pathMatch(url.pathname, 'check-application') || isAppFrom(url, 'check-application')) && req.method === 'POST') {
         let body = ''; req.on('data', chunk => body += chunk);
         req.on('end', async () => {

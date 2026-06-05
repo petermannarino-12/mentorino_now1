@@ -483,29 +483,6 @@ async function handleContact(request: Request) {
   }
 }
 
-async function handleNewsletter(request: Request) {
-  try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    if (!checkRateLimit(ip, 10, 60_000)) return Response.json({ error: 'Too many requests' }, { status: 429 });
-
-    const body = await request.json();
-    if (!body.email) {
-      return Response.json({ error: "Missing email" }, { status: 400 });
-    }
-
-    await (await getPrisma()).newsletter_subscribers.upsert({
-      where: { email: body.email.toLowerCase().trim() },
-      update: {},
-      create: { email: body.email.toLowerCase().trim() },
-    });
-
-    return Response.json({ message: "Subscribed successfully" });
-  } catch (error: any) {
-    console.error("Newsletter Error:", error);
-    return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
-  }
-}
-
 async function handleReview(request: Request) {
   try {
     const body = await request.json();
@@ -605,7 +582,6 @@ function router(from: string | null, request: Request): Promise<Response> | null
     case "mark-read": return handleMarkRead(request);
     case "reset-password": return handleResetPassword(request);
     case "contact": return handleContact(request);
-    case "newsletter": return handleNewsletter(request);
     case "review": return handleReview(request);
     case "transaction": return handleTransaction(request);
     default: return null;

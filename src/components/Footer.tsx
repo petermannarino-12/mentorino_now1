@@ -1,32 +1,11 @@
-import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Twitter, Linkedin, Youtube, Check, Loader2 } from 'lucide-react';
+import { Instagram, Twitter, Linkedin, Youtube } from 'lucide-react';
 
 const Footer: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
-
-  const handleSubscribe = async () => {
-    if (!email) return;
-    setSubmitting(true);
-    const res = await fetch('/api/emails?from=newsletter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.toLowerCase().trim() }),
-    });
-    setSubmitting(false);
-    if (res.ok) {
-      setSuccess(true);
-      setEmail('');
-      setTimeout(() => setSuccess(false), 3000);
-    }
-  };
-
   return (
     <footer className="bg-white text-black py-16 sm:py-24 px-6 border-t border-slate-100">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 mb-16 sm:mb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 sm:gap-16 mb-16 sm:mb-20">
           {/* Brand Column */}
           <div className="space-y-6 sm:space-y-8">
             <div className="flex items-center gap-3">
@@ -66,29 +45,6 @@ const Footer: React.FC = () => {
                   <Link to="/contact" className="text-slate-500 hover:text-black transition-colors text-xs sm:text-sm font-medium">Contact</Link>
                 </li>
               </ul>
-            </div>
-          </div>
-
-          {/* Newsletter Column */}
-          <div className="space-y-6 sm:space-y-8 col-span-1 sm:col-span-2 lg:col-span-1">
-            <h4 className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500 mb-6 sm:mb-8">Stay Updated</h4>
-            <p className="text-slate-500 text-xs sm:text-sm font-medium">Get the weekly "Trajectory" field notes.</p>
-            <div className="relative group max-w-sm">
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@email.com" 
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 sm:py-4 px-5 sm:px-6 text-xs sm:text-sm font-medium focus:outline-none focus:border-indigo-500 transition-all text-black"
-                disabled={submitting || success}
-              />
-              <button 
-                onClick={handleSubscribe}
-                disabled={!email || submitting || success}
-                className="absolute right-2 top-2 bottom-2 px-4 bg-black text-white rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors disabled:opacity-50"
-              >
-                {success ? <Check size={14} /> : submitting ? <Loader2 size={14} className="animate-spin" /> : 'Join'}
-              </button>
             </div>
           </div>
         </div>
