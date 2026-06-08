@@ -157,10 +157,9 @@ async function handleUpdateStatus(request: Request) {
     const { data: application } = await supabase.from('applications').select('user_email, mentor_type, responses').eq('id', id).maybeSingle();
     if (!application) return Response.json({ error: "Application not found" }, { status: 404 });
 
-    const { error: updateError, data: updated } = await supabase.from('applications').update({
-      status,
-      approved_by: status === 'approved' ? user.id : null,
-    }).eq('id', id).select().single();
+    const updateData: Record<string, any> = { status };
+    if (status === 'approved') updateData.approved_by = user.id;
+    const { error: updateError, data: updated } = await supabase.from('applications').update(updateData).eq('id', id).select().single();
 
     if (updateError) throw updateError;
 
