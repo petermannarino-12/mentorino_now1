@@ -2,7 +2,8 @@
   "buildCommand": "prisma generate && vite build",
   "functions": {
     "api/**/*.ts": {
-      "maxDuration": 60
+      "maxDuration": 30,
+      "memory": 512
     }
   },
   "headers": [

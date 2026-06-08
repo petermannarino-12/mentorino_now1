@@ -1,11 +1,11 @@
-import { getPrisma } from './prisma.js';
-import { getUserFromToken } from './auth.js';
-import { checkRateLimit } from './rate-limit.js';
+import { getAuth, getUserFromToken } from './auth.js';
+import { captureException } from './sentry.js';
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'peter@mentorino.me';
 const SITE_URL = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.URL) || 'http://localhost:3000';
 
 async function handleBookingConfirmation(request: Request) {
   try {
+    const supabase = await getAuth();
     const { booking } = await request.json();
     if (!booking || !booking.user_email) {
       return Response.json({ error: "Invalid booking data" }, { status: 400 });
@@ -17,9 +17,7 @@ async function handleBookingConfirmation(request: Request) {
       try {
         const { Resend } = await import("resend");
         const resend = new Resend(process.env.RESEND_API_KEY);
-        const template = await (await getPrisma()).email_templates.findUnique({
-          where: { id: 'booking_confirmed' },
-        });
+        const { data: template } = await supabase.from('email_templates').select('subject, body').eq('id', 'booking_confirmed').maybeSingle();
         if (!template) console.error('Template not found: booking_confirmed');
 
         const subject = template?.subject || 'Session Confirmed - Mentorino';
@@ -46,6 +44,7 @@ async function handleBookingConfirmation(request: Request) {
 
     return Response.json({ message: "Booking confirmation sent" });
   } catch (error: any) {
+    captureException(error, { handler: 'handleBookingConfirmation' });
     console.error("Booking Email Error:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -60,12 +59,15 @@ async function handleSendPasswordReset(request: Request) {
     const crypto = await import('node:crypto');
     const token = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
-    await (await getPrisma()).$executeRawUnsafe(
-      'INSERT INTO public.password_reset_tokens (email, token, expires_at) VALUES ($1, $2, $3)',
-      normalizedEmail, hashedToken, expiresAt
-    );
+    const supabase = await getAuth();
+    const { error: insertError } = await supabase.from('password_reset_tokens').insert({
+      email: normalizedEmail,
+      token: hashedToken,
+      expires_at: expiresAt,
+    });
+    if (insertError) throw insertError;
 
     const resetLink = `${SITE_URL}/reset-password?token=${token}`;
 
@@ -85,6 +87,7 @@ async function handleSendPasswordReset(request: Request) {
 
     return Response.json({ message: 'Password reset email sent' });
   } catch (error: any) {
+    captureException(error, { handler: 'handleSendPasswordReset' });
     console.error('send-password-reset error:', error);
     return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
@@ -92,6 +95,7 @@ async function handleSendPasswordReset(request: Request) {
 
 async function handleRequestAccess(request: Request) {
   try {
+    const supabase = await getAuth();
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -100,24 +104,25 @@ async function handleRequestAccess(request: Request) {
       return Response.json({ error: 'Missing product_id or product_name' }, { status: 400 });
     }
 
-    const existing = await (await getPrisma()).$queryRawUnsafe(
-      `SELECT id FROM public.product_access_requests
-       WHERE student_id = $1 AND product_id = $2 AND status = 'pending'
-       LIMIT 1`,
-      user.id, product_id
-    );
-    if ((existing as any[]).length > 0) {
+    const { data: existing } = await supabase.from('product_access_requests')
+      .select('id').eq('student_id', user.id).eq('product_id', product_id).eq('status', 'pending').maybeSingle();
+    if (existing) {
       return Response.json({ error: 'You already have a pending request for this product' }, { status: 409 });
     }
 
-    await (await getPrisma()).$executeRawUnsafe(
-      `INSERT INTO public.product_access_requests (student_id, student_name, student_email, product_id, product_name, message)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      user.id, user.user_metadata?.full_name || 'Student', user.email!, product_id, product_name, message || null
-    );
+    const { error: insertError } = await supabase.from('product_access_requests').insert({
+      student_id: user.id,
+      student_name: user.user_metadata?.full_name || 'Student',
+      student_email: user.email,
+      product_id,
+      product_name,
+      message: message || null,
+    });
+    if (insertError) throw insertError;
 
     return Response.json({ message: 'Access request sent' });
   } catch (error: any) {
+    captureException(error, { handler: 'handleRequestAccess' });
     console.error('request-access error:', error);
     return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
@@ -125,13 +130,11 @@ async function handleRequestAccess(request: Request) {
 
 async function handleGrantAccess(request: Request) {
   try {
+    const supabase = await getAuth();
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const profile = await (await getPrisma()).profiles.findUnique({
-      where: { id: user.id },
-      select: { role: true },
-    });
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
     if (!profile || !['admin', 'mentor'].includes(profile.role!)) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -141,24 +144,15 @@ async function handleGrantAccess(request: Request) {
       return Response.json({ error: 'Invalid parameters' }, { status: 400 });
     }
 
-    if (action === 'grant') {
-      await (await getPrisma()).$executeRawUnsafe(
-        `UPDATE public.product_access_requests
-         SET status = 'granted', mentor_notes = $2, granted_at = NOW()
-         WHERE id = $1`,
-        request_id, mentor_notes || null
-      );
-    } else {
-      await (await getPrisma()).$executeRawUnsafe(
-        `UPDATE public.product_access_requests
-         SET status = 'denied', mentor_notes = $2
-         WHERE id = $1`,
-        request_id, mentor_notes || null
-      );
-    }
+    const updateData: Record<string, any> = { status: action === 'grant' ? 'granted' : 'denied', mentor_notes: mentor_notes || null };
+    if (action === 'grant') updateData.granted_at = new Date().toISOString();
+
+    const { error } = await supabase.from('product_access_requests').update(updateData).eq('id', request_id);
+    if (error) throw error;
 
     return Response.json({ message: `Access ${action === 'grant' ? 'granted' : 'denied'}` });
   } catch (error: any) {
+    captureException(error, { handler: 'handleGrantAccess' });
     console.error('grant-access error:', error);
     return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
@@ -166,31 +160,30 @@ async function handleGrantAccess(request: Request) {
 
 async function handleListRequests(request: Request) {
   try {
+    const supabase = await getAuth();
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const profile = await (await getPrisma()).profiles.findUnique({
-      where: { id: user.id },
-      select: { role: true },
-    });
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
     if (!profile || !['admin', 'mentor'].includes(profile.role!)) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const url = new URL(request.url);
     const statusFilter = url.searchParams.get('status');
-    let sql = 'SELECT * FROM public.product_access_requests';
-    const params: any[] = [];
 
+    let query = supabase.from('product_access_requests').select('*');
     if (statusFilter && ['pending', 'granted', 'denied'].includes(statusFilter)) {
-      sql += ' WHERE status = $1';
-      params.push(statusFilter);
+      query = query.eq('status', statusFilter);
     }
-    sql += ' ORDER BY created_at DESC';
+    query = query.order('created_at', { ascending: false });
 
-    const rows = await (await getPrisma()).$queryRawUnsafe(sql, ...params);
-    return Response.json({ requests: rows });
+    const { data, error } = await query;
+    if (error) throw error;
+
+    return Response.json({ requests: data || [] });
   } catch (error: any) {
+    captureException(error, { handler: 'handleListRequests' });
     console.error('list-requests error:', error);
     return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
@@ -198,18 +191,18 @@ async function handleListRequests(request: Request) {
 
 async function handleMyAccess(request: Request) {
   try {
+    const supabase = await getAuth();
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const rows = await (await getPrisma()).$queryRawUnsafe(
-      `SELECT product_id FROM public.product_access_requests
-       WHERE student_id = $1 AND status = 'granted'`,
-      user.id
-    );
+    const { data, error } = await supabase.from('product_access_requests')
+      .select('product_id').eq('student_id', user.id).eq('status', 'granted');
+    if (error) throw error;
 
-    const productIds = (rows as any[]).map(r => r.product_id);
+    const productIds = (data || []).map(r => r.product_id);
     return Response.json({ products: productIds });
   } catch (error: any) {
+    captureException(error, { handler: 'handleMyAccess' });
     console.error('my-access error:', error);
     return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
@@ -217,6 +210,7 @@ async function handleMyAccess(request: Request) {
 
 async function handleSendMessage(request: Request) {
   try {
+    const supabase = await getAuth();
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -225,13 +219,16 @@ async function handleSendMessage(request: Request) {
       return Response.json({ error: 'Missing receiver_id or content' }, { status: 400 });
     }
 
-    await (await getPrisma()).$executeRawUnsafe(
-      `INSERT INTO public.messages (sender_id, receiver_id, content) VALUES ($1, $2, $3)`,
-      user.id, receiver_id, content.trim().slice(0, 5000)
-    );
+    const { error } = await supabase.from('messages').insert({
+      sender_id: user.id,
+      receiver_id,
+      content: content.trim().slice(0, 5000),
+    });
+    if (error) throw error;
 
     return Response.json({ message: 'Message sent' });
   } catch (error: any) {
+    captureException(error, { handler: 'handleSendMessage' });
     console.error('send-message error:', error);
     return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
@@ -239,6 +236,7 @@ async function handleSendMessage(request: Request) {
 
 async function handleGetConversation(request: Request) {
   try {
+    const supabase = await getAuth();
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -246,17 +244,16 @@ async function handleGetConversation(request: Request) {
     const withUserId = url.searchParams.get('with');
     if (!withUserId) return Response.json({ error: 'Missing "with" param' }, { status: 400 });
 
-    const rows = await (await getPrisma()).$queryRawUnsafe(
-      `SELECT id, sender_id, receiver_id, content, read, created_at
-       FROM public.messages
-       WHERE (sender_id = $1 AND receiver_id = $2)
-          OR (sender_id = $2 AND receiver_id = $1)
-       ORDER BY created_at ASC`,
-      user.id, withUserId
-    );
+    const { data, error } = await supabase
+      .from('messages')
+      .select('id, sender_id, receiver_id, content, read, created_at')
+      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${withUserId}),and(sender_id.eq.${withUserId},receiver_id.eq.${user.id})`)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
 
-    return Response.json({ messages: rows });
+    return Response.json({ messages: data || [] });
   } catch (error: any) {
+    captureException(error, { handler: 'handleGetConversation' });
     console.error('get-conversation error:', error);
     return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
@@ -264,34 +261,40 @@ async function handleGetConversation(request: Request) {
 
 async function handleGetConversations(request: Request) {
   try {
+    const supabase = await getAuth();
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const rows = await (await getPrisma()).$queryRawUnsafe(
-      `WITH conversation_users AS (
-         SELECT DISTINCT
-           CASE WHEN sender_id = $1 THEN receiver_id ELSE sender_id END AS other_user_id
-         FROM public.messages
-         WHERE sender_id = $1 OR receiver_id = $1
-       )
-       SELECT
-         cu.other_user_id,
-         (SELECT MAX(created_at) FROM public.messages
-          WHERE (sender_id = $1 AND receiver_id = cu.other_user_id)
-             OR (receiver_id = $1 AND sender_id = cu.other_user_id)) AS last_message_at,
-         (SELECT content FROM public.messages
-          WHERE (sender_id = $1 AND receiver_id = cu.other_user_id)
-             OR (receiver_id = $1 AND sender_id = cu.other_user_id)
-          ORDER BY created_at DESC LIMIT 1) AS last_message,
-         (SELECT COUNT(*) FROM public.messages
-          WHERE receiver_id = $1 AND sender_id = cu.other_user_id AND read = false) AS unread
-       FROM conversation_users cu
-       ORDER BY last_message_at DESC NULLS LAST`,
-      user.id
+    const { data, error } = await supabase
+      .from('messages')
+      .select('id, sender_id, receiver_id, content, read, created_at')
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+
+    const conversationsMap = new Map<string, { other_user_id: string; last_message_at: string; last_message: string; unread: number }>();
+    for (const msg of data || []) {
+      const otherUserId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
+      if (!conversationsMap.has(otherUserId)) {
+        conversationsMap.set(otherUserId, {
+          other_user_id: otherUserId,
+          last_message_at: msg.created_at,
+          last_message: msg.content,
+          unread: (msg.receiver_id === user.id && !msg.read) ? 1 : 0,
+        });
+      } else {
+        const conv = conversationsMap.get(otherUserId)!;
+        if (msg.receiver_id === user.id && !msg.read) conv.unread++;
+      }
+    }
+
+    const conversations = Array.from(conversationsMap.values()).sort(
+      (a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()
     );
 
-    return Response.json({ conversations: rows });
+    return Response.json({ conversations });
   } catch (error: any) {
+    captureException(error, { handler: 'handleGetConversations' });
     console.error('get-conversations error:', error);
     return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
@@ -299,19 +302,23 @@ async function handleGetConversations(request: Request) {
 
 async function handleMarkRead(request: Request) {
   try {
+    const supabase = await getAuth();
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { from_user_id } = await request.json();
     if (!from_user_id) return Response.json({ error: 'Missing from_user_id' }, { status: 400 });
 
-    await (await getPrisma()).$executeRawUnsafe(
-      `UPDATE public.messages SET read = true WHERE receiver_id = $1 AND sender_id = $2 AND read = false`,
-      user.id, from_user_id
-    );
+    const { error } = await supabase.from('messages')
+      .update({ read: true })
+      .eq('receiver_id', user.id)
+      .eq('sender_id', from_user_id)
+      .eq('read', false);
+    if (error) throw error;
 
     return Response.json({ message: 'Messages marked as read' });
   } catch (error: any) {
+    captureException(error, { handler: 'handleMarkRead' });
     console.error('mark-read error:', error);
     return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
@@ -319,6 +326,7 @@ async function handleMarkRead(request: Request) {
 
 async function handleWelcome(request: Request) {
   try {
+    const supabase = await getAuth();
     const { email, name } = await request.json();
     if (!email) return Response.json({ error: "Missing email" }, { status: 400 });
     const normalizedEmail = email.toLowerCase().trim();
@@ -328,9 +336,7 @@ async function handleWelcome(request: Request) {
       try {
         const { Resend } = await import("resend");
         const resend = new Resend(process.env.RESEND_API_KEY);
-        const template = await (await getPrisma()).email_templates.findUnique({
-          where: { id: 'welcome_email' },
-        });
+        const { data: template } = await supabase.from('email_templates').select('subject, body').eq('id', 'welcome_email').maybeSingle();
         if (!template) console.error('Template not found: welcome_email');
 
         const subject = template?.subject || 'Welcome to Mentorino!';
@@ -356,6 +362,7 @@ async function handleWelcome(request: Request) {
 
     return Response.json({ message: "Welcome email sent" });
   } catch (error: any) {
+    captureException(error, { handler: 'handleWelcome' });
     console.error("Welcome Email Error:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -374,13 +381,11 @@ async function handleResetPassword(request: Request) {
     const crypto = await import('node:crypto');
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-    const prisma = await getPrisma();
-    const rows: any[] = await prisma.$queryRawUnsafe(
-      'SELECT id, email, expires_at, used FROM public.password_reset_tokens WHERE token = $1 LIMIT 1',
-      hashedToken
-    );
+    const supabase = await getAuth();
+    const { data: row, error: findError } = await supabase.from('password_reset_tokens')
+      .select('id, email, expires_at, used').eq('token', hashedToken).maybeSingle();
+    if (findError) throw findError;
 
-    const row = rows?.[0];
     if (!row) {
       return Response.json({ error: 'Invalid or expired reset link' }, { status: 400 });
     }
@@ -391,8 +396,7 @@ async function handleResetPassword(request: Request) {
       return Response.json({ error: 'This reset link has expired' }, { status: 400 });
     }
 
-    const supabaseAdmin = await import('./auth.js').then(m => m.getAuth());
-    const { data: users, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    const { data: users, error: listError } = await supabase.auth.admin.listUsers();
     if (listError) throw listError;
 
     const user = users?.users?.find((u: any) => u.email === row.email);
@@ -400,16 +404,16 @@ async function handleResetPassword(request: Request) {
       return Response.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(user.id, { password });
+    const { error: updateError } = await supabase.auth.admin.updateUserById(user.id, { password });
     if (updateError) throw updateError;
 
-    await prisma.$executeRawUnsafe(
-      'UPDATE public.password_reset_tokens SET used = TRUE WHERE id = $1',
-      row.id
-    );
+    const { error: tokenUpdateError } = await supabase.from('password_reset_tokens')
+      .update({ used: true }).eq('id', row.id);
+    if (tokenUpdateError) throw tokenUpdateError;
 
     return Response.json({ message: 'Password updated successfully' });
   } catch (error: any) {
+    captureException(error, { handler: 'handleResetPassword' });
     console.error('reset-password error:', error);
     return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
@@ -417,6 +421,7 @@ async function handleResetPassword(request: Request) {
 
 async function handleContact(request: Request) {
   try {
+    const supabase = await getAuth();
     const body = await request.json();
     const { name, email, phone, subject, message } = body;
 
@@ -430,27 +435,25 @@ async function handleContact(request: Request) {
     const MAX_SUBMISSIONS = 3;
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'peter@mentorino.me';
 
-    const fiveMinAgo = new Date(Date.now() - RATE_LIMIT_WINDOW_MS);
-    const count = await (await getPrisma()).contact_messages.count({
-      where: {
-        email: normalizedEmail,
-        createdAt: { gte: fiveMinAgo },
-      },
-    });
+    const fiveMinAgo = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
+    const { count, error: countError } = await supabase.from('contact_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('email', normalizedEmail)
+      .gte('created_at', fiveMinAgo);
+    if (countError) throw countError;
 
     if ((count || 0) >= MAX_SUBMISSIONS) {
       return Response.json({ error: "Too many submissions. Please wait a few minutes before trying again." }, { status: 429 });
     }
 
-    await (await getPrisma()).contact_messages.create({
-      data: {
-        name: sanitize(name).slice(0, 255),
-        email: normalizedEmail,
-        phone: sanitize(phone || '').slice(0, 50),
-        subject: subject?.slice(0, 255),
-        message: sanitize(message).slice(0, 5000),
-      },
+    const { error: insertError } = await supabase.from('contact_messages').insert({
+      name: sanitize(name).slice(0, 255),
+      email: normalizedEmail,
+      phone: sanitize(phone || '').slice(0, 50),
+      subject: subject?.slice(0, 255),
+      message: sanitize(message).slice(0, 5000),
     });
+    if (insertError) throw insertError;
 
     if (process.env.RESEND_API_KEY) {
       try {
@@ -484,6 +487,7 @@ async function handleContact(request: Request) {
 
     return Response.json({ message: "Message sent successfully" });
   } catch (error: any) {
+    captureException(error, { handler: 'handleContact' });
     console.error("Contact Error:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -491,6 +495,7 @@ async function handleContact(request: Request) {
 
 async function handleReview(request: Request) {
   try {
+    const supabase = await getAuth();
     const body = await request.json();
     if (!body.reviewer_name || !body.reviewer_email || body.rating === undefined) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
@@ -510,28 +515,28 @@ async function handleReview(request: Request) {
       return Response.json({ error: "Name too long" }, { status: 400 });
     }
 
-    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const recent = await (await getPrisma()).reviews.findMany({
-      where: {
-        reviewerEmail: email,
-        createdAt: { gte: fiveMinAgo },
-      },
-    });
-    if (recent.length >= 3) {
+    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const { count, error: countError } = await supabase.from('reviews')
+      .select('*', { count: 'exact', head: true })
+      .eq('reviewer_email', email)
+      .gte('created_at', fiveMinAgo);
+    if (countError) throw countError;
+
+    if ((count || 0) >= 3) {
       return Response.json({ error: "Too many reviews. Please wait a few minutes." }, { status: 429 });
     }
 
-    const data = await (await getPrisma()).reviews.create({
-      data: {
-        reviewerName: body.reviewer_name.trim().slice(0, 100),
-        reviewerEmail: email,
-        rating,
-        comment: body.comment ? body.comment.trim().slice(0, 2000) : null,
-      },
-    });
+    const { data, error } = await supabase.from('reviews').insert({
+      reviewer_name: body.reviewer_name.trim().slice(0, 100),
+      reviewer_email: email,
+      rating,
+      comment: body.comment ? body.comment.trim().slice(0, 2000) : null,
+    }).select('id').single();
+    if (error) throw error;
 
     return Response.json({ id: data.id, message: "Review submitted" });
   } catch (error: any) {
+    captureException(error, { handler: 'handleReview' });
     console.error("Reviews Error:", error);
     return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
   }
@@ -539,13 +544,11 @@ async function handleReview(request: Request) {
 
 async function handleTransaction(request: Request) {
   try {
+    const supabase = await getAuth();
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    const profile = await (await getPrisma()).profiles.findUnique({
-      where: { id: user.id },
-      select: { role: true },
-    });
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
     if (!profile || profile.role !== 'admin') {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -555,19 +558,19 @@ async function handleTransaction(request: Request) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const data = await (await getPrisma()).transactions.create({
-      data: {
-        userId: body.user_id || user.id,
-        userName: body.user_name || user.email || "",
-        amount: body.amount,
-        product: body.product || "",
-        productId: body.product_id,
-        status: body.status || "pending",
-      },
-    });
+    const { data, error } = await supabase.from('transactions').insert({
+      user_id: body.user_id || user.id,
+      user_name: body.user_name || user.email || "",
+      amount: body.amount,
+      product: body.product || "",
+      product_id: body.product_id,
+      status: body.status || "pending",
+    }).select('id').single();
+    if (error) throw error;
 
     return Response.json({ id: data.id, message: "Transaction created" });
   } catch (error: any) {
+    captureException(error, { handler: 'handleTransaction' });
     console.error("Transactions Error:", error);
     return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
   }

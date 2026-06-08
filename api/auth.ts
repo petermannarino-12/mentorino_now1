@@ -33,11 +33,8 @@ export async function requireUser(request: Request): Promise<{ user: any }> {
 
 export async function requireRole(request: Request, roles: string[]): Promise<{ user: any }> {
   const { user } = await requireUser(request);
-  const { getPrisma } = await import('./prisma.js');
-  const profile = await (await getPrisma()).profiles.findUnique({
-    where: { id: user.id },
-    select: { role: true },
-  });
+  const supabase = await getAuth();
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
   if (!profile || !roles.includes(profile.role!)) {
     const err = new Error('Forbidden');
     (err as any).status = 403;

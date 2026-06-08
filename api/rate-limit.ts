@@ -1,27 +1,35 @@
-const ipRequests = new Map<string, { count: number; resetAt: number }>();
+import { getAuth } from './auth.js';
 
-export function checkRateLimit(key: string, maxRequests: number, windowMs: number): boolean {
-  const now = Date.now();
-  const entry = ipRequests.get(key);
-  if (!entry || now > entry.resetAt) {
-    ipRequests.set(key, { count: 1, resetAt: now + windowMs });
-    return true;
+export async function checkRateLimit(
+  identifier: string,
+  maxRequests: number,
+  windowMs: number
+): Promise<{ allowed: boolean; remaining: number }> {
+  try {
+    const supabase = await getAuth();
+    const cutoff = new Date(Date.now() - windowMs).toISOString();
+
+    const { count, error } = await supabase.from('rate_limit_entries')
+      .select('*', { count: 'exact', head: true })
+      .eq('identifier', identifier)
+      .gte('created_at', cutoff);
+
+    if (error) throw error;
+
+    return {
+      allowed: (count || 0) < maxRequests,
+      remaining: Math.max(0, maxRequests - (count || 0)),
+    };
+  } catch {
+    return { allowed: true, remaining: maxRequests };
   }
-  if (entry.count >= maxRequests) return false;
-  entry.count++;
-  return true;
 }
 
-export function getClientIp(request: Request): string {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '127.0.0.1';
-}
-
-// Clean up stale entries every 10 minutes
-if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [key, entry] of ipRequests.entries()) {
-      if (now > entry.resetAt) ipRequests.delete(key);
-    }
-  }, 10 * 60 * 1000);
+export async function recordRateLimit(identifier: string): Promise<void> {
+  try {
+    const supabase = await getAuth();
+    await supabase.from('rate_limit_entries').insert({ identifier });
+  } catch {
+    // fail open — rate limiting should never block the app
+  }
 }

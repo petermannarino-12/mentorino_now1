@@ -1,5 +1,21 @@
-import { getPrisma } from './prisma.js';
-import { getUserFromToken, mapProfileRow } from './auth.js';
+import { getAuth, getUserFromToken } from './auth.js';
+import { captureException } from './sentry.js';
+
+function mapProfileRow(row: any) {
+  return {
+    id: row.id,
+    email: row.email,
+    full_name: row.full_name,
+    name: row.name || row.full_name,
+    role: row.role,
+    phone: row.phone,
+    avatar: row.avatar,
+    mentorship_status: row.mentorship_status,
+    tasks: row.tasks || [],
+    milestones: row.milestones || [],
+    created_at: row.created_at,
+  };
+}
 
 export async function GET(request: Request) {
   try {
@@ -9,27 +25,17 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const limit = url.searchParams.get("limit");
     const id = url.searchParams.get("id") || user.id;
+    const supabase = await getAuth();
 
     if (limit) {
-      const rows = await (await getPrisma()).profiles.findMany({
-        take: parseInt(limit) || 50,
-      });
-      return Response.json((rows || []).map(r => ({
-        id: r.id,
-        email: r.email,
-        full_name: r.fullName,
-        name: r.name,
-        role: r.role,
-        phone: r.phone,
-        avatar: r.avatar,
-        mentorship_status: r.mentorshipStatus,
-        tasks: r.tasks,
-        milestones: r.milestones,
-        created_at: r.createdAt,
-      })));
+      const { data, error } = await supabase.from('profiles').select('*').limit(parseInt(limit) || 50);
+      if (error) throw error;
+      return Response.json((data || []).map(mapProfileRow));
     }
 
-    const row = await (await getPrisma()).profiles.findUnique({ where: { id } });
+    const { data: row, error } = await supabase.from('profiles').select('*').eq('id', id).maybeSingle();
+    if (error) throw error;
+
     if (!row) {
       return Response.json({
         id: user.id,
@@ -46,20 +52,9 @@ export async function GET(request: Request) {
       });
     }
 
-    return Response.json({
-      id: row.id,
-      email: row.email,
-      full_name: row.fullName,
-      name: row.name,
-      role: row.role,
-      phone: row.phone,
-      avatar: row.avatar,
-      mentorship_status: row.mentorshipStatus,
-      tasks: row.tasks,
-      milestones: row.milestones,
-      created_at: row.createdAt,
-    });
+    return Response.json(mapProfileRow(row));
   } catch (err: any) {
+    captureException(err, { handler: 'profiles GET' });
     console.error("profiles GET error:", err);
     return Response.json({ error: err?.message || String(err) }, { status: 500 });
   }
@@ -80,13 +75,13 @@ export async function PATCH(request: Request) {
       return Response.json({ error: "No valid fields to update" }, { status: 400 });
     }
 
-    const row = await (await getPrisma()).profiles.update({
-      where: { id: user.id },
-      data: updateData,
-    });
+    const supabase = await getAuth();
+    const { data, error } = await supabase.from('profiles').update(updateData).eq('id', user.id).select().single();
+    if (error) throw error;
 
-    return Response.json(mapProfileRow(row));
+    return Response.json(mapProfileRow(data));
   } catch (err: any) {
+    captureException(err, { handler: 'profiles PATCH' });
     console.error("profiles PATCH error:", err);
     return Response.json({ error: err?.message || String(err) }, { status: 500 });
   }

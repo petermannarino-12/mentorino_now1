@@ -228,6 +228,16 @@ model validation_rules {
   @@schema("public")
 }
 
+/// Rate limiting entries (auto-cleaned by TTL)
+model rate_limit_entries {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  identifier String
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([identifier, createdAt])
+  @@schema("public")
+}
+
 /// Row-level security enabled — access is enforced at the application layer
 model announcements {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid

@@ -1,5 +1,5 @@
-import { getPrisma } from './prisma.js';
-import { getUserFromToken } from './auth.js';
+import { getAuth, getUserFromToken } from './auth.js';
+import { captureException } from './sentry.js';
 
 function mapEnquiry(row: any) {
   return {
@@ -19,46 +19,21 @@ export async function GET(request: Request) {
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const profile = await (await getPrisma()).profiles.findUnique({
-      where: { id: user.id },
-      select: { role: true },
-    });
+    const supabase = await getAuth();
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
     if (!profile || !['admin', 'mentor'].includes(profile.role!)) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    await ensureTable();
+    const { data, error } = await supabase.from('enquiries').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
 
-    const rows = await (await getPrisma()).$queryRawUnsafe(
-      'SELECT * FROM public.enquiries ORDER BY created_at DESC'
-    );
-
-    return Response.json((rows as any[]).map(mapEnquiry));
+    return Response.json((data || []).map(mapEnquiry));
   } catch (err: any) {
+    captureException(err, { handler: 'enquiries GET' });
     console.error('enquiries GET error:', err);
     return Response.json({ error: err?.message || String(err) }, { status: 500 });
   }
-}
-
-let _tableEnsured = false;
-
-async function ensureTable() {
-  if (_tableEnsured) return;
-  try {
-    await (await getPrisma()).$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS public.enquiries (
-        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT,
-        service_type TEXT NOT NULL CHECK (service_type IN ('free_intro_call', 'rapid_response_call')),
-        message TEXT,
-        status TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'closed')),
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-      );
-    `);
-    _tableEnsured = true;
-  } catch {}
 }
 
 export async function POST(request: Request) {
@@ -71,21 +46,20 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Invalid service_type' }, { status: 400 });
     }
 
-    await ensureTable();
+    const supabase = await getAuth();
+    const { data, error } = await supabase.from('enquiries').insert({
+      name: body.name.trim(),
+      email: body.email.toLowerCase().trim(),
+      phone: body.phone || null,
+      service_type: body.service_type,
+      message: body.message || null,
+    }).select().single();
 
-    const rows = await (await getPrisma()).$queryRawUnsafe(
-      `INSERT INTO public.enquiries (name, email, phone, service_type, message)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      body.name.trim(),
-      body.email.toLowerCase().trim(),
-      body.phone || null,
-      body.service_type,
-      body.message || null
-    );
+    if (error) throw error;
 
-    return Response.json(mapEnquiry((rows as any[])[0]));
+    return Response.json(mapEnquiry(data));
   } catch (err: any) {
+    captureException(err, { handler: 'enquiries POST' });
     console.error('enquiries POST error:', err);
     return Response.json({ error: err?.message || String(err) }, { status: 500 });
   }
@@ -93,15 +67,11 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    await ensureTable();
-
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const profile = await (await getPrisma()).profiles.findUnique({
-      where: { id: user.id },
-      select: { role: true },
-    });
+    const supabase = await getAuth();
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
     if (!profile || !['admin', 'mentor'].includes(profile.role!)) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -112,14 +82,12 @@ export async function PATCH(request: Request) {
       return Response.json({ error: 'Invalid status' }, { status: 400 });
     }
 
-    await (await getPrisma()).$executeRawUnsafe(
-      'UPDATE public.enquiries SET status = $1 WHERE id = $2',
-      body.status,
-      body.id
-    );
+    const { error } = await supabase.from('enquiries').update({ status: body.status }).eq('id', body.id);
+    if (error) throw error;
 
     return Response.json({ message: 'Status updated' });
   } catch (err: any) {
+    captureException(err, { handler: 'enquiries PATCH' });
     console.error('enquiries PATCH error:', err);
     return Response.json({ error: err?.message || String(err) }, { status: 500 });
   }

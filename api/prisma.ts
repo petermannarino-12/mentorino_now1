@@ -2,6 +2,7 @@ let _prisma: any = null
 
 export async function getPrisma() {
   if (_prisma) return _prisma
+
   const url = process.env.DATABASE_URL
   if (!url) {
     throw new Error('Missing DATABASE_URL env var')
@@ -11,9 +12,22 @@ export async function getPrisma() {
   const { PrismaPg } = await import('@prisma/adapter-pg')
   const pg = await import('pg')
 
-  const pool = new pg.default.Pool({ connectionString: url, max: 5, idleTimeoutMillis: 30000 })
+  const pool = new pg.default.Pool({
+    connectionString: url,
+    max: 3,
+    idleTimeoutMillis: 10000,
+    connectionTimeoutMillis: 5000,
+  })
   const adapter = new PrismaPg(pool)
   _prisma = new PrismaClient({ adapter, errorFormat: 'minimal', log: [] })
-  await _prisma.$connect()
+
+  try {
+    await _prisma.$connect()
+  } catch (err) {
+    _prisma = null
+    pool.end().catch(() => {})
+    throw err
+  }
+
   return _prisma
 }

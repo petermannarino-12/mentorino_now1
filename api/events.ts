@@ -1,5 +1,5 @@
-import { getPrisma } from './prisma.js';
-import { getUserFromToken } from './auth.js';
+import { getAuth, getUserFromToken } from './auth.js';
+import { captureException } from './sentry.js';
 
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'peter@mentorino.me';
 const SITE_URL = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || process.env.URL || 'http://localhost:3000';
@@ -14,7 +14,7 @@ function mapEvent(e: any) {
     location: e.location,
     link: e.link,
     attendees: e.attendees || [],
-    created_at: e.createdAt,
+    created_at: e.created_at,
   };
 }
 
@@ -24,23 +24,21 @@ export async function GET(request: Request) {
     const id = url.searchParams.get("id");
     const from = parseInt(url.searchParams.get("from") || "0");
     const to = parseInt(url.searchParams.get("to") || "49");
+    const supabase = await getAuth();
 
     if (id) {
-      const event = await (await getPrisma()).events.findUnique({
-        where: { id },
-      });
+      const { data: event, error } = await supabase.from('events').select('*').eq('id', id).maybeSingle();
+      if (error) throw error;
       if (!event) return Response.json({ error: "Event not found" }, { status: 404 });
       return Response.json(mapEvent(event));
     }
 
-    const data = await (await getPrisma()).events.findMany({
-      orderBy: { createdAt: 'desc' },
-      skip: from,
-      take: to - from + 1,
-    });
+    const { data, error } = await supabase.from('events').select('*').order('created_at', { ascending: false }).range(from, to);
+    if (error) throw error;
 
     return Response.json((data || []).map(mapEvent));
   } catch (err: any) {
+    captureException(err, { handler: 'events GET' });
     console.error("events GET error:", err);
     return Response.json({ error: err?.message || String(err) }, { status: 500 });
   }
@@ -52,63 +50,55 @@ export async function POST(request: Request) {
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await request.json();
+    const supabase = await getAuth();
 
     if (body.action === "attend") {
-      const ev = await (await getPrisma()).events.findUnique({
-        where: { id: body.eventId },
-      });
+      const { data: ev, error: findError } = await supabase.from('events').select('*').eq('id', body.eventId).maybeSingle();
+      if (findError) throw findError;
       if (!ev) return Response.json({ error: "Event not found" }, { status: 404 });
       const attendees: string[] = (ev.attendees as string[]) || [];
       if (attendees.includes(body.userId)) {
         return Response.json(mapEvent(ev));
       }
-      const updated = await (await getPrisma()).events.update({
-        where: { id: body.eventId },
-        data: { attendees: [...attendees, body.userId] },
-      });
+      const { data: updated, error: updateError } = await supabase.from('events').update({ attendees: [...attendees, body.userId] }).eq('id', body.eventId).select().single();
+      if (updateError) throw updateError;
       return Response.json(mapEvent(updated));
     }
 
-    const profile = await (await getPrisma()).profiles.findUnique({
-      where: { id: user.id },
-      select: { role: true },
-    });
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
     if (!profile || !['admin', 'mentor'].includes(profile.role!)) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const data = await (await getPrisma()).events.create({
-      data: {
-        title: body.title,
-        date: body.date,
-        time: body.time,
-        location: body.location,
-        description: body.description,
-        link: body.link,
-        attendees: body.attendees || [],
-        createdBy: user.id,
-      },
-    });
+    const { data, error } = await supabase.from('events').insert({
+      title: body.title,
+      date: body.date,
+      time: body.time,
+      location: body.location,
+      description: body.description,
+      link: body.link,
+      attendees: body.attendees || [],
+      created_by: user.id,
+    }).select().single();
+
+    if (error) throw error;
 
     if (process.env.RESEND_API_KEY) {
       try {
-        const mentees = await (await getPrisma()).$queryRawUnsafe(
-          `SELECT DISTINCT a.user_email, COALESCE(p.full_name, a.user_name) as full_name
-           FROM public.applications a
-           INNER JOIN public.profiles p ON LOWER(p.email) = LOWER(a.user_email)
-           WHERE a.status = 'approved' AND a.user_email IS NOT NULL`
-        ) as any[];
+        const { data: mentees } = await supabase
+          .from('applications')
+          .select('user_email')
+          .eq('status', 'approved')
+          .not('user_email', 'is', null);
 
-        if (mentees.length > 0) {
+        if (mentees && mentees.length > 0) {
           const { Resend } = await import("resend");
           const resend = new Resend(process.env.RESEND_API_KEY);
 
-          const template = await (await getPrisma()).email_templates.findUnique({
-            where: { id: 'event_broadcast' },
-          });
+          const { data: template } = await supabase.from('email_templates').select('subject, body').eq('id', 'event_broadcast').maybeSingle();
 
           for (const mentee of mentees) {
-            const userName = mentee.full_name || 'Mentee';
+            const userName = mentee.user_name || 'Mentee';
             const subject = template?.subject || `New ${body.title} — Mentorino`;
             let bodyHtml = template?.body || `Hi {{student_name}},<br><br>A new event has been published just for you:<br><br><strong>{{event_title}}</strong><br>{{event_description}}<br><br><strong>Date:</strong> {{event_date}}<br><strong>Time:</strong> {{event_time}}<br><strong>Location:</strong> {{event_location}}<br><br>Log in to your dashboard for more details.<br><br>Best,<br>Mentorino Team`;
             bodyHtml = bodyHtml
@@ -151,6 +141,7 @@ export async function POST(request: Request) {
 
     return Response.json(mapEvent(data));
   } catch (err: any) {
+    captureException(err, { handler: 'events POST' });
     console.error("events POST error:", err);
     return Response.json({ error: err?.message || String(err) }, { status: 500 });
   }
@@ -161,10 +152,8 @@ export async function DELETE(request: Request) {
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    const profile = await (await getPrisma()).profiles.findUnique({
-      where: { id: user.id },
-      select: { role: true },
-    });
+    const supabase = await getAuth();
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
     if (!profile || !['admin', 'mentor'].includes(profile.role!)) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -173,10 +162,12 @@ export async function DELETE(request: Request) {
     const id = url.searchParams.get("id");
     if (!id) return Response.json({ error: "Missing id" }, { status: 400 });
 
-    await (await getPrisma()).events.delete({ where: { id } });
+    const { error } = await supabase.from('events').delete().eq('id', id);
+    if (error) throw error;
 
     return Response.json({ message: "Event deleted" });
   } catch (err: any) {
+    captureException(err, { handler: 'events DELETE' });
     console.error("events DELETE error:", err);
     return Response.json({ error: err?.message || String(err) }, { status: 500 });
   }
