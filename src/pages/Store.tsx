@@ -1,3 +1,4 @@
+import { captureException, captureMessage } from '../lib/sentry';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowRight, ArrowLeft, Loader2, X } from 'lucide-react';
@@ -39,10 +40,12 @@ const StorePage: React.FC = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+      captureMessage('Product access request sent');
       toast.success('Request sent! The mentor will review it.');
       setSelectedProduct(null);
       setRequestMessage('');
     } catch (err: any) {
+      captureException(err);
       toast.error(err.message || 'Failed to send request.');
     } finally {
       setRequestingId(null);

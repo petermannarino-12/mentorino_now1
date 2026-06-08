@@ -1,4 +1,5 @@
 import { getAuth } from './auth.js';
+import { captureException } from './sentry.js';
 
 export async function checkRateLimit(
   identifier: string,
@@ -20,7 +21,8 @@ export async function checkRateLimit(
       allowed: (count || 0) < maxRequests,
       remaining: Math.max(0, maxRequests - (count || 0)),
     };
-  } catch {
+  } catch (err) {
+    captureException(err, { handler: 'checkRateLimit', identifier });
     return { allowed: true, remaining: maxRequests };
   }
 }
@@ -29,7 +31,8 @@ export async function recordRateLimit(identifier: string): Promise<void> {
   try {
     const supabase = await getAuth();
     await supabase.from('rate_limit_entries').insert({ identifier });
-  } catch {
+  } catch (err) {
+    captureException(err, { handler: 'recordRateLimit', identifier });
     // fail open — rate limiting should never block the app
   }
 }

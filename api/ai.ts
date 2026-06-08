@@ -1,5 +1,6 @@
 import { aiAnalyzeApplicationSchema, aiChatSchema, aiGenerateBriefSchema } from "../src/schemas/ai.schema.js";
 import { getUserFromToken } from "./auth.js";
+import { captureException } from "./sentry.js";
 
 const sanitizeChat = (val: any): string => {
   if (val === null || val === undefined) return "Not provided";
@@ -71,6 +72,7 @@ async function handleAnalyze(request: Request) {
       headers: { "Content-Type": "application/json" }
     });
   } catch (error: any) {
+    captureException(error, { handler: 'ai-handleAnalyze' });
     console.error("AI Analysis Error:", error);
     return Response.json({ error: "AI processing failed. Please try again later." }, { status: 500 });
   }
@@ -113,6 +115,7 @@ async function handleChat(request: Request) {
     });
     return Response.json({ text: result.text });
   } catch (error: any) {
+    captureException(error, { handler: 'ai-handleChat' });
     console.error("AI Chat Error:", error);
     return Response.json({ error: "AI chat failed. Please try again later." }, { status: 500 });
   }
@@ -154,6 +157,7 @@ async function handleGenerateBrief(request: Request) {
     });
     return Response.json({ text: result.text });
   } catch (error: any) {
+    captureException(error, { handler: 'ai-handleGenerateBrief' });
     console.error("AI Brief Error:", error);
     return Response.json({ error: "AI brief generation failed. Please try again later." }, { status: 500 });
   }

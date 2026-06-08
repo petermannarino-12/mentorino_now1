@@ -1,3 +1,4 @@
+import { captureException, captureMessage } from '../lib/sentry';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -107,9 +108,11 @@ const ResetPasswordPage: React.FC = () => {
         await signOut();
       }
 
+      captureMessage('Password reset successful');
       setSuccess(true);
       setTimeout(() => navigate('/auth'), 2500);
     } catch (err: any) {
+      captureException(err);
       setError(err.message || 'Failed to update password.');
     } finally {
       setIsLoading(false);

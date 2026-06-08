@@ -1,3 +1,4 @@
+import { captureException, captureMessage } from '../lib/sentry';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
@@ -95,9 +96,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      notifySuccess('Check your email for the password reset link.');
+        captureMessage('Password reset email sent');
+        notifySuccess('Check your email for the password reset link.');
       setResetCooldown(60);
     } catch (err: any) {
+      captureException(err);
       notifyError(err.message || 'Failed to send reset link.');
     } finally {
       setIsLoading(false);
@@ -106,7 +109,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
 
   const isAdminMode = initialRole === 'admin';
   const isMentorMode = initialRole === 'mentor';
-
   const handleOAuth = async (provider: 'google' | 'github') => {
     setIsLoading(true);
     try {
@@ -118,6 +120,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
       });
       if (error) throw error;
     } catch (err: any) {
+      captureException(err);
       notifyError(err.message || `Failed to sign in with ${provider}.`);
       setIsLoading(false);
     }
@@ -160,8 +163,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: data.email.trim(), name: data.fullName })
-        }).catch(() => {});
+        }).catch((err) => captureException(err));
 
+        captureMessage('Account created');
         notifySuccess('Account created successfully! Please check your email to confirm your account.');
         setIsSignUp(false);
         reset();
@@ -209,12 +213,14 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
             created_at: authData.user.created_at
           };
 
+          captureMessage('User signed in');
           onLogin(currUser);
           notifySuccess('Signed in successfully!');
           navigate('/dashboard');
         }
       }
     } catch (err: any) {
+      captureException(err);
       notifyError(err.message || 'An error occurred during authentication.');
     } finally {
       setIsLoading(false);

@@ -1,4 +1,5 @@
 
+import { captureException, captureMessage } from '../lib/sentry';
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { 
@@ -78,7 +79,7 @@ const Programs = () => {
         });
         setProgramStats(map);
       })
-      .catch(() => {})
+      .catch((err) => captureException(err))
       .finally(() => setLoadingStats(false));
   }, [isStaff]);
 

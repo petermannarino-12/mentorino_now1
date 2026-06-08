@@ -8,14 +8,22 @@ import { AuthProvider } from './contexts/AuthContext';
 import { PostHogProvider } from '@posthog/react';
 import posthog from 'posthog-js';
 import { initPostHog } from './lib/posthog';
-import { initSentry } from './lib/sentry';
+import { initSentry, captureException } from './lib/sentry';
 import { ErrorFallback } from './components/ErrorFallback';
 import { HelmetProvider } from 'react-helmet-async';
 
 initSentry();
 initPostHog();
 
+window.addEventListener('unhandledrejection', (event) => {
+  captureException(event.reason, { handler: 'unhandledrejection' });
+});
+window.addEventListener('error', (event) => {
+  captureException(event.error || event.message, { handler: 'onerror' });
+});
+
 function sentryFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+  captureException(error, { handler: 'outerErrorBoundary' });
   return <ErrorFallback error={error} resetError={resetErrorBoundary} />;
 }
 

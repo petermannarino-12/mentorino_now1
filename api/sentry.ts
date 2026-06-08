@@ -10,6 +10,7 @@ export async function captureException(error: unknown, extra?: Record<string, un
         dsn: process.env.VITE_SENTRY_DSN,
         tracesSampleRate: 0.1,
         environment: process.env.VERCEL_ENV || 'production',
+        release: process.env.VERCEL_GIT_COMMIT_SHA || 'dev',
       });
       sentryInitialized = true;
     } catch {

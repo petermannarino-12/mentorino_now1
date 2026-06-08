@@ -1,3 +1,4 @@
+import { captureException, captureMessage } from '../lib/sentry';
 import React, { useState } from 'react';
 import { User as UserIcon, Lock, Shield, CheckCircle2, LogOut, ArrowLeft, Info, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -32,10 +33,12 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onLogout, currentUser }) =>
 
         if (profileError) throw profileError;
 
+        captureMessage('Profile updated');
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
       }
     } catch (err: any) {
+      captureException(err);
       setNotification(err.message);
       setTimeout(() => setNotification(null), 5000);
     } finally {

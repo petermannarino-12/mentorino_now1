@@ -176,6 +176,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
     // Clear telemetry context
     setUser(null);
+    setSentryUser(null);
     posthog.reset();
   }, []);
 

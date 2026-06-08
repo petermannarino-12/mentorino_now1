@@ -1,3 +1,4 @@
+import { captureException, captureMessage } from '../lib/sentry';
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -163,11 +164,13 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
 
     try {
       await handleEventAttend(joiningEvent.id);
+      captureMessage('Event join request sent');
       setNotification(`Strategic request sent for ${joiningEvent.title}. Mentorino will be notified of your intent.`);
       setJoiningEvent(null);
       setJoinForm(prev => ({ ...prev, reason: '' }));
       setTimeout(() => setNotification(null), 4000);
     } catch (error) {
+      captureException(error);
       console.error('Failed to join event:', error);
     }
   };

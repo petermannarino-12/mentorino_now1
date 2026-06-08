@@ -1,3 +1,4 @@
+import { captureException, captureMessage } from '../lib/sentry';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
@@ -137,12 +138,14 @@ const GrowthForm = () => {
       });
       if (!res.ok) throw new Error('Failed to save');
     } catch (err: any) {
+      captureException(err);
       setIsSubmitting(false);
       toast.error('Failed to save. Please try again.');
       return;
     }
 
     setIsSubmitting(false);
+    captureMessage('Activity saved');
     setIsSuccess(true);
     setTimeout(() => {
       navigate('/dashboard');

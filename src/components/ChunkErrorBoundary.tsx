@@ -1,4 +1,5 @@
 import React, { Component, ReactNode } from 'react';
+import { captureException } from '../lib/sentry';
 
 interface Props {
   children: ReactNode;
@@ -25,6 +26,8 @@ export class ChunkErrorBoundary extends Component<Props, State> {
       /dynamically imported module/i.test(error.message) || 
       /failed to fetch/i.test(error.message) ||
       error.name === 'ChunkLoadError';
+
+    captureException(error, { handler: 'ChunkErrorBoundary', isChunkLoadError });
 
     if (isChunkLoadError) {
       console.warn('Chunk loading/dynamic import error detected. Forcing page refresh...');

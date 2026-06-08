@@ -1,3 +1,4 @@
+import { captureException, captureMessage } from '../lib/sentry';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, MessageSquare, Globe, ArrowRight, Loader2, CheckCircle2, ArrowLeft } from 'lucide-react';
@@ -30,8 +31,10 @@ const ContactPage: React.FC = () => {
       
       if (!response.ok) throw new Error('Message failure');
       
+      captureMessage('Contact form submitted');
       setSubmitted(true);
     } catch (error) {
+      captureException(error);
       console.error(error);
     } finally {
       setIsSubmitting(false);

@@ -1,4 +1,5 @@
 
+import { captureException, captureMessage } from '../lib/sentry';
 import React, { useState, useEffect } from 'react';
 import { 
   Users, 
@@ -236,9 +237,11 @@ Mentorino Support Team`;
   const handleUpdateApp = async (id: string, status: 'approved' | 'rejected') => {
     try {
       await onUpdateApp(id, status);
+      captureMessage(`Application ${status}`);
       setNotification(`Application ${status} successfully.`);
       setTimeout(() => setNotification(null), 3000);
     } catch (error) {
+      captureException(error);
       setNotification('Failed to update application.');
       setTimeout(() => setNotification(null), 3000);
     }

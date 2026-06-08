@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { captureException } from '../lib/sentry';
 import { Enquiry } from '../types';
 
 async function getToken() {
@@ -16,6 +17,7 @@ async function api(url: string, options?: RequestInit) {
     if (!res.ok) return { data: null, error: body.error || 'Request failed' };
     return { data: body, error: null };
   } catch (err: any) {
+    captureException(err, { handler: 'enquiryService.api', url });
     return { data: null, error: err.message || 'Network error' };
   }
 }

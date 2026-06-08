@@ -1,3 +1,5 @@
+import { captureException } from './sentry.js';
+
 let _supabaseAdmin: any = null;
 
 export async function getAuth() {
@@ -5,7 +7,11 @@ export async function getAuth() {
   const { createClient } = await import('@supabase/supabase-js');
   const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error(`Missing Supabase env vars: ${!url ? 'VITE_SUPABASE_URL' : ''} ${!key ? 'SUPABASE_SERVICE_ROLE_KEY' : ''}`);
+  if (!url || !key) {
+    const err = new Error(`Missing Supabase env vars: ${!url ? 'VITE_SUPABASE_URL' : ''} ${!key ? 'SUPABASE_SERVICE_ROLE_KEY' : ''}`);
+    captureException(err, { handler: 'getAuth' });
+    throw err;
+  }
   _supabaseAdmin = createClient(url, key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
@@ -26,6 +32,7 @@ export async function requireUser(request: Request): Promise<{ user: any }> {
   if (!user) {
     const err = new Error('Unauthorized');
     (err as any).status = 401;
+    captureException(err, { handler: 'requireUser' });
     throw err;
   }
   return { user };
@@ -38,6 +45,7 @@ export async function requireRole(request: Request, roles: string[]): Promise<{ 
   if (!profile || !roles.includes(profile.role!)) {
     const err = new Error('Forbidden');
     (err as any).status = 403;
+    captureException(err, { handler: 'requireRole', roles });
     throw err;
   }
   return { user };

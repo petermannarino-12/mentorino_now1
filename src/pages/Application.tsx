@@ -1,4 +1,5 @@
 
+import { captureException, captureMessage } from '../lib/sentry';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
@@ -93,8 +94,10 @@ const ApplicationPage: React.FC<ApplicationPageProps> = () => {
       if (result && result.error) {
         throw new Error(result.error);
       }
+      captureMessage('Application submitted');
       setIsSubmitted(true);
     } catch (error: any) {
+      captureException(error);
       notifyError(error.message || 'Failed to submit application. Please try again later.');
     } finally {
       setIsSubmitting(false);

@@ -1,3 +1,4 @@
+import { captureException, captureMessage } from '../../lib/sentry';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Users, X, Mail, Info, Loader2, Check, XCircle } from 'lucide-react';
@@ -39,7 +40,7 @@ export const MentorAccessRequests: React.FC = () => {
   useEffect(() => {
     fetchRequests()
       .then(setRequests)
-      .catch(() => toast.error('Failed to load access requests'))
+      .catch((err) => { captureException(err); toast.error('Failed to load access requests'); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -60,11 +61,13 @@ export const MentorAccessRequests: React.FC = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+      captureMessage(`Access ${action === 'grant' ? 'granted' : 'denied'}`);
       toast.success(`Access ${action === 'grant' ? 'granted' : 'denied'}`);
-      // Update local state
+
       setRequests(prev => prev.filter(r => r.id !== requestId));
       setSelected(null);
     } catch (err: any) {
+      captureException(err);
       toast.error(err.message || 'Failed');
     } finally {
       setActioningId(null);

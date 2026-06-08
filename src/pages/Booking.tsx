@@ -1,3 +1,4 @@
+import { captureException, captureMessage } from '../lib/sentry';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, ChevronLeft, ChevronRight, Check, ArrowLeft, Loader2 } from 'lucide-react';
@@ -76,11 +77,13 @@ const BookingPage: React.FC<BookingPageProps> = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ booking: { ...newBooking, user_email: currentUser.email } })
-      }).catch(() => {});
+      }).catch((err) => captureException(err));
 
+      captureMessage('Booking confirmed');
       setIsBooked(true);
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (error: any) {
+      captureException(error);
       notifyError(error.message || 'Failed to confirm booking.');
     } finally {
       setIsBooking(false);

@@ -1,3 +1,4 @@
+import { captureException, captureMessage } from '../../lib/sentry';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Calendar, Clock, X, AlertCircle } from 'lucide-react';
@@ -62,9 +63,11 @@ export const MentorSessions: React.FC<MentorSessionsProps> = ({ bookings, onStar
         body: JSON.stringify({ id, status: newStatus }),
       });
       if (!res.ok) throw new Error('Failed to update');
+      captureMessage(`Session status updated to ${newStatus}`);
       setNotification(`Session marked as ${newStatus}.`);
       setTimeout(() => setNotification(null), 3000);
     } catch (err) {
+      captureException(err);
       console.error('Failed to update session status:', err);
       setNotification('Failed to update session.');
       setTimeout(() => setNotification(null), 3000);

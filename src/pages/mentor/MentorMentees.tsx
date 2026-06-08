@@ -1,3 +1,4 @@
+import { captureException } from '../../lib/sentry';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, Filter, MessageSquare, MoreVertical, Trash2, Users, X, Target, CheckCircle2, Circle, Clock3, Loader2 } from 'lucide-react';
@@ -22,6 +23,7 @@ async function fetchStudentProfile(userId: string) {
     if (!res.ok) throw new Error('Failed to fetch profile');
     return await res.json();
   } catch (err) {
+    captureException(err);
     console.error('Failed to fetch student profile:', err);
     return null;
   }
