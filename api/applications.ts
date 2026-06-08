@@ -1,5 +1,5 @@
-import { getPrisma } from './prisma.js';
-import { getUserFromToken, getAuth } from './auth.js';
+import { getAuth } from './auth.js';
+import { captureException } from './sentry.js';
 
 const FROM_EMAIL = process.env.SENDER_EMAIL || 'peter@mentorino.me';
 const SITE_URL = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || process.env.URL || 'http://localhost:3000';
@@ -19,32 +19,28 @@ async function handleSubmit(request: Request) {
 
     const { user_email, mentor_type, status, id, created_at, ...responses } = application;
 
-    const upsertData = {
-      userEmail: email,
-      mentorType: application.mentor_type,
+    const seriousness = typeof application.seriousness === 'number' ? application.seriousness : 5;
+
+    const supabase = await getAuth();
+    const { error: upsertError } = await supabase.from('applications').upsert({
+      user_email: email,
+      mentor_type: application.mentor_type,
       status: 'pending',
-      userId: user?.id || null,
-      userName,
-      userPhone: sanitize(application.user_phone || ''),
-      meetingPreference: application.meeting_preference || 'Virtual',
+      user_id: user?.id || null,
+      user_name: userName,
+      user_phone: sanitize(application.user_phone || ''),
+      meeting_preference: application.meeting_preference || 'Virtual',
       frequency: application.frequency || '',
       goals: application.goals ? application.goals.slice(0, 2000) : '',
-      seriousness: application.seriousness || 5,
+      seriousness,
       responses: { ...responses },
-    };
+    }, { onConflict: 'user_email' });
 
-    await (await getPrisma()).applications.upsert({
-      where: { userEmail: email },
-      create: upsertData,
-      update: upsertData,
-    });
+    if (upsertError) throw upsertError;
 
     if (process.env.RESEND_API_KEY) {
       try {
-        const template = await (await getPrisma()).email_templates.findUnique({
-          where: { id: 'application_submitted' },
-        });
-        if (!template) console.error('Template not found: application_submitted');
+        const { data: template } = await supabase.from('email_templates').select('subject, body').eq('id', 'application_submitted').maybeSingle();
         const subject = template?.subject || 'Application Received - Mentorino';
         let body = template?.body || `Hi {{student_name}},<br><br>We have successfully received your application. Our team is currently reviewing it, and we will get back to you within 48 hours.<br><br>Best,<br>Mentorino Team`;
         body = body
@@ -83,6 +79,7 @@ async function handleSubmit(request: Request) {
 
     return Response.json({ message: "Application submitted successfully" });
   } catch (error: any) {
+    captureException(error, { handler: 'handleSubmit' });
     console.error("Submission Error:", error);
     return Response.json({ error: "Failed to submit application. Please try again later." }, { status: 500 });
   }
@@ -93,13 +90,12 @@ async function handleCheck(request: Request) {
     const { email } = await request.json();
     if (!email) return Response.json({ error: "Missing email" }, { status: 400 });
 
-    const application = await (await getPrisma()).applications.findFirst({
-      where: { userEmail: email.toLowerCase().trim() },
-      select: { status: true },
-    });
+    const supabase = await getAuth();
+    const { data: application } = await supabase.from('applications').select('status').eq('user_email', email.toLowerCase().trim()).maybeSingle();
 
     return Response.json({ is_approved: application?.status === "approved" });
   } catch (error: any) {
+    captureException(error, { handler: 'handleCheck' });
     console.error("check-application Error:", error);
     return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
   }
@@ -112,10 +108,7 @@ async function handleDelete(request: Request) {
 
     const supabase = await getAuth();
 
-    const profile = await (await getPrisma()).profiles.findUnique({
-      where: { id: user.id },
-      select: { role: true },
-    });
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
     if (!profile || !["admin", "mentor"].includes(profile.role!)) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -124,26 +117,21 @@ async function handleDelete(request: Request) {
     const id = url.searchParams.get("id");
     if (!id) return Response.json({ error: "Missing ID" }, { status: 400 });
 
-    const application = await (await getPrisma()).applications.findUnique({
-      where: { id },
-      select: { userEmail: true },
-    });
+    const { data: application } = await supabase.from('applications').select('user_email').eq('id', id).maybeSingle();
     if (!application) return Response.json({ error: "Application not found" }, { status: 404 });
 
-    const targetEmail = application.userEmail.toLowerCase().trim();
-    const targetProfile = await (await getPrisma()).profiles.findFirst({
-      where: { email: targetEmail },
-      select: { id: true },
-    });
+    const targetEmail = application.user_email.toLowerCase().trim();
+    const { data: targetProfile } = await supabase.from('profiles').select('id').eq('email', targetEmail).maybeSingle();
     if (targetProfile) {
       const { error: authDeleteError } = await supabase.auth.admin.deleteUser(targetProfile.id);
       if (authDeleteError) console.error("Auth Delete Error:", authDeleteError);
     }
 
-    await (await getPrisma()).applications.delete({ where: { id } });
+    await supabase.from('applications').delete().eq('id', id);
 
     return Response.json({ message: "Mentee and application deleted successfully" });
   } catch (error: any) {
+    captureException(error, { handler: 'handleDelete' });
     console.error("Delete Error:", error);
     return Response.json({ error: error.message || "Failed to delete application" }, { status: 500 });
   }
@@ -154,10 +142,9 @@ async function handleUpdateStatus(request: Request) {
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    const profile = await (await getPrisma()).profiles.findUnique({
-      where: { id: user.id },
-      select: { role: true, fullName: true },
-    });
+    const supabase = await getAuth();
+
+    const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).maybeSingle();
     if (!profile || !['admin', 'mentor'].includes(profile.role!)) {
       return Response.json({ error: "Forbidden: Insufficient privileges" }, { status: 403 });
     }
@@ -167,32 +154,25 @@ async function handleUpdateStatus(request: Request) {
       return Response.json({ error: "Invalid parameters" }, { status: 400 });
     }
 
-    const application = await (await getPrisma()).applications.findUnique({
-      where: { id },
-      select: { userEmail: true, mentorType: true, responses: true },
-    });
+    const { data: application } = await supabase.from('applications').select('user_email, mentor_type, responses').eq('id', id).maybeSingle();
     if (!application) return Response.json({ error: "Application not found" }, { status: 404 });
 
-    const updated = await (await getPrisma()).applications.update({
-      where: { id },
-      data: {
-        status,
-        approvedBy: status === 'approved' ? user.id : null,
-      },
-    });
+    const { error: updateError, data: updated } = await supabase.from('applications').update({
+      status,
+      approved_by: status === 'approved' ? user.id : null,
+    }).eq('id', id).select().single();
+
+    if (updateError) throw updateError;
 
     if (process.env.RESEND_API_KEY && (status === 'approved' || status === 'rejected')) {
       try {
         const templateId = status === 'approved' ? 'application_accepted' : 'application_rejected';
         const responses = application.responses as Record<string, any> | null;
         const studentName = responses?.user_name || 'Applicant';
-        const mentorName = profile.fullName || 'Mentorino';
-        const programName = application.mentorType || responses?.mentor_type || 'the Mentorino program';
+        const mentorName = profile.full_name || 'Mentorino';
+        const programName = application.mentor_type || responses?.mentor_type || 'the Mentorino program';
 
-        const template = await (await getPrisma()).email_templates.findUnique({
-          where: { id: templateId },
-        });
-        if (!template) console.error('Template not found:', templateId);
+        const { data: template } = await supabase.from('email_templates').select('subject, body').eq('id', templateId).maybeSingle();
 
         let subject = template?.subject || (status === 'approved'
           ? 'Welcome to Mentorino — Your Application Has Been Accepted!'
@@ -210,7 +190,7 @@ async function handleUpdateStatus(request: Request) {
         const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
           from: `Mentorino <${FROM_EMAIL}>`,
-          to: application.userEmail,
+          to: application.user_email,
           bcc: process.env.ADMIN_EMAIL || 'peter@mentorino.me',
           subject: subject,
           html: body,
@@ -222,14 +202,15 @@ async function handleUpdateStatus(request: Request) {
 
     return Response.json({
       id: updated.id,
-      user_email: updated.userEmail,
-      mentor_type: updated.mentorType,
+      user_email: updated.user_email,
+      mentor_type: updated.mentor_type,
       status: updated.status,
-      created_at: updated.createdAt,
+      created_at: updated.created_at,
       responses: updated.responses,
-      approved_by: updated.approvedBy,
+      approved_by: updated.approved_by,
     });
   } catch (error: any) {
+    captureException(error, { handler: 'handleUpdateStatus' });
     console.error("Update Status Error:", error);
     return Response.json({ error: "Failed to update status." }, { status: 500 });
   }
@@ -240,50 +221,38 @@ async function handleGetMyApplication(request: Request) {
     const user = await getUserFromToken(request);
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    const profile = await (await getPrisma()).profiles.findUnique({
-      where: { id: user.id },
-      select: { email: true },
-    });
+    const supabase = await getAuth();
+
+    const { data: profile } = await supabase.from('profiles').select('email').eq('id', user.id).maybeSingle();
     if (!profile || !profile.email) {
       return Response.json({ application: null });
     }
 
-    const app = await (await getPrisma()).applications.findFirst({
-      where: { userEmail: profile.email.toLowerCase().trim() },
-      select: {
-        id: true,
-        userEmail: true,
-        mentorType: true,
-        status: true,
-        userName: true,
-        goals: true,
-        userId: true,
-        approvedBy: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    const { data: app } = await supabase.from('applications')
+      .select('id, user_email, mentor_type, status, user_name, goals, user_id, approved_by, created_at')
+      .eq('user_email', profile.email.toLowerCase().trim())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    if (!app || app.status !== 'approved' || !app.approvedBy) {
+    if (!app || app.status !== 'approved' || !app.approved_by) {
       return Response.json({ application: null });
     }
 
-    const mentorProfile = await (await getPrisma()).profiles.findUnique({
-      where: { id: app.approvedBy },
-      select: { id: true, fullName: true, email: true },
-    });
+    const { data: mentorProfile } = await supabase.from('profiles').select('id, full_name, email').eq('id', app.approved_by).maybeSingle();
 
     return Response.json({
       application: {
         ...app,
         mentor: mentorProfile ? {
           id: mentorProfile.id,
-          name: mentorProfile.fullName || 'Mentor',
+          name: mentorProfile.full_name || 'Mentor',
           email: mentorProfile.email,
         } : null,
       },
     });
   } catch (error: any) {
+    captureException(error, { handler: 'handleGetMyApplication' });
     console.error("get-my-application error:", error);
     return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
   }
@@ -291,15 +260,19 @@ async function handleGetMyApplication(request: Request) {
 
 async function handleProgramStats() {
   try {
-    const rows: { mentor_type: string; count: bigint }[] = await (await getPrisma()).$queryRawUnsafe(
-      `SELECT mentor_type, COUNT(*)::int as count FROM public.applications GROUP BY mentor_type ORDER BY mentor_type`
-    );
-    const stats: { mentor_type: string; count: number }[] = (rows || []).map(r => ({
-      mentor_type: r.mentor_type || 'unspecified',
-      count: Number(r.count),
-    }));
+    const supabase = await getAuth();
+    const { data: rows } = await supabase.from('applications').select('mentor_type');
+
+    const counts: Record<string, number> = {};
+    for (const row of rows || []) {
+      const mt = row.mentor_type || 'unspecified';
+      counts[mt] = (counts[mt] || 0) + 1;
+    }
+    const stats = Object.entries(counts).map(([mentor_type, count]) => ({ mentor_type, count }));
+
     return Response.json({ programs: stats });
   } catch (error: any) {
+    captureException(error, { handler: 'handleProgramStats' });
     console.error("program-stats Error:", error);
     return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
   }
@@ -336,4 +309,13 @@ export async function GET(request: Request) {
   const handler = router(from, request);
   if (handler) return handler;
   return Response.json({ error: "Not found" }, { status: 404 });
+}
+
+async function getUserFromToken(request: Request) {
+  const token = request.headers.get('authorization')?.split(' ')[1];
+  if (!token) return null;
+  const supabase = await getAuth();
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user) return null;
+  return user;
 }
