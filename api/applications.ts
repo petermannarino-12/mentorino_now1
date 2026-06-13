@@ -158,10 +158,15 @@ async function handleUpdateStatus(request: Request) {
     if (!application) return Response.json({ error: "Application not found" }, { status: 404 });
 
     const updateData: Record<string, any> = { status };
-    if (status === 'approved') updateData.approved_by = user.id;
+    if (status === 'approved') {
+      updateData.approved_by = user.id;
+    } else {
+      updateData.approved_by = null;
+    }
     const { error: updateError, data: updated } = await supabase.from('applications').update(updateData).eq('id', id).select().single();
 
     if (updateError) throw updateError;
+    if (!updated) return Response.json({ error: "Application not found during update" }, { status: 404 });
 
     if (process.env.RESEND_API_KEY && (status === 'approved' || status === 'rejected')) {
       try {
@@ -211,7 +216,12 @@ async function handleUpdateStatus(request: Request) {
   } catch (error: any) {
     captureException(error, { handler: 'handleUpdateStatus' });
     console.error("Update Status Error:", error);
-    return Response.json({ error: "Failed to update status." }, { status: 500 });
+    const message = error?.message?.includes("PGRST116")
+      ? "Application not found"
+      : error?.message?.includes("Missing Supabase env vars")
+        ? "Server configuration error"
+        : "Failed to update status.";
+    return Response.json({ error: message }, { status: 500 });
   }
 }
 
@@ -228,17 +238,21 @@ async function handleGetMyApplication(request: Request) {
     }
 
     const { data: app } = await supabase.from('applications')
-      .select('id, user_email, mentor_type, status, user_name, goals, user_id, approved_by, created_at')
+      .select('id, user_email, mentor_type, status, user_name, goals, user_id, created_at')
       .eq('user_email', profile.email.toLowerCase().trim())
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    if (!app || app.status !== 'approved' || !app.approved_by) {
+    if (!app || app.status !== 'approved') {
       return Response.json({ application: null });
     }
 
-    const { data: mentorProfile } = await supabase.from('profiles').select('id, full_name, email').eq('id', app.approved_by).maybeSingle();
+    let mentorProfile = null;
+    if (app.approved_by) {
+      const { data: mp } = await supabase.from('profiles').select('id, full_name, email').eq('id', app.approved_by).maybeSingle();
+      mentorProfile = mp;
+    }
 
     return Response.json({
       application: {

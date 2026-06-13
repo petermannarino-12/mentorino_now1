@@ -272,7 +272,13 @@ const mockApi = (env: Record<string, string>) => ({
               const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
               const { data: appData, error: fetchError } = await supabase.from('applications').select('user_email, responses').eq('id', id).single();
               if (fetchError || !appData) { res.statusCode = 404; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ error: "Application not found" })); return; }
-              const { error: updateError } = await supabase.from('applications').update({ status }).eq('id', id);
+               const updateData: Record<string, any> = { status };
+               if (status === 'approved') {
+                 updateData.approved_by = undefined;
+               } else {
+                 updateData.approved_by = null;
+               }
+               const { error: updateError } = await supabase.from('applications').update(updateData).eq('id', id);
               if (updateError) throw updateError;
               if (env.RESEND_API_KEY && (status === 'approved' || status === 'rejected')) {
                 try {

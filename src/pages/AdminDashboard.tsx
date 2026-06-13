@@ -175,28 +175,40 @@ Mentorino Support Team`;
     setAppInsights(prev => ({ ...prev, [app.id]: { ...insight, loading: false } }));
   };
 
-  const handleApprove = (app: Application) => {
-    onUpdateApp(app.id, 'approved');
-    const points = comment ? `Mentorino's Review Comments:\n${comment}\n` : '';
-    const emailBody = ACCEPT_EMAIL_TEMPLATE
-      .replace('{name}', app.user_name)
-      .replace('{review_points}', points);
-      
+  const handleApprove = async (app: Application) => {
+    try {
+      await onUpdateApp(app.id, 'approved');
+      captureMessage(`Application approved`);
+      const points = comment ? `Mentorino's Review Comments:\n${comment}\n` : '';
+      const emailBody = ACCEPT_EMAIL_TEMPLATE
+        .replace('{name}', app.user_name)
+        .replace('{review_points}', points);
+      showNotification(`Application approved. Email sent to ${app.user_email}:\n\n${emailBody}`);
+    } catch (error) {
+      captureException(error);
+      setNotification('Failed to approve application.');
+      setTimeout(() => setNotification(null), 4000);
+    }
     setSelectedApp(null);
     setComment('');
-    showNotification(`OFFICIAL EMAIL SENT TO ${app.user_email}:\n\n${emailBody}`);
   };
 
-  const handleReject = (app: Application) => {
-    onUpdateApp(app.id, 'rejected');
-    const points = comment ? `Review Feedback:\n${comment}\n` : '';
-    const emailBody = REJECT_EMAIL_TEMPLATE
-      .replace('{name}', app.user_name)
-      .replace('{review_points}', points);
-
+  const handleReject = async (app: Application) => {
+    try {
+      await onUpdateApp(app.id, 'rejected');
+      captureMessage(`Application rejected`);
+      const points = comment ? `Review Feedback:\n${comment}\n` : '';
+      const emailBody = REJECT_EMAIL_TEMPLATE
+        .replace('{name}', app.user_name)
+        .replace('{review_points}', points);
+      showNotification(`Application rejected. Email sent to ${app.user_email}:\n\n${emailBody}`);
+    } catch (error) {
+      captureException(error);
+      setNotification('Failed to reject application.');
+      setTimeout(() => setNotification(null), 4000);
+    }
     setSelectedApp(null);
     setComment('');
-    showNotification(`OFFICIAL EMAIL SENT TO ${app.user_email}:\n\n${emailBody}`);
   };
 
   const handleAiChat = async (presetMsg?: string) => {
@@ -232,19 +244,6 @@ Mentorino Support Team`;
       window.open('https://meet.google.com/new', '_blank');
       setNotification(null);
     }, 2000);
-  };
-
-  const handleUpdateApp = async (id: string, status: 'approved' | 'rejected') => {
-    try {
-      await onUpdateApp(id, status);
-      captureMessage(`Application ${status}`);
-      setNotification(`Application ${status} successfully.`);
-      setTimeout(() => setNotification(null), 3000);
-    } catch (error) {
-      captureException(error);
-      setNotification('Failed to update application.');
-      setTimeout(() => setNotification(null), 3000);
-    }
   };
 
   const handleSendBroadcast = () => {

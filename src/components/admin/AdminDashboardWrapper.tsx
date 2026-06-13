@@ -34,8 +34,8 @@ const AdminDashboardWrapper: React.FC<AdminDashboardWrapperProps> = ({
   const deleteEventMutation = useDeleteEventMutation();
   const updateEnquiryStatusMutation = useUpdateEnquiryStatusMutation();
 
-  const handleUpdateApp = useCallback((id: string, status: 'approved' | 'rejected' | 'pending' | 'deleted') => {
-    updateAppMutation.mutate({ id, status });
+  const handleUpdateApp = useCallback(async (id: string, status: 'approved' | 'rejected' | 'pending' | 'deleted') => {
+    await updateAppMutation.mutateAsync({ id, status });
   }, [updateAppMutation]);
 
   const handleDeleteApp = useCallback((id: string) => {
